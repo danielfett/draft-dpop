@@ -3,7 +3,6 @@
 
 # Concept
 
-The mechanism defined by this document works as follows:
 
 !---
 ~~~ ascii-art
@@ -15,24 +14,28 @@ The mechanism defined by this document works as follows:
 |        |
 |        |                               +---------------+
 |        |--(C)-- Token Request -------->|               |
-| Client |       (req_cnf)               | Authorization |
+| Client |        (req_cnf)              | Authorization |
 |        |                               |     Server    |
 |        |<-(D)-- PoP Access Token ------|               |
-|        |       (token_type=pop)        +---------------+
-|        |        PoP Refresh Token
+|        |        (token_type=pop)       +---------------+
+|        |        PoP Refresh Token for public clients
+|        | 
 |        |                               +---------------+
-|        |--(E)-- PoP Refresh Token ---->|               |
-|        |   (with proof of private key) | Authorization |
-|        |                               |     Server    |
-|        |<-(F)-- PoP Access Token ------|               |
-|        |       (token_type=pop)        +---------------+
-|        |
-|        |                               +---------------+
-|        |--(G)-- PoP Access Token ----->|               |
+|        |--(E)-- PoP Access Token ----->|               |
 |        |   (with proof of private key) |    Resource   |
 |        |                               |     Server    |
-|        |<-(H)--- Protected Resource ---|               |
-+--------+                               +---------------+
+|        |<-(F)--- Protected Resource ---|               |
+|        |                               +---------------+
+|        |
+|        | public client refresh token usage:
+|        |                               +---------------+
+|        |--(G)-- PoP Refresh Token ---->|               |
+|        |   (with proof of private key) | Authorization |
+|        |                               |     Server    |
+|        |<-(H)-- PoP Access Token ------|               |
+|        |       (token_type=pop)        +---------------+
+|        |
++--------+
 ~~~
 !---
 Figure 1: Basic DPoP Flow
@@ -41,44 +44,38 @@ The new elements introduced by this specification are shown in Figure 1:
 
   * In the Token Request (C), the client proves the possession of a
     private key belonging to some public key by using the private key
-    to sign the authorization code. The matching public key is either
-    sent in the same request (for public or confidential clients) or
-    available to the AS and RS via a JWKS URI registered during the
-    client registration (for confidential clients).
+    to sign the authorization code. The matching public key is sent in
+    the same request.
   * The AS binds (sender-constrains) the access token to the public
     key claimed by the client; that is, the access token cannot be
     used without proving possession of the respective private key.
     This is signalled to the client by using the `token_type` value
     `pop` (for proof-of-possession). If a refresh token is issued to
-    the client, it is sender-constrained in the same way.
-  * If the client wants to use the refresh token (E) or the access
-    token (G), it has to prove possession of the private key by
-    signing a message containing the respective token, the endpoint
-    URL, and the request method. This signature is provided as a
-    signed JWT.
+    the client, it is sender-constrained in the same way if the client
+    is a public client and thus is not able to authenticate requests
+    to the token endpoint.
+  * If the client wants to use the access token (E) or the (public)
+    client wants to use a refresh token, the client has to prove
+    possession of the private key by signing a message containing the
+    respective token, the endpoint URL, and the request method. This
+    signature is provided as a signed JWT.
   * In the case of the refresh token, the AS can immediately check
     that the JWT was signed using the matching private key claimed in
     request (C). 
-  * In the case of the access token, the resource server needs receive
-    information about which public key to check against (either a key
-    value or a JWK URI, depending on the option chosen in the token
-    request). This information is either encoded directly into the
-    access token, for JWT structured access tokens, or at the token
+  * In the case of the access token, the resource server needs to
+    receive information about which public key to check against. This
+    information is either encoded directly into the access token, for
+    JWT structured access tokens, or provided at the token
     introspection endpoint of the authorization server (request not
     shown).
 
 # Token Request (Binding Public Keys)
-For binding a public key in the token request, there are two options:
-direct binding (client provides public key and proves the possession
-of the private key) or indirect binding (client proves possession of a
-private key contained in the client's JWKS provided at client
-registration time. 
 
-Direct binding is available to all types of clients, indirect
-binding is only available to confidential clients.
+To bind a public key in the token request, the client provides public
+key and proves the possession of the corresponding private key.
 
-In both cases, the client makes the following HTTPS request (extra
-line breaks are for display purposes only):
+To this end, the client makes the following HTTPS request (extra line
+breaks are for display purposes only):
 
 
 !---
@@ -101,15 +98,8 @@ Figure 2: Token Request for a DPoP bound token.
 [ How do we indicate DPoP? token type? ]
 
 The parameter `req_cnf` contains a JWT signed using the asymmetric key
-chosen by the client. The contents of the JWT contained in `req_cnf`
-are different for direct binding and indirect binding, as described
-in the following.
-
-## Direct Binding
-
-In this case, the client choses a fresh asymmetric key pair before
-issuing the token request. It then adds the public key to the
-header of the `req_cnf` JWT.
+chosen by the client. The JWT contains the `code` value. The header of
+the JWT contains the public key chosen by the client:
 
 !---
 ```
@@ -130,32 +120,13 @@ header of the `req_cnf` JWT.
 !---
 Figure 3: JWT for `req_cnf` parameter with direct binding.
 
-[ Do we want to allow `jku` here? ]
-## Indirect Binding
-
-In this case, the client choses a key from its published JWK key set
-available at the URL that the client registered during client
-registration with the AS. The JWT refers to this key using the `kid`
-claim in the header of the JWT.
-
-!---
-```
-{
-    "kid" : h'11',
-}.{
-    "code": "SplxlOBeZQQYbYS6WxSbIA"
-}
-```
-!---
-Figure 4: JWT for `req_cnf` parameter with indirect binding.
-
-[ Is this a valid usage for `kid`? ]
-
-
 # Resource Access (Proof of Possession for Access Tokens)
 
-Create JWT:
+To prove the possession of the private key when using the access
+token, the client creates a JWT as shown in Figure 4 and signs it
+using the previously chosen private key.
 
+!---
 ```
 {
     "typ": "pop+jwt",
@@ -168,21 +139,29 @@ Create JWT:
     "exp": "...",
 }
 ```
-    
-`at_hash` like in OIDC.
+!---
+Figure 4: Proof-of-Possession JWT 
 
-Send this JWT in `cnf` header?
+This JWT contains the following fields:
 
-## Public Key Confirmation with Direct Binding
+ * `at_hash`: [access token hash as in OIDC]
+ * `http_method`: The HTTP method used for the resource access
+ * `http_uri`: The HTTP URI used for the resource access
+ * `exp`: Expiration time of the JWT. The lifetime should be short.
+
+The signed JWT is then sent in the `Authorization-Confirmation` HTTP
+header. [ Can we come up with a better header name? ]
+
+## Public Key Confirmation 
 
 When access tokens are represented as JSON Web Tokens (JWT)[RFC7519],
 information about the DPoP public key SHOULD be represented using the
-`dpop:jwk` confirmation method member defined herein.
+`jwk+dpop` confirmation method member defined herein.
 
 ```
 {
     "iss": "https://server.example.com",
-    "sub": "ty.webb@example.com",
+    "sub": "something@example.com",
     "exp": 1493726400,
     "nbf": 1493722800,
     "cnf":{
@@ -200,15 +179,10 @@ information about the DPoP public key SHOULD be represented using the
 When access token introspection is used, the same `cnf` claim as above
 is contained in the introspection response.
 
-## Public Key Confirmation with Indirect Binding
-
-[ Two options: include JWK URI and kid into a claim `dpop:jwk_uri`; or copy the whole key into `cnf` claim ]
-
-[ Advantage of the second option: it is harder or impossible to exchange the key on the server ]
 
 # Acknowledgements {#Acknowledgements}
       
-We would like to thank [...] for their valuable feedback.
+We would like to thank Torsten Lodderstedt, [...] for their valuable feedback.
     
 
 # IANA Considerations {#IANA}
@@ -220,7 +194,6 @@ We would like to thank [...] for their valuable feedback.
       
 [ todo ]
 
-  * The contents of JWK URIs might change; the key for which the possession is proven in the token request might not be the same against which the AT is later checked.
   * AS/RS MUST check `typ` in JWTs!
   * Actually sender-constraining access tokens (or any token which is not one-time use) without introducing a state is not possible.
   * Using time for AT pop token enables precomputing attacks
