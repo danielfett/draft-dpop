@@ -67,16 +67,21 @@ The new elements introduced by this specification are shown in Figure 1:
     introspection endpoint of the authorization server (request not
     shown).
 
-# Key Transport Public Client to AS
+# Token Request (Binding Public Keys)
+For binding a public key in the token request, there are two options:
+direct binding (client provides public key and proves the possession
+of the private key) or indirect binding (client proves possession of a
+private key contained in the client's JWKS provided at client
+registration time. 
 
-This example illustrates the case where an access token (and possibly
-a refresh token) shall be bound to an asymmetric key. First, the
-clients choses a fresh asymmetric key pair. Then, the client makes the
-following HTTPS request (extra line breaks are for display purposes
-only):
+Direct binding is available to all types of clients, indirect
+binding is only available to confidential clients.
+
+In both cases, the client makes the following HTTPS request (extra
+line breaks are for display purposes only):
 
 
-!--
+!---
 ~~~
 POST /token HTTP/1.1
 Host: server.example.com
@@ -90,13 +95,26 @@ grant_type=authorization_code
 &req_cnf=eyJhbGciOiJSU0ExXzUi ...
 (remainder of JWK omitted for brevity)
 ~~~
+!---
+Figure 2: Token Request for a DPoP bound token.
 
-[ How do we indicate DPoP? ]
+[ How do we indicate DPoP? token type? ]
 
-The `req_cnf` parameter contains a JWT with the following contents:
+The parameter `req_cnf` contains a JWT signed using the asymmetric key
+chosen by the client. The contents of the JWT contained in `req_cnf`
+are different for direct binding and indirect binding, as described
+in the following.
 
+## Direct Binding
+
+In this case, the client choses a fresh asymmetric key pair before
+issuing the token request. It then adds the public key to the
+header of the `req_cnf` JWT.
+
+!---
 ```
 {
+    "typ": "pop+jwt",
     "jwk": {
          "kty" : "EC",
          "kid" : h'11',
@@ -109,17 +127,35 @@ The `req_cnf` parameter contains a JWT with the following contents:
     "code": "SplxlOBeZQQYbYS6WxSbIA"
 }
 ```
+!---
+Figure 3: JWT for `req_cnf` parameter with direct binding.
 
-It is signed using the asymmetric key chosen by the client. The key
-itself is contained in the header of the JWT.
+[ Do we want to allow `jku` here? ]
+## Indirect Binding
 
-# Key Transport Confidential Client to AS
+In this case, the client choses a key from its published JWK key set
+available at the URL that the client registered during client
+registration with the AS. The JWT refers to this key using the `kid`
+claim in the header of the JWT.
 
-Can either use the above, or register a JWKS URI for that purpose.
+!---
+```
+{
+    "kid" : h'11',
+}.{
+    "code": "SplxlOBeZQQYbYS6WxSbIA"
+}
+```
+!---
+Figure 4: JWT for `req_cnf` parameter with indirect binding.
 
-# Proof of Possession for Access Tokens
+[ Is this a valid usage for `kid`? ]
+
+
+# Resource Access (Proof of Possession for Access Tokens)
 
 Create JWT:
+
 ```
 {
     "typ": "pop+jwt",
@@ -137,13 +173,11 @@ Create JWT:
 
 Send this JWT in `cnf` header?
 
-# JWT DPoP Public Key Confirmation Method
+## Public Key Confirmation with Direct Binding
 
 When access tokens are represented as JSON Web Tokens (JWT)[RFC7519],
 information about the DPoP public key SHOULD be represented using the
 `dpop:jwk` confirmation method member defined herein.
-
-[ for confidential clients: `dpop:jwk_uri` ]
 
 ```
 {
@@ -163,6 +197,15 @@ information about the DPoP public key SHOULD be represented using the
 }
 ```
 
+When access token introspection is used, the same `cnf` claim as above
+is contained in the introspection response.
+
+## Public Key Confirmation with Indirect Binding
+
+[ Two options: include JWK URI and kid into a claim `dpop:jwk_uri`; or copy the whole key into `cnf` claim ]
+
+[ Advantage of the second option: it is harder or impossible to exchange the key on the server ]
+
 # Acknowledgements {#Acknowledgements}
       
 We would like to thank [...] for their valuable feedback.
@@ -177,8 +220,8 @@ We would like to thank [...] for their valuable feedback.
       
 [ todo ]
 
-      
-      
+  * The contents of JWK URIs might change; the key for which the possession is proven in the token request might not be the same against which the AT is later checked.
+  * AS/RS MUST check `typ` in JWTs!
   * Actually sender-constraining access tokens (or any token which is not one-time use) without introducing a state is not possible.
   * Using time for AT pop token enables precomputing attacks
   * mTLS stronger against intercepted connections
