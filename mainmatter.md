@@ -1,6 +1,19 @@
 
 {{introduction.md}}
 
+# Main Objective {#Objective_Replay_Different_Endpoint}
+
+Under the attacker model defined in [@I-D.ietf-oauth-security-topics],
+the mechanism defined by this specification tries to ensure **token
+replay at a different endpoint is prevented**.
+
+More precisely, if an adversary is able to get hold of an access token
+because it set up a counterfeit authorization server or resource
+server, the adversary is not able to replay the respective access
+token at another authorization or resource server.
+
+Secondary objectives are discussed in (#Security).
+
 # Concept
 
 !---
@@ -292,7 +305,12 @@ Web Signature and Encryption Type Values registry [@RFC7515]:
 
 
 # Security Considerations {#Security}
-      
+
+The [Prevention of Token Replay at a Different
+Endpoint](#Objective_Replay_Different_Endpoint) is achieved through
+the binding of the DPoP JWT to a certain URI and HTTP method.
+
+
 [ todo ]
 
   * Token replay detection via jti, see RFC 7253, common state on AS
@@ -302,16 +320,23 @@ Web Signature and Encryption Type Values registry [@RFC7515]:
   * mTLS stronger against intercepted connections
   * is not a client auth method; designed for any client auth method; compatible with `private_key_jwt`
 
-## Token Replay
+## Token Replay at the same authorization server
 
-If an adversary is able to get hold of a DPoP-Proof JWT or a
-DPoP-Binding JWT, the adversary could replay that token later at the
-same endpoint (the HTTP endpoint and method are enforced via the
-respective claims in the JWTs). To prevent this, clients MUST limit
-the lifetime of the JWTs, preferably to a brief period. Furthermore,
-the `jti` claim in each JWT MUST contain a unique (incrementing or
-randomly chosen) value, as proposed in [@!RFC7253]. Authorization
-servers and resource servers SHOULD store values at least for the
+If an adversary is able to get hold of an DPoP-Binding JWT, it might
+replay it at the authorization server's token endpoint with the same
+or different payload. The issued access token is useless as long as
+the adversary does not get hold of a valid DPoP-Binding JWT for the
+corresponding resource server.
+
+## Token Replay at the same resource server endpoint
+
+If an adversary is able to get hold of a DPoP-Proof JWT, the adversary
+could replay that token later at the same endpoint (the HTTP endpoint
+and method are enforced via the respective claims in the JWTs). To
+prevent this, clients MUST limit the lifetime of the JWTs, preferably
+to a brief period. Furthermore, the `jti` claim in each JWT MUST
+contain a unique (incrementing or randomly chosen) value, as proposed
+in [@!RFC7253]. Resource servers SHOULD store values at least for the
 lifetime of the respective JWT and decline HTTP requests by clients if
 a `jti` value has been seen before.
 
