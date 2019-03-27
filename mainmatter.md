@@ -73,9 +73,9 @@ The new elements introduced by this specification are shown in Figure 1:
 # Token Request (Binding Tokens to a Public Key)
 
 To bind an tokens to a public key in the token request, the client
-provides the public key and proves the possession of the corresponding
-private key. To this end, the client makes the following HTTPS request
-(extra line breaks are for display purposes only):
+MUST provide a public key and prove the possession of the
+corresponding private key. The following HTTPS request illustrates the
+protocol for this (extra line breaks are for display purposes only):
 
 
 !---
@@ -97,12 +97,14 @@ Figure 2: Token Request for a DPoP bound token.
 
 [ Maybe use different `token_type` value? ]
 
-The header `DPoP-Binding` contains a JWT signed using the asymmetric
-key chosen by the client. The header of the JWT MUST contain the following fields:
+The header `DPoP-Binding` MUST contain a JWT signed using the
+asymmetric key chosen by the client. The header of the JWT MUST
+contain the following fields:
 
- * `typ`: MUST be `dpop-binding+jwt`
- * `jwk`: The public key chosen by the client, in JWK format.
- 
+ * `typ`: The string `dpop-binding+jwt` (REQUIRED).
+ * `jwk`: The public key chosen by the client, in JWK format
+   (REQUIRED).
+
 The body of the JWT contains the following fields:
 
  * `http_method`: The HTTP method used for the request (REQUIRED).
@@ -135,7 +137,8 @@ An example JWT is shown in Figure 3.
 !---
 Figure 3: Example JWT for `DPoP-Binding` header.
 
-If the authorization server receives a `DPoP-Binding` header in a token request, the authorization server MUST check that 
+If the authorization server receives a `DPoP-Binding` header in a
+token request, the authorization server MUST check that
 
  * the header value is a well-formed JWT,
  * all required claims are contained in the JWT,
@@ -150,14 +153,16 @@ If the authorization server receives a `DPoP-Binding` header in a token request,
  * if replay protection is desired, that a JWT with the same `jti`
    value has not been received previously.
 
-If these checks are successful, the authorization server associates
-(Token Binds) the access token with the public key.
+If these checks are successful, the authorization server MUST
+associate (Token Bind) the access token with the public key.
 
 # Resource Access (Proof of Possession for Access Tokens)
 
-To prove the possession of the private key when using the access
-token, the client creates a JWT as shown in Figure 4 and signs it
-using the previously chosen private key.
+To make use of an access token that is token bound to a public key
+using DPoP, a client MUST prove the possession of the corresponding
+private key. More precisely, the client MUST create a JWT (example
+shown in Figure 4) and sign it using the previously chosen private
+key.
 
 !---
 ```
@@ -179,7 +184,7 @@ The header of this JWT MUST contain a `typ` claim with the value
 `dpop-proof+jwt`. For the body, the same field names and semantics as
 in the `DPoP-Binding` JWT are used.
 
-The signed JWT is then sent in the `DPoP-Proof` HTTP header.
+The signed JWT MUST then be sent in the `DPoP-Proof` HTTP header.
 
 # Refresh Token Usage (Proof of Possession for Refresh Tokens)
 
@@ -188,10 +193,13 @@ possession in the same way as for access tokens.
 
 # Public Key Confirmation 
 
-When access tokens are represented as JSON Web Tokens
-(JWT)[@!RFC7519], information about the DPoP public key SHOULD be
-contained in the tokens. The public key is contained in JWK format in
-a member `dpop+jwk` of the `cnf` claim.
+To enable resource servers to check the binding of access tokens to
+public keys, access tokens that are represented as JSON Web Tokens
+(JWT)[@!RFC7519] SHOULD contain information about the DPoP public key
+as described in the following.
+
+The public key is contained in JWK format in a member `dpop+jwk` of
+the `cnf` claim.
 
 ```
 {
@@ -212,7 +220,7 @@ a member `dpop+jwk` of the `cnf` claim.
 ```
 
 When access token introspection is used, the same `cnf` claim as above
-is contained in the introspection response.
+MUST be contained in the introspection response.
 
 
 # Acknowledgements {#Acknowledgements}
@@ -222,7 +230,7 @@ We would like to thank [...] for their valuable feedback.
 
 # IANA Considerations {#IANA}
       
-  This draft includes no request to IANA.
+This draft includes no request to IANA.
     
 
 # Security Considerations {#Security}
