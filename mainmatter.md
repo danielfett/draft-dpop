@@ -53,6 +53,8 @@ applications) that do not use client authentication. Nonetheless, DPoP
 is designed such that it is compatible with `private_key_jwt` and all
 other client authentication methods.
 
+Note: the mechanism does not directly ensure message integrity but relies on the TLS layer for that purpose.
+
 # Token Request (Binding Tokens to a Public Key)
 
 To bind an tokens to a public key in the token request, the client
