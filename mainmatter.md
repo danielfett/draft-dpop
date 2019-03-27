@@ -70,6 +70,12 @@ The new elements introduced by this specification are shown in Figure 1:
     introspection endpoint of the authorization server (request not
     shown).
 
+The mechanism presented herein is not a client authentication method.
+In fact, a primary use case are public clients (single page
+applications) that do not use client authentication. Nonetheless, DPoP
+is designed such that it is compatible with `private_key_jwt` and all
+other client authentication methods.
+
 # Token Request (Binding Tokens to a Public Key)
 
 To bind an tokens to a public key in the token request, the client
@@ -95,11 +101,10 @@ grant_type=authorization_code
 !---
 Figure 2: Token Request for a DPoP bound token.
 
-[ Maybe use different `token_type` value? ]
 
 The header `DPoP-Binding` MUST contain a JWT signed using the
-asymmetric key chosen by the client. The header of the JWT MUST
-contain the following fields:
+asymmetric key chosen by the client. The header of the JWT contains
+the following fields:
 
  * `typ`: The string `dpop-binding+jwt` (REQUIRED).
  * `jwk`: The public key chosen by the client, in JWK format
@@ -258,15 +263,6 @@ This draft includes no request to IANA.
 
 # Security Considerations {#Security}
       
-[ todo ]
-
-  * Token replay detection via jti, see RFC 7253, common state on AS
-  * AS/RS MUST check `typ` in JWTs!
-  * Actually sender-constraining access tokens (or any token which is not one-time use) without introducing a state is not possible.
-  * Using time for AT pop token enables precomputing attacks
-  * mTLS stronger against intercepted connections
-  * is not a client auth method; designed for any client auth method; compatible with `private_key_jwt`
-
 ## Token Replay
 
 If an adversary is able to get hold of a DPoP-Proof JWT or a
@@ -275,7 +271,17 @@ same endpoint (the HTTP endpoint and method are enforced via the
 respective claims in the JWTs). To prevent this, clients MUST limit
 the lifetime of the JWTs, preferably to a brief period. Furthermore,
 the `jti` claim in each JWT MUST contain a unique (incrementing or
-randomly chosen) value. Authorization servers and resource servers
-SHOULD store values at least for the lifetime of the respective JWT
-and decline HTTP requests by clients if a `jti` value has been seen
-before.
+randomly chosen) value, as proposed in [@!RFC7253]. Authorization
+servers and resource servers SHOULD store values at least for the
+lifetime of the respective JWT and decline HTTP requests by clients if
+a `jti` value has been seen before.
+
+## Signed JWT Swapping
+
+Servers accepting signed DPoP JWTs MUST check the `typ` field in the
+headers of the JWTs to ensure that adversaries cannot use JWTs created
+for other purposes in the DPoP headers.
+
+## Comparison to mTLS and OAuth Token Binding
+
+[todo]
