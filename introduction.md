@@ -12,15 +12,11 @@ agents and a lack of support for HTTP token binding, neither mechanism
 can be used if an OAuth client is a Single Page Application (SPA)
 running in a web browser.
 
-This document outlines an application-level sender-constraining for
-access tokens and refresh tokens that can be used if neither mTLS nor
-OAuth Token Binding are available. It uses proof-of-possession based on
+This document defines an application-level sender-constraint mechanism for
+OAuth 2.0 access tokens and refresh tokens that can be applied when neither mTLS nor
+OAuth Token Binding are utilized. It achieves proof-of-possession using
 a public/private key pair.
 
-	  
-## Structure
-
-The remainder of the document is organized as follows: [todo]
 
 ## Conventions and Terminology
 
