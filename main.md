@@ -1,12 +1,12 @@
 %%%
-title = "OAuth 2.0 Demonstration of Proof-of-Possession at the Application-layer"
+title = "OAuth 2.0 Demonstration of Proof-of-Possession at the Application Layer"
 abbrev = "oauth-dpop"
 ipr = "trust200902"
 area = "Security"
 workgroup = "Web Authorization Protocol"
 keyword = ["security", "oauth2"]
 
-date = 2019-03-25T12:00:00Z
+date = 2019-03-27T17:00:00Z
 
 [seriesInfo]
 name = "Internet-Draft"
@@ -46,12 +46,22 @@ organization="yes.com"
     [author.address]
     email = "torsten@lodderstedt.net"
 
+[[author]]
+initials="M."
+surname="Jones"
+fullname="Michael Jones"
+organization="Microsoft"
+    [author.address]
+    email = "mbj@microsoft.com"
+
 %%%
 
 .# Abstract 
 
-This document describes a mechanism for sender-constraining OAuth 2.0
-tokens via a proof-of-possession mechanism on the application level.
+This document defines a sender-constraint mechanism for
+OAuth 2.0 access tokens and refresh tokens
+utilizing an application-level proof-of-possession mechanism
+based on public/private key pairs.
 
 {mainmatter}
 
