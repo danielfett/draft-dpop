@@ -7,6 +7,7 @@
 !---
 ~~~ ascii-art
 +--------+                               +---------------+
+|        |                               |               | 
 |        |--(A)- Authorization Request ->|   Resource    |
 |        |                               |     Owner     |
 |        |<-(B)-- Authorization Grant ---|               |
@@ -14,7 +15,7 @@
 |        |
 |        |                               +---------------+
 |        |--(C)-- Token Request -------->|               |
-| Client |        (req_cnf)              | Authorization |
+| Client |        (DPop-Binding)         | Authorization |
 |        |                               |     Server    |
 |        |<-(D)-- PoP Access Token ------|               |
 |        |        (token_type=pop)       +---------------+
@@ -22,7 +23,7 @@
 |        | 
 |        |                               +---------------+
 |        |--(E)-- PoP Access Token ----->|               |
-|        |   (with proof of private key) |    Resource   |
+|        |        (DPoP-Proof)           |    Resource   |
 |        |                               |     Server    |
 |        |<-(F)--- Protected Resource ---|               |
 |        |                               +---------------+
@@ -30,7 +31,7 @@
 |        | public client refresh token usage:
 |        |                               +---------------+
 |        |--(G)-- PoP Refresh Token ---->|               |
-|        |   (with proof of private key) | Authorization |
+|        |        (DPoP-Proof)           | Authorization |
 |        |                               |     Server    |
 |        |<-(H)-- PoP Access Token ------|               |
 |        |       (token_type=pop)        +---------------+
@@ -69,13 +70,12 @@ The new elements introduced by this specification are shown in Figure 1:
     introspection endpoint of the authorization server (request not
     shown).
 
-# Token Request (Binding Public Keys)
+# Token Request (Binding Tokens to a Public Key)
 
-To bind a public key in the token request, the client provides public
-key and proves the possession of the corresponding private key.
-
-To this end, the client makes the following HTTPS request (extra line
-breaks are for display purposes only):
+To bind an tokens to a public key in the token request, the client
+provides the public key and proves the possession of the corresponding
+private key. To this end, the client makes the following HTTPS request
+(extra line breaks are for display purposes only):
 
 
 !---
@@ -84,27 +84,39 @@ POST /token HTTP/1.1
 Host: server.example.com
 Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+DPoP-Binding: eyJhbGciOiJSU0ExXzUi ...
 
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 &token_type=pop
-&req_cnf=eyJhbGciOiJSU0ExXzUi ...
 (remainder of JWK omitted for brevity)
 ~~~
 !---
 Figure 2: Token Request for a DPoP bound token.
 
-[ How do we indicate DPoP? token type? ]
+[ Maybe use different `token_type` value? ]
 
-The parameter `req_cnf` contains a JWT signed using the asymmetric key
-chosen by the client. The JWT contains the `code` value. The header of
-the JWT contains the public key chosen by the client:
+The header `DPoP-Binding` contains a JWT signed using the asymmetric
+key chosen by the client. The header of the JWT MUST contain the following fields:
+
+ * `typ`: MUST be `dpop-binding+jwt`
+ * `jwk`: The public key chosen by the client, in JWK format.
+ 
+The body of the JWT contains the following fields:
+
+ * `http_method`: The HTTP method used for the request (REQUIRED).
+ * `http_uri`: The HTTP URI used for the request (REQUIRED)
+ * `exp`: Expiration time of the JWT (REQUIRED). See [Security Considerations](#Security). 
+ * `jti`: Unique identifier for this JWT (RECOMMENDED). SHOULD be used for replay detection and prevention, see [Security Considerations](#Security). 
+
+An example JWT is shown in Figure 3.
 
 !---
 ```
 {
-    "typ": "pop+jwt",
+    "typ": "dpop-binding+jwt",
+    "alg": "ES512",
     "jwk": {
          "kty" : "EC",
          "kid" : h'11',
@@ -114,11 +126,32 @@ the JWT contains the public key chosen by the client:
      }
 
 }.{
-    "code": "SplxlOBeZQQYbYS6WxSbIA"
+    "jti": "42",
+    "http_method": "get",
+    "http_uri": "https://resource-server.example.com?path=something",
+    "exp": "..."
 }
 ```
 !---
-Figure 3: JWT for `req_cnf` parameter with direct binding.
+Figure 3: Example JWT for `DPoP-Binding` header.
+
+If the authorization server receives a `DPoP-Binding` header in a token request, the authorization server MUST check that 
+
+ * the header value is a well-formed JWT,
+ * all required claims are contained in the JWT,
+ * the algorithm in the header of the JWT is supported by the
+   application and deemed secure,
+ * it is signed using the public key contained in the header of the
+   JWT,
+ * the `typ` field in the header has the correct value,
+ * the `http_method` and `http_uri` claims match the respective values
+   for the HTTP request in which the header was received,
+ * the token has not expired, and
+ * if replay protection is desired, that a JWT with the same `jti`
+   value has not been received previously.
+
+If these checks are successful, the authorization server associates
+(Token Binds) the access token with the public key.
 
 # Resource Access (Proof of Possession for Access Tokens)
 
@@ -129,34 +162,36 @@ using the previously chosen private key.
 !---
 ```
 {
-    "typ": "pop+jwt",
+    "typ": "dpop-proof+jwt",
     "alg": "ES512"
 }.
 {
-    "at_hash": "2ba9eddc1f91394e57f9f8",
+    "jti": 42,
     "http_method": "get",
     "http_uri": "https://resource-server.example.com?path=something",
-    "exp": "...",
+    "exp": "..."
 }
 ```
 !---
-Figure 4: Proof-of-Possession JWT 
+Figure 4: Proof-of-Possession JWT for Access Token
 
-This JWT contains the following fields:
+The header of this JWT MUST contain a `typ` claim with the value
+`dpop-proof+jwt`. For the body, the same field names and semantics as
+in the `DPoP-Binding` JWT are used.
 
- * `at_hash`: [access token hash as in OIDC]
- * `http_method`: The HTTP method used for the resource access
- * `http_uri`: The HTTP URI used for the resource access
- * `exp`: Expiration time of the JWT. The lifetime should be short.
+The signed JWT is then sent in the `DPoP-Proof` HTTP header.
 
-The signed JWT is then sent in the `Authorization-Confirmation` HTTP
-header. [ Can we come up with a better header name? ]
+# Refresh Token Usage (Proof of Possession for Refresh Tokens)
 
-## Public Key Confirmation 
+At the token endpoint, public clients MUST provide a proof of
+possession in the same way as for access tokens.
 
-When access tokens are represented as JSON Web Tokens (JWT)[RFC7519],
-information about the DPoP public key SHOULD be represented using the
-`jwk+dpop` confirmation method member defined herein.
+# Public Key Confirmation 
+
+When access tokens are represented as JSON Web Tokens
+(JWT)[@!RFC7519], information about the DPoP public key SHOULD be
+contained in the tokens. The public key is contained in JWK format in
+a member `dpop+jwk` of the `cnf` claim.
 
 ```
 {
@@ -165,7 +200,7 @@ information about the DPoP public key SHOULD be represented using the
     "exp": 1493726400,
     "nbf": 1493722800,
     "cnf":{
-        "jwk+dpop": {
+        "dpop+jwk": {
             "kty" : "EC",
             "kid" : h'11',
             "crv" : "P-256",
@@ -182,7 +217,7 @@ is contained in the introspection response.
 
 # Acknowledgements {#Acknowledgements}
       
-We would like to thank Torsten Lodderstedt, [...] for their valuable feedback.
+We would like to thank [...] for their valuable feedback.
     
 
 # IANA Considerations {#IANA}
@@ -193,9 +228,9 @@ We would like to thank Torsten Lodderstedt, [...] for their valuable feedback.
 # Security Considerations {#Security}
       
 [ todo ]
-
-  * AS/RS MUST check `typ` in JWTs!
-  * Actually sender-constraining access tokens (or any token which is not one-time use) without introducing a state is not possible.
-  * Using time for AT pop token enables precomputing attacks
-  * mTLS stronger against intercepted connections
-  * 
+    * Token replay detection via jti, see RFC 7253, common state on AS
+    * AS/RS MUST check `typ` in JWTs!
+    * Actually sender-constraining access tokens (or any token which is not one-time use) without introducing a state is not possible.
+    * Using time for AT pop token enables precomputing attacks
+    * mTLS stronger against intercepted connections
+    * is not a client auth method; designed for any client auth method; compatible with `private_key_jwt`

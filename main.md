@@ -37,7 +37,15 @@ fullname="Brian Campbell"
 organization="Ping Identity"
     [author.address]
     email = "bcampbell@pingidentity.com"
-    
+
+[[author]]
+initials="T."
+surname="Lodderstedt"
+fullname="Torsten Lodderstedt"
+organization="yes.com"
+    [author.address]
+    email = "torsten@lodderstedt.net"
+
 %%%
 
 .# Abstract 
