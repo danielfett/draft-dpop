@@ -51,7 +51,7 @@ organization="yes.com"
 .# Abstract 
 
 This document describes a mechanism for sender-constraining OAuth 2.0
-tokens via a proof-of-possession mechanism on the application level.
+tokens via a proof-of-possession mechanism on the application level. This mechanism allows to detect replay attacks with access and refresh tokens.  
 
 {mainmatter}
 
