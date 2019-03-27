@@ -110,7 +110,9 @@ The body of the JWT contains the following fields:
  * `http_method`: The HTTP method used for the request (REQUIRED).
  * `http_uri`: The HTTP URI used for the request (REQUIRED)
  * `exp`: Expiration time of the JWT (REQUIRED). See [Security Considerations](#Security). 
- * `jti`: Unique identifier for this JWT (RECOMMENDED). SHOULD be used for replay detection and prevention, see [Security Considerations](#Security). 
+ * `jti`: Unique, freshly chosen identifier for this JWT (REQUIRED).
+   SHOULD be used by the AS for replay detection and prevention. See
+   [Security Considerations](#Security).
 
 An example JWT is shown in Figure 3.
 
@@ -128,7 +130,7 @@ An example JWT is shown in Figure 3.
      }
 
 }.{
-    "jti": "42",
+    "jti": "HK2PmfnHKwXP",
     "http_method": "get",
     "http_uri": "https://resource-server.example.com?path=something",
     "exp": "..."
@@ -171,7 +173,7 @@ key.
     "alg": "ES512"
 }.
 {
-    "jti": 42,
+    "jti": "HK2PmfnHKwXP",
     "http_method": "get",
     "http_uri": "https://resource-server.example.com?path=something",
     "exp": "..."
@@ -186,20 +188,41 @@ in the `DPoP-Binding` JWT are used.
 
 The signed JWT MUST then be sent in the `DPoP-Proof` HTTP header.
 
+If a resource server detects that an access token that is to be used
+for resource access is bound to a public key using DPoP (via the
+methods described in (#Confirmation)) it MUST check that
+
+ * a header `DPoP-Binding` was received in the HTTP request, 
+ * the header's value is a well-formed JWT,
+ * all required claims are contained in the JWT,
+ * the algorithm in the header of the JWT is supported by the
+   application and deemed secure,
+ * the JWT is signed using the public key to which the access token
+   was bound,
+ * the `typ` field in the header has the correct value,
+ * the `http_method` and `http_uri` claims match the respective values
+   for the HTTP request in which the header was received,
+ * the token has not expired, and
+ * if replay protection is desired, that a JWT with the same `jti`
+   value has not been received previously.
+
+If any of these checks fails, the resource server MUST NOT grant
+access to the resource.
+
 # Refresh Token Usage (Proof of Possession for Refresh Tokens)
 
 At the token endpoint, public clients MUST provide a proof of
 possession in the same way as for access tokens.
 
-# Public Key Confirmation 
+# Public Key Confirmation {#Confirmation}
 
-To enable resource servers to check the binding of access tokens to
-public keys, access tokens that are represented as JSON Web Tokens
-(JWT)[@!RFC7519] SHOULD contain information about the DPoP public key
-as described in the following.
+It MUST be ensured that resource servers can reliably identify whether
+a token is bound using DPoP and learn the public key to which the
+token is bound.
 
-The public key is contained in JWK format in a member `dpop+jwk` of
-the `cnf` claim.
+Access tokens that are represented as JSON Web Tokens (JWT)[@!RFC7519]
+SHOULD contain information about the DPoP public key (in JWK format)
+in a member `dpop+jwk` of the `cnf` claim.
 
 ```
 {
@@ -236,9 +259,23 @@ This draft includes no request to IANA.
 # Security Considerations {#Security}
       
 [ todo ]
-    * Token replay detection via jti, see RFC 7253, common state on AS
-    * AS/RS MUST check `typ` in JWTs!
-    * Actually sender-constraining access tokens (or any token which is not one-time use) without introducing a state is not possible.
-    * Using time for AT pop token enables precomputing attacks
-    * mTLS stronger against intercepted connections
-    * is not a client auth method; designed for any client auth method; compatible with `private_key_jwt`
+
+  * Token replay detection via jti, see RFC 7253, common state on AS
+  * AS/RS MUST check `typ` in JWTs!
+  * Actually sender-constraining access tokens (or any token which is not one-time use) without introducing a state is not possible.
+  * Using time for AT pop token enables precomputing attacks
+  * mTLS stronger against intercepted connections
+  * is not a client auth method; designed for any client auth method; compatible with `private_key_jwt`
+
+## Token Replay
+
+If an adversary is able to get hold of a DPoP-Proof JWT or a
+DPoP-Binding JWT, the adversary could replay that token later at the
+same endpoint (the HTTP endpoint and method are enforced via the
+respective claims in the JWTs). To prevent this, clients MUST limit
+the lifetime of the JWTs, preferably to a brief period. Furthermore,
+the `jti` claim in each JWT MUST contain a unique (incrementing or
+randomly chosen) value. Authorization servers and resource servers
+SHOULD store values at least for the lifetime of the respective JWT
+and decline HTTP requests by clients if a `jti` value has been seen
+before.
