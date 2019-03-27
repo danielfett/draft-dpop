@@ -3,7 +3,6 @@
 
 # Concept
 
-
 !---
 ~~~ ascii-art
 +--------+                               +---------------+
@@ -18,7 +17,7 @@
 | Client |        (DPop-Binding)         | Authorization |
 |        |                               |     Server    |
 |        |<-(D)-- PoP Access Token ------|               |
-|        |        (token_type=pop)       +---------------+
+|        |                               +---------------+
 |        |        PoP Refresh Token for public clients
 |        | 
 |        |                               +---------------+
@@ -34,7 +33,7 @@
 |        |        (DPoP-Proof)           | Authorization |
 |        |                               |     Server    |
 |        |<-(H)-- PoP Access Token ------|               |
-|        |       (token_type=pop)        +---------------+
+|        |                               +---------------+
 |        |
 +--------+
 ~~~
@@ -49,12 +48,10 @@ The new elements introduced by this specification are shown in Figure 1:
     the same request.
   * The AS binds (sender-constrains) the access token to the public
     key claimed by the client; that is, the access token cannot be
-    used without proving possession of the respective private key.
-    This is signalled to the client by using the `token_type` value
-    `pop` (for proof-of-possession). If a refresh token is issued to
-    the client, it is sender-constrained in the same way if the client
-    is a public client and thus is not able to authenticate requests
-    to the token endpoint.
+    used without proving possession of the respective private key. If
+    a refresh token is issued to the client, it is sender-constrained
+    in the same way if the client is a public client and thus is not
+    able to authenticate requests to the token endpoint.
   * If the client wants to use the access token (E) or the (public)
     client wants to use a refresh token, the client has to prove
     possession of the private key by signing a message containing the
@@ -90,19 +87,19 @@ POST /token HTTP/1.1
 Host: server.example.com
 Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
-DPoP-Binding: eyJhbGciOiJSU0ExXzUi ...
 
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-&token_type=pop
+&token_type=bearer+pop
+&dpop_binding=eyJhbGciOiJSU0ExXzUi ...
 (remainder of JWK omitted for brevity)
 ~~~
 !---
 Figure 2: Token Request for a DPoP bound token.
 
 
-The header `DPoP-Binding` MUST contain a JWT signed using the
+The parameter `dpop_binding` MUST contain a JWT signed using the
 asymmetric key chosen by the client. The header of the JWT contains
 the following fields:
 
@@ -142,20 +139,20 @@ An example JWT is shown in Figure 3.
 }
 ```
 !---
-Figure 3: Example JWT for `DPoP-Binding` header.
+Figure 3: Example JWT for `dpop_binding` parameter.
 
-If the authorization server receives a `DPoP-Binding` header in a
+If the authorization server receives a `dpop_binding` parameter in a
 token request, the authorization server MUST check that
 
- * the header value is a well-formed JWT,
+ * the parameter value is a well-formed JWT,
  * all required claims are contained in the JWT,
  * the algorithm in the header of the JWT is supported by the
    application and deemed secure,
- * it is signed using the public key contained in the header of the
+ * the JWT is signed using the public key contained in the header of the
    JWT,
  * the `typ` field in the header has the correct value,
  * the `http_method` and `http_uri` claims match the respective values
-   for the HTTP request in which the header was received,
+   for the HTTP request in which the parameter was received,
  * the token has not expired, and
  * if replay protection is desired, that a JWT with the same `jti`
    value has not been received previously.
@@ -191,7 +188,7 @@ The header of this JWT MUST contain a `typ` claim with the value
 `dpop-proof+jwt`. For the body, the same field names and semantics as
 in the `DPoP-Binding` JWT are used.
 
-The signed JWT MUST then be sent in the `DPoP-Proof` HTTP header.
+The signed JWT MUST then be sent in the `dpop_proof` request parameter.
 
 If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
@@ -258,8 +255,40 @@ We would like to thank [...] for their valuable feedback.
 
 # IANA Considerations {#IANA}
       
-This draft includes no request to IANA.
-    
+## JWT Confirmation Methods Registration
+
+This specification requests registration of the following value in
+the IANA "JWT Confirmation Methods" registry [IANA.JWT.Claims] for
+JWT "cnf" member values established by [@RFC7800].
+
+[ noch nicht korrekt! ]
+
+ *  Confirmation Method Value: "dpop+jwk"
+ *  Confirmation Method Description: JWK encoded public key for dpop proof token
+ *  Change Controller: IESG
+ *  Specification Document(s): (#Confirmation) of [[ this specification ]]
+ 
+## OAuth Parameters Registry
+
+This specification registers the following parameters in the IANA
+"OAuth Parameters" registry defined in OAuth 2.0 [@RFC6749].
+
+ * Parameter name: dpop_binding
+ * Parameter usage location: token request
+ * Change controller: IESG
+ * Specification document(s): (#) of [[ this specification ]]
+
+## JSON Web Signature and Encryption Type Values Registration
+
+This specification registers the "dpop+jwt" type value in the IANA JSON
+Web Signature and Encryption Type Values registry [@RFC7515]:
+
+ * "typ" Header Parameter Value: "pop"
+ * Abbreviation for MIME Type: None
+ * Change Controller: IETF
+ * Specification Document(s): [[ this document ]]
+
+
 
 # Security Considerations {#Security}
       
