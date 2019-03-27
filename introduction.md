@@ -15,8 +15,9 @@ running in a web browser.
 This document outlines an application-level sender-constraining for
 access tokens and refresh tokens that can be used if neither mTLS nor
 OAuth Token Binding are available. It uses proof-of-possession based on
-a public/private key pair.
+a public/private key pair and application-level signing.
 
+DPoP can be used with public clients and, in case of confidential clients, can be combined with any client authentication method.
 	  
 ## Structure
 
