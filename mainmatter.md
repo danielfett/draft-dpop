@@ -106,7 +106,7 @@ Content-Type: application/x-www-form-urlencoded;charset=UTF-8
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-&token_type=bearer+pop
+&token_type=bearer+dpop
 &dpop_binding=eyJhbGciOiJSU0ExXzUi ...
 (remainder of JWK omitted for brevity)
 ~~~
@@ -117,14 +117,15 @@ The parameter `dpop_binding` MUST contain a JWT signed using the
 asymmetric key chosen by the client. The header of the JWT contains
 the following fields:
 
- * `typ`: with value `dpop-binding+jwt` (REQUIRED).
+ * `typ`: with value `dpop_binding+jwt` (REQUIRED).
  * `jwk`: The public key chosen by the client, in JWK format
    (REQUIRED).
 
 The body of the JWT contains the following fields:
 
  * `http_method`: The HTTP method used for the request (REQUIRED).
- * `http_uri`: The HTTP URI used for the request (REQUIRED).
+ * `http_uri`: The HTTP URI used for the request, without query and
+   fragment parts (REQUIRED).
  * `exp`: Expiration time of the JWT (REQUIRED). See [Security Considerations](#Security). 
  * `jti`: Unique, freshly chosen identifier for this JWT (REQUIRED).
    SHOULD be used by the AS for replay detection and prevention. See
@@ -135,20 +136,20 @@ An example JWT is shown in Figure 3.
 !---
 ```
 {
-    "typ": "dpop-binding+jwt",
+    "typ": "dpop_binding+jwt",
     "alg": "ES512",
     "jwk": {
          "kty" : "EC",
-         "kid" : h'11',
+         "kid" : "11",
          "crv" : "P-256",
-         "x" : b64'usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8',
-         "y" : b64'IBOL+C3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4'
+         "x" : "usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8",
+         "y" : "3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4"
      }
 
 }.{
     "jti": "HK2PmfnHKwXP",
     "http_method": "get",
-    "http_uri": "https://resource-server.example.com?path=something",
+    "http_uri": "https://server.example.com",
     "exp": "..."
 }
 ```
@@ -172,44 +173,30 @@ token request, the authorization server MUST check that:
    value has not been received previously.
 
 If these checks are successful, the authorization server MUST
-associate the access token with the public key.
+associate the access token with the public key. It then sets
+`token_type` to `bearer+dpop` in the token response.
 
 # Resource Access (Proof of Possession for Access Tokens)
 
 To make use of an access token that is token bound to a public key
 using DPoP, a client MUST prove the possession of the corresponding
-private key. More precisely, the client MUST create a JWT (example
-shown in Figure 4) and sign it using the previously chosen private
-key.
+private key. More precisely, the client MUST create a JWT and sign it
+using the previously chosen private key.
 
-!---
-```
-{
-    "typ": "dpop-proof+jwt",
-    "alg": "ES512"
-}.
-{
-    "jti": "HK2PmfnHKwXP",
-    "http_method": "get",
-    "http_uri": "https://resource-server.example.com?path=something",
-    "exp": "..."
-}
-```
-!---
-Figure 4: Proof-of-Possession JWT for Access Token
+The JWT has the same format as above, except:
 
-The header of this JWT MUST contain a `typ` claim with the value
-`dpop-proof+jwt`. For the body, the same field names and semantics as
-in the `DPoP-Binding` JWT are used.
-
+ * The header MUST contain a `typ` claim with the value
+   `dpop_proof+jwt`.
+ * The header SHOULD NOT contain a `jwk` field.
+ 
 The signed JWT MUST then be sent in the `dpop_proof` request parameter.
 
 If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
 methods described in (#Confirmation)) it MUST check that:
 
- * a header `DPoP-Binding` was received in the HTTP request, 
- * the header's value is a well-formed JWT,
+ * a parameter `dpop_proof` was received in the HTTP request, 
+ * the parameter's value is a well-formed JWT,
  * all required claims are contained in the JWT,
  * the algorithm in the header of the JWT is supported by the
    application and deemed secure,
@@ -217,7 +204,7 @@ methods described in (#Confirmation)) it MUST check that:
    was bound,
  * the `typ` field in the header has the correct value,
  * the `http_method` and `http_uri` claims match the respective values
-   for the HTTP request in which the header was received,
+   for the HTTP request in which the parameter was received,
  * the token has not expired, and
  * if replay protection is desired, that a JWT with the same `jti`
    value has not been received previously.
@@ -237,9 +224,10 @@ a token is bound using DPoP and learn the public key to which the
 token is bound.
 
 Access tokens that are represented as JSON Web Tokens (JWT)[@!RFC7519]
-SHOULD contain information about the DPoP public key (in JWK format)
-in the member `dpop+jwk` of the `cnf` claim.
+MUST contain information about the DPoP public key (in JWK format) in
+the member `dpop+jwk` of the `cnf` claim, as shown in Figure 4.
 
+!---
 ```
 {
     "iss": "https://server.example.com",
@@ -248,15 +236,17 @@ in the member `dpop+jwk` of the `cnf` claim.
     "nbf": 1493722800,
     "cnf":{
         "dpop+jwk": {
-            "kty": "EC",
-            "kid": h'11',
-            "crv": "P-256",
-            "x": b64'usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8',
-            "y": b64'IBOL+C3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4'
+            "kty" : "EC",
+            "kid" : "11",
+            "crv" : "P-256",
+            "x" : "usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8",
+            "y" : "3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4"
         }
     }
 }
 ```
+!---
+Figure 4: Example access token with `cnf` claim.
 
 When access token introspection is used, the same `cnf` claim as above
 MUST be contained in the introspection response.
@@ -264,8 +254,13 @@ MUST be contained in the introspection response.
 
 # Acknowledgements {#Acknowledgements}
       
-We would like to thank [...] for their valuable feedback.
-    
+<!-- We would like to thank [...] for their valuable feedback. -->
+
+This document resulted from discussions at the 4th OAuth Security
+Workshop in Stuttgart, Germany. We thank the organizers of this
+workshop (Ralf Küsters, Guido Schmitz).
+
+
 
 # IANA Considerations {#IANA}
       
@@ -275,12 +270,10 @@ This specification requests registration of the following value in
 the IANA "JWT Confirmation Methods" registry [IANA.JWT.Claims] for
 JWT "cnf" member values established by [@RFC7800].
 
-[ noch nicht korrekt! ]
-
  *  Confirmation Method Value: "dpop+jwk"
  *  Confirmation Method Description: JWK encoded public key for dpop proof token
  *  Change Controller: IESG
- *  Specification Document(s): (#Confirmation) of [[ this specification ]]
+ *  Specification Document(s): [[ this specification ]]
  
 ## OAuth Parameters Registry
 
@@ -290,17 +283,28 @@ This specification registers the following parameters in the IANA
  * Parameter name: dpop_binding
  * Parameter usage location: token request
  * Change controller: IESG
- * Specification document(s): (#) of [[ this specification ]]
+ * Specification document(s): [[ this specification ]]
+
+ * Parameter name: dpop_proof
+ * Parameter usage location: token request
+ * Change controller: IESG
+ * Specification document(s): [[ this specification ]]
+
 
 ## JSON Web Signature and Encryption Type Values Registration
 
-This specification registers the "dpop+jwt" type value in the IANA JSON
-Web Signature and Encryption Type Values registry [@RFC7515]:
+This specification registers the "dpop+jwt" type value in the IANA
+JSON Web Signature and Encryption Type Values registry [@RFC7515]:
 
- * "typ" Header Parameter Value: "pop"
+ * "typ" Header Parameter Value: "dpop_proof+jwt"
  * Abbreviation for MIME Type: None
  * Change Controller: IETF
- * Specification Document(s): [[ this document ]]
+ * Specification Document(s): [[ this specification ]]
+
+ * "typ" Header Parameter Value: "dpop_binding+jwt"
+ * Abbreviation for MIME Type: None
+ * Change Controller: IETF
+ * Specification Document(s): [[ this specification ]]
 
 
 
@@ -310,15 +314,6 @@ The [Prevention of Token Replay at a Different
 Endpoint](#Objective_Replay_Different_Endpoint) is achieved through
 the binding of the DPoP JWT to a certain URI and HTTP method.
 
-
-[ todo ]
-
-  * Token replay detection via jti, see RFC 7253, common state on AS
-  * AS/RS MUST check `typ` in JWTs!
-  * Achieving sender-constraint of access tokens (or any token that is not one-time use) without introducing a state is not possible.
-  * Using time for AT pop token enables precomputing attacks
-  * mTLS stronger against intercepted connections
-  * is not a client auth method; designed for any client auth method; compatible with `private_key_jwt`
 
 ## Token Replay at the same authorization server
 
@@ -348,4 +343,4 @@ for other purposes in the DPoP headers.
 
 ## Comparison to mTLS and OAuth Token Binding
 
-[todo]
+  * mTLS stronger against intercepted connections

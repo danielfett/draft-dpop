@@ -12,7 +12,7 @@ date = 2019-03-27T17:00:00Z
 name = "Internet-Draft"
 value = "draft-fett-oauth-dpop-00"
 stream = "IETF"
-status = "rfc"
+status = "standard"
     
 [[author]]
 initials="D."
