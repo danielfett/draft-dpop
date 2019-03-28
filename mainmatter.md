@@ -175,7 +175,9 @@ token request, the authorization server MUST check that:
 
 If these checks are successful, the authorization server MUST
 associate the access token with the public key. It then sets
-`token_type` to `bearer+dpop` in the token response.
+`token_type` to `bearer+dpop` in the token response. The client MAY
+use this parameter to determine whether the server supports the
+mechanisms specified in this document. 
 
 # Resource Access (Proof of Possession for Access Tokens)
 
