@@ -106,7 +106,6 @@ Content-Type: application/x-www-form-urlencoded;charset=UTF-8
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-&token_type=bearer+dpop
 &dpop_binding=eyJhbGciOiJSU0ExXzUi ...
 (remainder of JWK omitted for brevity)
 ~~~
@@ -123,7 +122,9 @@ the following fields:
 
 The body of the JWT contains the following fields:
 
- * `http_method`: The HTTP method used for the request (REQUIRED).
+ * `http_method`: The HTTP method for the request to which the JWT is
+   attached, in upper case ASCII characters, as defined in [@RFC7231]
+   (REQUIRED).
  * `http_uri`: The HTTP URI used for the request, without query and
    fragment parts (REQUIRED).
  * `exp`: Expiration time of the JWT (REQUIRED). See [Security Considerations](#Security). 
@@ -148,7 +149,7 @@ An example JWT is shown in Figure 3.
 
 }.{
     "jti": "HK2PmfnHKwXP",
-    "http_method": "get",
+    "http_method": "POST",
     "http_uri": "https://server.example.com",
     "exp": "..."
 }
@@ -293,8 +294,9 @@ This specification registers the following parameters in the IANA
 
 ## JSON Web Signature and Encryption Type Values Registration
 
-This specification registers the "dpop+jwt" type value in the IANA
-JSON Web Signature and Encryption Type Values registry [@RFC7515]:
+This specification registers the `dpop_proof+jwt` and
+`dpop_binding+jwt` type values in the IANA JSON Web Signature and
+Encryption Type Values registry [@RFC7515]:
 
  * "typ" Header Parameter Value: "dpop_proof+jwt"
  * Abbreviation for MIME Type: None
