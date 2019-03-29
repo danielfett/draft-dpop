@@ -102,17 +102,17 @@ POST /token HTTP/1.1
 Host: server.example.com
 Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+DPoP-Binding: eyJhbGciOiJSU0ExXzUi ...
 
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-&dpop_binding=eyJhbGciOiJSU0ExXzUi ...
 (remainder of JWK omitted for brevity)
 ~~~
 !---
 Figure 2: Token Request for a DPoP bound token.
 
-The parameter `dpop_binding` MUST contain a JWT signed using the
+The header `DPoP-Binding` MUST contain a JWT signed using the
 asymmetric key chosen by the client. The header of the JWT contains
 the following fields:
 
@@ -139,6 +139,7 @@ An example JWT is shown in Figure 3.
 {
     "typ": "dpop_binding+jwt",
     "alg": "ES512",
+    
     "jwk": {
          "kty" : "EC",
          "kid" : "11",
@@ -155,12 +156,12 @@ An example JWT is shown in Figure 3.
 }
 ```
 !---
-Figure 3: Example JWT for `dpop_binding` parameter.
+Figure 3: Example JWT for `DPoP-Binding` header.
 
-If the authorization server receives a `dpop_binding` parameter in a
+If the authorization server receives a `DPoP-Binding` header in a
 token request, the authorization server MUST check that:
 
- * the parameter value is a well-formed JWT,
+ * the header value is a well-formed JWT,
  * all required claims are contained in the JWT,
  * the algorithm in the header of the JWT is supported by the
    application and deemed secure,
@@ -168,7 +169,7 @@ token request, the authorization server MUST check that:
    JWT,
  * the `typ` field in the header has the correct value,
  * the `http_method` and `http_uri` claims match the respective values
-   for the HTTP request in which the parameter was received,
+   for the HTTP request in which the header was received,
  * the token has not expired, and
  * if replay protection is desired, that a JWT with the same `jti`
    value has not been received previously.
@@ -176,8 +177,8 @@ token request, the authorization server MUST check that:
 If these checks are successful, the authorization server MUST
 associate the access token with the public key. It then sets
 `token_type` to `bearer+dpop` in the token response. The client MAY
-use this parameter to determine whether the server supports the
-mechanisms specified in this document. 
+use the value of the `token_type` parameter to determine whether the
+server supports the mechanisms specified in this document.
 
 # Resource Access (Proof of Possession for Access Tokens)
 
@@ -192,14 +193,14 @@ The JWT has the same format as above, except:
    `dpop_proof+jwt`.
  * The header SHOULD NOT contain a `jwk` field.
  
-The signed JWT MUST then be sent in the `dpop_proof` request parameter.
+The signed JWT MUST then be sent in the `DPoP-Proof` request header.
 
 If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
 methods described in (#Confirmation)) it MUST check that:
 
- * a parameter `dpop_proof` was received in the HTTP request, 
- * the parameter's value is a well-formed JWT,
+ * a header `DPoP-Proof` was received in the HTTP request, 
+ * the header's value is a well-formed JWT,
  * all required claims are contained in the JWT,
  * the algorithm in the header of the JWT is supported by the
    application and deemed secure,
@@ -207,7 +208,7 @@ methods described in (#Confirmation)) it MUST check that:
    was bound,
  * the `typ` field in the header has the correct value,
  * the `http_method` and `http_uri` claims match the respective values
-   for the HTTP request in which the parameter was received,
+   for the HTTP request in which the header was received,
  * the token has not expired, and
  * if replay protection is desired, that a JWT with the same `jti`
    value has not been received previously.
@@ -249,7 +250,7 @@ the member `dpop+jwk` of the `cnf` claim, as shown in Figure 4.
 }
 ```
 !---
-Figure 4: Example access token with `cnf` claim.
+Figure 4: Example access token body with `cnf` claim.
 
 When access token introspection is used, the same `cnf` claim as above
 MUST be contained in the introspection response.
@@ -278,6 +279,7 @@ JWT "cnf" member values established by [@RFC7800].
  *  Change Controller: IESG
  *  Specification Document(s): [[ this specification ]]
  
+<!--
 ## OAuth Parameters Registry
 
 This specification registers the following parameters in the IANA
@@ -292,7 +294,7 @@ This specification registers the following parameters in the IANA
  * Parameter usage location: token request
  * Change controller: IESG
  * Specification document(s): [[ this specification ]]
-
+-->
 
 ## JSON Web Signature and Encryption Type Values Registration
 
