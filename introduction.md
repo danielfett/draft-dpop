@@ -12,11 +12,13 @@ agents and a lack of support for HTTP token binding, neither mechanism
 can be used if an OAuth client is a Single Page Application (SPA)
 running in a web browser.
 
-This document defines an application-level sender-constraint mechanism for
-OAuth 2.0 access tokens and refresh tokens that can be applied when neither mTLS nor
-OAuth Token Binding are utilized. It achieves proof-of-possession using
-a public/private key pair.
+This document outlines an application-level sender-constraining for
+access tokens and refresh tokens that can be used if neither mTLS nor
+OAuth Token Binding are available. It uses proof-of-possession based on
+a public/private key pair and application-level signing.
 
+DPoP can be used with public clients and, in case of confidential
+clients, can be combined with any client authentication method.
 
 ## Conventions and Terminology
 

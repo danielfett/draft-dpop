@@ -58,10 +58,10 @@ organization="Microsoft"
 
 .# Abstract 
 
-This document defines a sender-constraint mechanism for
-OAuth 2.0 access tokens and refresh tokens
-utilizing an application-level proof-of-possession mechanism
-based on public/private key pairs.
+This document describes a mechanism for sender-constraining OAuth 2.0
+tokens via a proof-of-possession mechanism on the application level.
+This mechanism allows to detect replay attacks with access and refresh
+tokens.
 
 {mainmatter}
 

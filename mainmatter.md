@@ -18,36 +18,20 @@ Secondary objectives are discussed in (#Security).
 
 !---
 ~~~ ascii-art
-+--------+                               +---------------+
-|        |                               |               | 
-|        |--(A)- Authorization Request ->|   Resource    |
-|        |                               |     Owner     |
-|        |<-(B)-- Authorization Grant ---|               |
-|        |                               +---------------+
-|        |
-|        |                               +---------------+
-|        |--(C)-- Token Request -------->|               |
-| Client |        (DPop-Binding)         | Authorization |
-|        |                               |     Server    |
-|        |<-(D)-- PoP Access Token ------|               |
-|        |                               +---------------+
++--------+                                              +---------------+
+|        |--(A)-- Token Request (authorization grant)-->|               |
+| Client |        (DPop-Binding/Proof)                  | Authorization |
+|        |                                              |     Server    |
+|        |<-(B)-- PoP Access Token ---------------------|               |
+|        |        (token_type=pop)                      +---------------+
 |        |        PoP Refresh Token for public clients
 |        | 
-|        |                               +---------------+
-|        |--(E)-- PoP Access Token ----->|               |
-|        |        (DPoP-Proof)           |    Resource   |
-|        |                               |     Server    |
-|        |<-(F)--- Protected Resource ---|               |
-|        |                               +---------------+
-|        |
-|        | public client refresh token usage:
-|        |                               +---------------+
-|        |--(G)-- PoP Refresh Token ---->|               |
-|        |        (DPoP-Proof)           | Authorization |
-|        |                               |     Server    |
-|        |<-(H)-- PoP Access Token ------|               |
-|        |                               +---------------+
-|        |
+|        |                                              +---------------+
+|        |--(C)-- PoP Access Token -------------------->|               |
+|        |        (DPoP-Proof)                          |    Resource   |
+|        |                                              |     Server    |
+|        |<-(D)-- Protected Resource -------------------|               |
+|        |                                              +---------------+
 +--------+
 ~~~
 !---
@@ -55,32 +39,42 @@ Figure 1: Basic DPoP Flow
 
 The new elements introduced by this specification are shown in Figure 1:
 
-  * In the Token Request (C), the client proves the possession of a
-    private key belonging to some public key by using the private key
-    to sign the authorization code. The matching public key is sent in
-    the same request.
-  * The AS binds (sender-constrains) the access token to the public
-    key claimed by the client; that is, the access token cannot be
-    used without proving possession of the respective private key.
+  * (A) In the Token Request, the client sends an authorization grant,
+    e.g., an authorization code or a refresh token, to the
+    authorization server in order to obtain an access token (and
+    potentially a refresh token). The client proves the possession of
+    a private key belonging to some public key by sending a request
+    header containing a JWT that was signed using this private key.
+    The matching public key is either sent in the request. <!-- or was
+    already bound to the authotization grant. => PKCE -->
+  * (B) The AS binds (sender-constrains) the access token to the
+    public key claimed by the client; that is, the access token cannot
+    be used without proving possession of the respective private key.
     This is signaled to the client by using the `token_type` value
-    `bearer+dpop`. If a refresh token is issued to
-    the client, it is sender-constrained in the same way if the client
-    is a public client and thus is not able to authenticate requests
-    to the token endpoint.
-  * If the client wants to use the access token (E) or the (public)
-    client wants to use a refresh token, the client has to prove
-    possession of the private key by signing a message containing the
-    respective token, the endpoint URL, and the request method. This
-    signature is provided as a signed JWT.
-  * In the case of the refresh token, the AS can immediately check
-    that the JWT was signed using the matching private key claimed in
-    request (C). 
-  * In the case of the access token, the resource server needs to
-    receive information about which public key to check against. This
-    information is either encoded directly into the access token, for
-    JWT structured access tokens, or provided at the token
-    introspection endpoint of the authorization server (request not
-    shown).
+    `bearer+dpop`. If a refresh token is issued to the client, it is
+    sender-constrained in the same way if the client is a public
+    client. Note: refresh tokens are automatically bound to the
+    `client_id` of a confidential client, which is more flexible than
+    binding it to a particular public key.
+  * (C) If the client wants to use the access token, it has to prove
+    possession of the private key by adding a header to the request
+    that, again, contains a JWT signed with this private key. The JWT
+    contains the endpoint URL and the request method. The resource
+    server needs to receive information about which public key to
+    check against. This information is either encoded directly into
+    the access token, for JWT structured access tokens, or provided at
+    the token introspection endpoint of the authorization server
+    (request not shown).
+  * (D) The resource server refuses to serve the request if the
+    signature check fails or the data in the JWT do not match, e.g.,
+    the request URI does not match the URI claim in the JWT.
+  * Steps (A) and (B) can be repeated using a refresh token to obtain
+    fresh access tokens. In this case, the client sends a DPoP proof
+    JWT as in step (C) above. The client can optionally proof the
+    possession of a new private/public key pair to which the new
+    tokens are then bound by the authorization server. Otherwise, the
+    authorization server binds the new tokens to the previously used
+    public key.
 
 The mechanism presented herein is not a client authentication method.
 In fact, a primary use case are public clients (single page
@@ -88,12 +82,15 @@ applications) that do not use client authentication. Nonetheless, DPoP
 is designed such that it is compatible with `private_key_jwt` and all
 other client authentication methods.
 
+Note: DPoP does not directly ensure message integrity but relies on
+the TLS layer for that purpose.
+
 # Token Request (Binding Tokens to a Public Key)
 
-To bind an tokens to a public key in the token request, the client
-MUST provide a public key and prove the possession of the
-corresponding private key. The following HTTPS request illustrates the
-protocol for this (with extra line breaks for display purposes only):
+To bind a token to a public key in the token request, the client MUST
+provide a public key and prove the possession of the corresponding
+private key. The following HTTPS request illustrates the protocol for
+this (with extra line breaks for display purposes only):
 
 
 !---
@@ -113,7 +110,7 @@ grant_type=authorization_code
 Figure 2: Token Request for a DPoP bound token.
 
 The header `DPoP-Binding` MUST contain a JWT signed using the
-asymmetric key chosen by the client. The header of the JWT contains
+private key chosen by the client. The header of the JWT contains
 the following fields:
 
  * `typ`: with value `dpop_binding+jwt` (REQUIRED).
@@ -123,11 +120,12 @@ the following fields:
 The body of the JWT contains the following fields:
 
  * `http_method`: The HTTP method for the request to which the JWT is
-   attached, in upper case ASCII characters, as defined in [@RFC7231]
+   attached, in upper case ASCII characters, as defined in [@!RFC7231]
    (REQUIRED).
  * `http_uri`: The HTTP URI used for the request, without query and
    fragment parts (REQUIRED).
- * `exp`: Expiration time of the JWT (REQUIRED). See [Security Considerations](#Security). 
+ * `exp`: Expiration time of the JWT (REQUIRED). See [Security
+   Considerations](#Security).
  * `jti`: Unique, freshly chosen identifier for this JWT (REQUIRED).
    SHOULD be used by the AS for replay detection and prevention. See
    [Security Considerations](#Security).
@@ -139,7 +137,6 @@ An example JWT is shown in Figure 3.
 {
     "typ": "dpop_binding+jwt",
     "alg": "ES512",
-    
     "jwk": {
          "kty" : "EC",
          "kid" : "11",
@@ -147,32 +144,31 @@ An example JWT is shown in Figure 3.
          "x" : "usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8",
          "y" : "3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4"
      }
-
 }.{
     "jti": "HK2PmfnHKwXP",
     "http_method": "POST",
-    "http_uri": "https://server.example.com",
+    "http_uri": "https://server.example.com/token",
     "exp": "..."
 }
 ```
 !---
-Figure 3: Example JWT for `DPoP-Binding` header.
+Figure 3: Example JWT contents for `DPoP-Binding` header.
 
 If the authorization server receives a `DPoP-Binding` header in a
 token request, the authorization server MUST check that:
 
- * the header value is a well-formed JWT,
- * all required claims are contained in the JWT,
- * the algorithm in the header of the JWT is supported by the
-   application and deemed secure,
- * the JWT is signed using the public key contained in the header of the
-   JWT,
- * the `typ` field in the header has the correct value,
- * the `http_method` and `http_uri` claims match the respective values
-   for the HTTP request in which the header was received,
- * the token has not expired, and
- * if replay protection is desired, that a JWT with the same `jti`
-   value has not been received previously.
+ 1. the header value is a well-formed JWT,
+ 2. all required claims are contained in the JWT,
+ 3. the algorithm in the header of the JWT is supported by the
+    application and deemed secure,
+ 4. the JWT is signed using the public key contained in the header of
+    the JWT,
+ 5. the `typ` field in the header has the correct value,
+ 6. the `http_method` and `http_uri` claims match the respective values
+    for the HTTP request in which the header was received,
+ 7. the token has not expired, and
+ 8. if replay protection is desired, that a JWT with the same `jti`
+    value has not been received previously.
 
 If these checks are successful, the authorization server MUST
 associate the access token with the public key. It then sets
@@ -182,7 +178,7 @@ server supports the mechanisms specified in this document.
 
 # Resource Access (Proof of Possession for Access Tokens)
 
-To make use of an access token that is token bound to a public key
+To make use of an access token that is token-bound to a public key
 using DPoP, a client MUST prove the possession of the corresponding
 private key. More precisely, the client MUST create a JWT and sign it
 using the previously chosen private key.
@@ -199,27 +195,27 @@ If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
 methods described in (#Confirmation)) it MUST check that:
 
- * a header `DPoP-Proof` was received in the HTTP request, 
- * the header's value is a well-formed JWT,
- * all required claims are contained in the JWT,
- * the algorithm in the header of the JWT is supported by the
-   application and deemed secure,
- * the JWT is signed using the public key to which the access token
-   was bound,
- * the `typ` field in the header has the correct value,
- * the `http_method` and `http_uri` claims match the respective values
-   for the HTTP request in which the header was received,
- * the token has not expired, and
- * if replay protection is desired, that a JWT with the same `jti`
-   value has not been received previously.
+ 1. a header `DPoP-Proof` was received in the HTTP request, 
+ 2. the header's value is a well-formed JWT,
+ 3. all required claims are contained in the JWT,
+ 4. the algorithm in the header of the JWT is supported by the
+    application and deemed secure,
+ 5. the JWT is signed using the public key to which the access token
+    was bound,
+ 6. the `typ` field in the header has the correct value,
+ 7. the `http_method` and `http_uri` claims match the respective values
+    for the HTTP request in which the header was received,
+ 8. the token has not expired, and
+ 9. if replay protection is desired, that a JWT with the same `jti`
+    value has not been received previously.
 
 If any of these checks fails, the resource server MUST NOT grant
 access to the resource.
 
 # Refresh Token Usage (Proof of Possession for Refresh Tokens)
 
-At the token endpoint, public clients MUST provide a proof of
-possession in the same way as for access tokens.
+At the token endpoint, public clients using a refresh token MUST
+provide a proof of possession in the same way as for access tokens.
 
 # Public Key Confirmation {#Confirmation}
 
@@ -265,9 +261,20 @@ Workshop in Stuttgart, Germany. We thank the organizers of this
 workshop (Ralf Küsters, Guido Schmitz).
 
 
-
 # IANA Considerations {#IANA}
       
+##  OAuth Access Token Type Registration
+
+This specification registers the following access token type in the
+OAuth Access Token Types registry defined in [RFC6749].
+
+ * Type name: "Bearer with DPoP"
+ * Additional Token Endpoint Response Parameters: (none)
+ * HTTP Authentication Scheme(s): Bearer
+ * Change controller: IETF
+ * Specification document(s): [[ this specification ]]
+
+
 ## JWT Confirmation Methods Registration
 
 This specification requests registration of the following value in
