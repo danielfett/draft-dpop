@@ -84,10 +84,12 @@ other client authentication methods.
 Note: DPoP does not directly ensure message integrity but relies on
 the TLS layer for that purpose.
 
-# DPoP JWT Syntax
+# DPoP JWTs
 
 DPoP uses so-called DPoP JWTs for binding public keys (DPoP Binding
 JWT) and proving knowledge about private keys (DPoP Proof JWT). 
+
+## Syntax
 
 A DPoP JWT is a JWT ([@!RFC7519]) that is signed (using JWS,
 [@!RFC7515]) using a private key chosen by the client (see below). The
@@ -142,6 +144,36 @@ An example DPoP JWT is shown in Figure 2.
 !---
 Figure 2: Example JWT contents for `DPoP-Binding` header.
 
+## Checking DPoP JWTs {#checking}
+
+To check if a string that was received as part of an HTTP Request is a
+valid DPoP Binding JWT or DPoP Proof JWT, the receiving server MUST
+ensure that
+
+ 1. the string value is a well-formed JWT,
+ 1. all required claims are contained in the JWT,
+ 1. the `typ` field in the header has the correct value according to
+    the expected type of DPoP JWT,
+ 1. the algorithm in the header of the JWT designates a digital
+    signature algorithm, is not `none`, is supported by the
+    application, and is deemed secure,
+ 1. if a DPoP Binding JWT is expected, that the JWT is signed using
+    the public key contained in the `cnf` claim of the JWT,
+ 1. if a DPoP Proof JWT is expected, that the JWT is signed using the
+    public key used for confirming the validity of the JWT,
+ 1. the `http_method` claim matches the respective value for the HTTP
+    request in which the JWT was received (case-insensitive),
+ 1. the `http_uri` claims matches the respective value for the HTTP
+    request in which the JWT was received, ignoring any query and
+    fragment parts,
+ 1. the token has not expired, and
+ 1. if replay protection is desired, that a JWT with the same `jti`
+    value has not been received previously.
+
+Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
+Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
+[@!RFC3986] before comparing the `http_uri` claim.
+
 
 # Token Request (Binding Tokens to a Public Key)
 
@@ -174,31 +206,11 @@ improve the performance of the client, the data transfer (caching),
 and the authorization server.
 
 If the authorization server receives a `DPoP-Binding` header in a
-token request, the authorization server MUST check that:
+token request, the authorization server MUST check the validity of the
+DPoP Binding JWT according to the rules in (#checking).
 
- 1. the header value is a well-formed JWT,
- 1. all required claims are contained in the JWT,
- 1. the `typ` field in the header has the correct value,
- 1. the algorithm in the header of the JWT designates a digital
-    signature algorithm, is not `none`, is supported by the
-    application, and is deemed secure,
- 1. the JWT is signed using the public key contained in the `cnf`
-    claim of the JWT,
- 1. the `http_method` claim matches the respective value for the HTTP
-    request in which the header was received (case-insensitive),
- 1. the `http_uri` claims matches the respective value for the HTTP
-    request in which the header was received, ignoring any query and
-    fragment parts,
- 1. the token has not expired, and
- 1. if replay protection is desired, that a JWT with the same `jti`
-    value has not been received previously.
-
-Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
-Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
-[@!RFC3986] before comparing the `http_uri` claim.
-
-If these checks are successful, the authorization server MUST
-associate the access token with the public key. It then sets
+If (and only if) all checks are successful, the authorization server
+MUST associate the access token with the public key. It then sets
 `token_type` to `Bearer+DPoP` in the token response. The client MAY
 use the value of the `token_type` parameter to determine whether the
 server supports the mechanisms specified in this document.
@@ -213,32 +225,12 @@ MUST then be sent in the `DPoP-Proof` request header.
 
 If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
-methods described in (#Confirmation)) it MUST check that:
+methods described in (#Confirmation)) it MUST check that a header
+`DPoP-Proof` was received in the HTTP request, and check the header's
+contents according to the rules in (#checking).
 
- 1. a header `DPoP-Proof` was received in the HTTP request, 
- 1. the header's value is a well-formed DPoP Proof JWT,
- 1. all required claims are contained in the JWT,
- 1. the algorithm in the header of the JWT designates a digital
-    signature algorithm, is not `none`, is supported by the
-    application, and is deemed secure,
- 1. the JWT is signed using the public key to which the access token
-    was bound,
- 1. the `typ` field in the header has the correct value,
- 1. the `http_method` claim matches the respective value for the HTTP
-    request in which the header was received (case-insensitive),
- 1. the `http_uri` claims matches the respective value for the HTTP
-    request in which the header was received, ignoring any query and
-    fragment parts,
- 1. the token has not expired, and
- 1. if replay protection is desired, that a JWT with the same `jti`
-    value has not been received previously.
-
-Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
-Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
-[@!RFC3986] before comparing the `http_uri` claim.
-
-If any of these checks fails, the resource server MUST NOT grant
-access to the resource.
+If (and only if) all checks are successful, the resource server MAY
+grant access to the resource.
 
 # Refresh Token Usage (Proof of Possession for Refresh Tokens)
 
