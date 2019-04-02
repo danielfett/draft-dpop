@@ -329,6 +329,8 @@ Encryption Type Values registry [@RFC7515]:
  * Change Controller: IETF
  * Specification Document(s): [[ this specification ]]
 
+<!-- -->
+
  * "typ" Header Parameter Value: "dpop_binding+jwt"
  * Abbreviation for MIME Type: None
  * Change Controller: IETF
@@ -343,7 +345,7 @@ Endpoint](#Objective_Replay_Different_Endpoint) is achieved through
 the binding of the DPoP JWT to a certain URI and HTTP method.
 
 
-## Token Replay at the same authorization server
+## Token Replay at the Same Authorization Server
 
 If an adversary is able to get hold of an DPoP-Binding JWT, it might
 replay it at the authorization server's token endpoint with the same
@@ -351,7 +353,7 @@ or different payload. The issued access token is useless as long as
 the adversary does not get hold of a valid DPoP-Binding JWT for the
 corresponding resource server.
 
-## Token Replay at the same resource server endpoint
+## Token Replay at the Same Resource Server Endpoint
 
 If an adversary is able to get hold of a DPoP-Proof JWT, the adversary
 could replay that token later at the same endpoint (the HTTP endpoint
