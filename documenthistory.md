@@ -14,4 +14,8 @@
    * moved binding and proof messages to headers instead of parameters
    * extracted and unified definition of DPoP JWTs
    * improved description
+   
+   -02
+   
+   * added normalization rules for URIs
 

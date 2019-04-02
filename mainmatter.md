@@ -105,8 +105,7 @@ The body of a DPoP JWT contains the following fields:
    the JWT (REQUIRED). SHOULD be used by the AS for replay detection
    and prevention. See [Security Considerations](#Security).
  * `http_method`: The HTTP method for the request to which the JWT is
-   attached, in upper case ASCII characters, as defined in [@!RFC7231]
-   (REQUIRED).
+   attached, as defined in [@!RFC7231] (REQUIRED).
  * `http_uri`: The HTTP URI used for the request, without query and
    fragment parts (REQUIRED).
  * `exp`: Expiration time of the JWT (REQUIRED). See [Security
@@ -185,11 +184,17 @@ token request, the authorization server MUST check that:
     application, and is deemed secure,
  1. the JWT is signed using the public key contained in the `cnf`
     claim of the JWT,
- 1. the `http_method` and `http_uri` claims match the respective values
+ 1. the `http_method` claim matches the respective value for the HTTP
+    request in which the header was received (case-insensitive),
+ 1. the `http_uri` claims matches the respective value
     for the HTTP request in which the header was received,
  1. the token has not expired, and
  1. if replay protection is desired, that a JWT with the same `jti`
     value has not been received previously.
+
+Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
+Normalizationa in accordance with Section 6.2.2. and Section 6.2.3. of
+[@!RFC3986] before comparing the `http_uri` claim.
 
 If these checks are successful, the authorization server MUST
 associate the access token with the public key. It then sets
