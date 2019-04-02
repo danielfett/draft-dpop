@@ -186,14 +186,15 @@ token request, the authorization server MUST check that:
     claim of the JWT,
  1. the `http_method` claim matches the respective value for the HTTP
     request in which the header was received (case-insensitive),
- 1. the `http_uri` claims matches the respective value
-    for the HTTP request in which the header was received,
+ 1. the `http_uri` claims matches the respective value for the HTTP
+    request in which the header was received, ignoring any query and
+    fragment parts,
  1. the token has not expired, and
  1. if replay protection is desired, that a JWT with the same `jti`
     value has not been received previously.
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
-Normalizationa in accordance with Section 6.2.2. and Section 6.2.3. of
+Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 [@!RFC3986] before comparing the `http_uri` claim.
 
 If these checks are successful, the authorization server MUST
@@ -220,14 +221,21 @@ methods described in (#Confirmation)) it MUST check that:
  1. the algorithm in the header of the JWT designates a digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
- 5. the JWT is signed using the public key to which the access token
+ 1. the JWT is signed using the public key to which the access token
     was bound,
- 6. the `typ` field in the header has the correct value,
- 7. the `http_method` and `http_uri` claims match the respective values
-    for the HTTP request in which the header was received,
- 8. the token has not expired, and
- 9. if replay protection is desired, that a JWT with the same `jti`
+ 1. the `typ` field in the header has the correct value,
+ 1. the `http_method` claim matches the respective value for the HTTP
+    request in which the header was received (case-insensitive),
+ 1. the `http_uri` claims matches the respective value for the HTTP
+    request in which the header was received, ignoring any query and
+    fragment parts,
+ 1. the token has not expired, and
+ 1. if replay protection is desired, that a JWT with the same `jti`
     value has not been received previously.
+
+Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
+Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
+[@!RFC3986] before comparing the `http_uri` claim.
 
 If any of these checks fails, the resource server MUST NOT grant
 access to the resource.
