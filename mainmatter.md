@@ -23,7 +23,7 @@ Secondary objectives are discussed in (#Security).
 | Client |        (DPop-Binding/Proof)              | Authorization |
 |        |                                          |     Server    |
 |        |<-(B)-- PoP Access Token -----------------|               |
-|        |        (token_type=Bearer+DPoP)          +---------------+
+|        |        (token_type=Bearer-DPoP)          +---------------+
 |        |        PoP Refresh Token for public clients
 |        | 
 |        |                                          +---------------+
@@ -50,7 +50,7 @@ The new elements introduced by this specification are shown in Figure 1:
     public key claimed by the client; that is, the access token cannot
     be used without proving possession of the respective private key.
     This is signaled to the client by using the `token_type` value
-    `Bearer+DPoP`. If a refresh token is issued to the client, it is
+    `Bearer-DPoP`. If a refresh token is issued to the client, it is
     sender-constrained in the same way if the client is a public
     client. Note: refresh tokens are automatically bound to the
     `client_id` of a confidential client, which is more flexible than
@@ -210,7 +210,7 @@ DPoP Binding JWT according to the rules in (#checking).
 
 If (and only if) all checks are successful, the authorization server
 MUST associate the access token with the public key. It then sets
-`token_type` to `Bearer+DPoP` in the token response. The client MAY
+`token_type` to `Bearer-DPoP` in the token response. The client MAY
 use the value of the `token_type` parameter to determine whether the
 server supports the mechanisms specified in this document.
 
@@ -286,7 +286,7 @@ workshop (Ralf Küsters, Guido Schmitz).
 This specification registers the following access token type in the
 OAuth Access Token Types registry defined in [RFC6749].
 
- * Type name: "Bearer+DPoP"
+ * Type name: "Bearer-DPoP"
  * Additional Token Endpoint Response Parameters: (none)
  * HTTP Authentication Scheme(s): Bearer
  * Change controller: IETF
