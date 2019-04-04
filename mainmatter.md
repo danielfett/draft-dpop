@@ -124,7 +124,7 @@ An example DPoP JWT is shown in Figure 2.
 ```
 {
     "typ": "dpop_binding+jwt",
-    "alg": "ES512",
+    "alg": "ES256"
 }.{
     "jti": "HK2PmfnHKwXP",
     "http_method": "POST",
