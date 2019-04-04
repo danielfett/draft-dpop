@@ -129,14 +129,13 @@ An example DPoP JWT is shown in Figure 2.
     "jti": "HK2PmfnHKwXP",
     "http_method": "POST",
     "http_uri": "https://server.example.com/token",
-    "exp": "..."
+    "exp": 1555555555,
     "cnf":{
         "dpop+jwk": {
-             "kty" : "EC",
-             "kid" : "11",
-             "crv" : "P-256",
-             "x" : "usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8",
-             "y" : "3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4"
+             "kty": "EC",
+             "crv": "P-256",
+             "x": "f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU",
+             "y": "x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0"
         }
     }
 }
@@ -252,15 +251,14 @@ the member `dpop+jwk` of the `cnf` claim, as shown in Figure 4.
 {
     "iss": "https://server.example.com",
     "sub": "something@example.com",
-    "exp": 1493726400,
-    "nbf": 1493722800,
+    "exp": 1503726400,
+    "nbf": 1503722800,
     "cnf":{
         "dpop+jwk": {
-            "kty" : "EC",
-            "kid" : "11",
-            "crv" : "P-256",
-            "x" : "usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8",
-            "y" : "3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4"
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU",
+            "y": "x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0"
         }
     }
 }
