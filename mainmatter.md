@@ -200,10 +200,6 @@ Figure 3: Token Request for a DPoP bound token.
 The HTTP header `DPoP-Binding` MUST contain a DPoP Binding JWT signed
 using the private key chosen by the client.
 
-It is RECOMMENDED that clients reuse the same JWT if possible to
-improve the performance of the client, the data transfer (caching),
-and the authorization server.
-
 If the authorization server receives a `DPoP-Binding` header in a
 token request, the authorization server MUST check the validity of the
 DPoP Binding JWT according to the rules in (#checking).
