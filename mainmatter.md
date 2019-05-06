@@ -192,7 +192,6 @@ DPoP-Binding: eyJhbGciOiJSU0ExXzUi ...
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-(remainder of JWK omitted for brevity)
 ~~~
 !---
 Figure 3: Token Request for a DPoP bound token.
