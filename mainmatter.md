@@ -16,11 +16,17 @@ Secondary objectives are discussed in (#Security).
 
 # Concept
 
+The main data structure introduced by this specification is a DPoP
+token. A client uses a DPoP token to prove the possession of a private
+key belonging to a certain public key. Roughly speaking, a DPoP token
+is a signature over some data of the request it is attached to (HTTP
+URI and method) and a timestamp.
+
 !---
 ~~~ ascii-art
 +--------+                                          +---------------+
 |        |--(A)-- Token Request ------------------->|               |
-| Client |        (DPop-Binding/Proof)              | Authorization |
+| Client |        (DPoP Token)                      | Authorization |
 |        |                                          |     Server    |
 |        |<-(B)-- PoP Access Token -----------------|               |
 |        |        (token_type=Bearer-DPoP)          +---------------+
@@ -28,7 +34,7 @@ Secondary objectives are discussed in (#Security).
 |        | 
 |        |                                          +---------------+
 |        |--(C)-- PoP Access Token ---------------->|               |
-|        |        (DPoP-Proof)                      |    Resource   |
+|        |        (DPoP Token)                      |    Resource   |
 |        |                                          |     Server    |
 |        |<-(D)-- Protected Resource ---------------|               |
 |        |                                          +---------------+
@@ -37,43 +43,37 @@ Secondary objectives are discussed in (#Security).
 !---
 Figure 1: Basic DPoP Flow
 
-The new elements introduced by this specification are shown in Figure 1:
+The basic steps of an OAuth flow with DPoP are shown in Figure 1:
 
-  * (A) In the Token Request, the client sends an authorization grant,
-    e.g., an authorization code or a refresh token, to the
-    authorization server in order to obtain an access token (and
-    potentially a refresh token). The client proves the possession of
-    a private key belonging to some public key by sending a request
-    header containing a JWT that was signed using this private key.
-    The corresponding public key is contained in the same request.
+  * (A) In the Token Request, the client sends an authorization code
+    to the authorization server in order to obtain an access token
+    (and potentially a refresh token). The client attaches a DPoP
+    token to the request in a HTTP header.
   * (B) The AS binds (sender-constrains) the access token to the
-    public key claimed by the client; that is, the access token cannot
+    public key claimed by the client in the DPoP token; that is, the access token cannot
     be used without proving possession of the respective private key.
     This is signaled to the client by using the `token_type` value
-    `Bearer-DPoP`. If a refresh token is issued to the client, it is
-    sender-constrained in the same way if the client is a public
-    client. Note: refresh tokens are automatically bound to the
-    `client_id` of a confidential client, which is more flexible than
-    binding it to a particular public key.
+    `Bearer-DPoP`. 
+  * If a refresh token is issued to a public client, it is
+    sender-constrained in the same way. For confidential clients,
+    refresh tokens are bound to the `client_id`, which is more
+    flexible than binding it to a particular public key.
   * (C) If the client wants to use the access token, it has to prove
     possession of the private key by adding a header to the request
-    that, again, contains a JWT signed with this private key. The JWT
-    contains the endpoint URL and the request method. The resource
-    server needs to receive information about which public key to
-    check against. This information is either encoded directly into
-    the access token, for JWT structured access tokens, or provided at
-    the token introspection endpoint of the authorization server
-    (request not shown).
+    that, again, contains a DPoP token. The resource server needs to
+    receive information about which public key to check against. This
+    information is either encoded directly into the access token, for
+    JWT structured access tokens, or provided at the token
+    introspection endpoint of the authorization server (request not
+    shown).
   * (D) The resource server refuses to serve the request if the
-    signature check fails or the data in the JWT do not match, e.g.,
-    the request URI does not match the URI claim in the JWT.
-  * Steps (A) and (B) can be repeated using a refresh token to obtain
-    fresh access tokens. In this case, the client sends a DPoP proof
-    JWT as in step (C) above. The client can optionally proof the
-    possession of a new private/public key pair to which the new
-    tokens are then bound by the authorization server. Otherwise, the
-    authorization server binds the new tokens to the previously used
-    public key.
+    signature check fails or the data in the DPoP token do not match,
+    e.g., the request URI does not match the URI claim in the DPoP
+    token.
+  * When a refresh token that is sender-constrained using DPoP is used
+    by the client, the client has to provide a DPoP token just as in
+    the case of a resource access. The new access token will be bound
+    to the same public key.
 
 The mechanism presented herein is not a client authentication method.
 In fact, a primary use case are public clients (single page
@@ -84,28 +84,27 @@ other client authentication methods.
 Note: DPoP does not directly ensure message integrity but relies on
 the TLS layer for that purpose.
 
-# DPoP JWTs
+# DPoP Tokens
 
-DPoP uses so-called DPoP JWTs for binding public keys (DPoP Binding
-JWT) and proving knowledge about private keys (DPoP Proof JWT). 
+DPoP uses so-called DPoP tokens for binding public keys and proving
+knowledge about private keys.
 
 ## Syntax
 
-A DPoP JWT is a JWT ([@!RFC7519]) that is signed (using JWS,
+A DPoP token is a JWT ([@!RFC7519]) that is signed (using JWS,
 [@!RFC7515]) using a private key chosen by the client (see below). The
-header of a DPoP JWT contains the following fields:
+header of a DPoP JWT contains at least the following fields:
 
- * `typ`: type header, value `dpop_binding+jwt` for a DPoP Binding JWT
-   or `dpop_proof+jwt` for a DPoP Proof JWT (REQUIRED).
+ * `typ`: type header, value `dpop+jwt` (REQUIRED).
  * `alg`: a digital signature algorithm identifier as per [@!RFC7518]
    (REQUIRED). MUST NOT be `none` or an identifier for a symmetric
    algorithm (MAC).
 
-The body of a DPoP JWT contains the following fields:
+The body of a DPoP token contains at least the following fields:
 
  * `jti`: Unique identifier for this JWT chosen freshly when creating
-   the JWT (REQUIRED). SHOULD be used by the AS for replay detection
-   and prevention. See [Security Considerations](#Security).
+   the DPoP token (REQUIRED). SHOULD be used by the AS for replay
+   detection and prevention. See [Security Considerations](#Security).
  * `http_method`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
  * `http_uri`: The HTTP URI used for the request, without query and
@@ -114,16 +113,15 @@ The body of a DPoP JWT contains the following fields:
    Considerations](#Security).
 * `cnf`: Confirmation claim as per [@!RFC7800] containing a member
    `dpop+jwk`, representing the public key chosen by the client in JWK
-   format (REQUIRED for DPoP Binding JWTs, OPTIONAL for DPoP Proof
-   JWTs).
+   format (REQUIRED).
 
 
-An example DPoP JWT is shown in Figure 2.
+An example DPoP token is shown in Figure 2.
 
 !---
 ```
 {
-    "typ": "dpop_binding+jwt",
+    "typ": "dpop+jwt",
     "alg": "ES256"
 }.{
     "jti": "HK2PmfnHKwXP",
@@ -141,25 +139,32 @@ An example DPoP JWT is shown in Figure 2.
 }
 ```
 !---
-Figure 2: Example JWT contents for `DPoP-Binding` header.
+Figure 2: Example JWT contents for `DPoP` header.
 
-## Checking DPoP JWTs {#checking}
+Note: To keep DPoP simple to implement, only the HTTP method and URI
+are signed in DPoP tokens. Nonetheless, DPoP tokens can be extended to
+contain other information of the HTTP request (see also
+(#request_integrity)).
+
+## Checking DPoP tokens {#checking}
 
 To check if a string that was received as part of an HTTP Request is a
-valid DPoP Binding JWT or DPoP Proof JWT, the receiving server MUST
-ensure that
+valid DPoP token, the receiving server MUST ensure that
 
  1. the string value is a well-formed JWT,
  1. all required claims are contained in the JWT,
- 1. the `typ` field in the header has the correct value according to
-    the expected type of DPoP JWT,
+ 1. the `typ` field in the header has the value `dpop+jwt`,
  1. the algorithm in the header of the JWT designates a digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
- 1. if a DPoP Binding JWT is expected, that the JWT is signed using
-    the public key contained in the `cnf` claim of the JWT,
- 1. if a DPoP Proof JWT is expected, that the JWT is signed using the
-    public key used for confirming the validity of the JWT,
+ 1. that the JWT is signed using the public key contained in the `cnf`
+    claim of the JWT,
+ 1. if a DPoP sender-constrained refresh token is to be used at the
+    token endpoint, that the JWT is signed using the public key the
+    refresh token is bound to,
+ 1. if a DPoP sender-constrained access token is to be used at the
+    resource endpoint, that the JWT is signed using the public key the
+    access token is bound to (see below),
  1. the `http_method` claim matches the respective value for the HTTP
     request in which the JWT was received (case-insensitive),
  1. the `http_uri` claims matches the respective value for the HTTP
@@ -177,9 +182,9 @@ Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 # Token Request (Binding Tokens to a Public Key)
 
 To bind a token to a public key in the token request, the client MUST
-provide a public key and prove the possession of the corresponding
-private key. The HTTPS request shown in Figure 3 illustrates the
-protocol for this (with extra line breaks for display purposes only).
+provide a valid DPoP token in a `DPoP` header. The HTTPS request shown
+in Figure 3 illustrates the protocol for this (with extra line breaks
+for display purposes only).
 
 
 !---
@@ -187,49 +192,47 @@ protocol for this (with extra line breaks for display purposes only).
 POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
-DPoP-Binding: eyJhbGciOiJSU0ExXzUi ...
+DPoP: eyJhbGciOiJSU0ExXzUi ...
 
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 ~~~
 !---
-Figure 3: Token Request for a DPoP bound token.
+Figure 3: Token Request for a DPoP sender-constrained token.
 
-The HTTP header `DPoP-Binding` MUST contain a DPoP Binding JWT signed
-using the private key chosen by the client.
+The HTTP header `DPoP` MUST contain a valid DPoP token.
 
-If the authorization server receives a `DPoP-Binding` header in a
-token request, the authorization server MUST check the validity of the
-DPoP Binding JWT according to the rules in (#checking).
+If the token is valid, the authorization server MUST associate the
+access token issued at the token endpoint with the public key. It then
+sets `token_type` to `Bearer-DPoP` in the token response. The client
+MAY use the value of the `token_type` parameter to determine whether
+the server supports the mechanisms specified in this document.
 
-If (and only if) all checks are successful, the authorization server
-MUST associate the access token with the public key. It then sets
-`token_type` to `Bearer-DPoP` in the token response. The client MAY
-use the value of the `token_type` parameter to determine whether the
-server supports the mechanisms specified in this document.
+If a refresh token is issued to a public client at the token endpoint
+and a valid DPoP token is presented, the refresh token MUST be bound
+to the public key contained in the DPoP token.
+
+If a DPoP-bound refresh token is to be used at the token endpoint by a
+public client, the AS MUST ensure that the DPoP token contains the
+same public key as the one the refresh token is bound to. The access
+token issued MUST be bound to the public key contained in the DPoP
+token.
 
 # Resource Access (Proof of Possession for Access Tokens)
 
 To make use of an access token that is token-bound to a public key
 using DPoP, a client MUST prove the possession of the corresponding
-private key. More precisely, the client MUST create a DPoP Proof JWT
-and sign it using the previously chosen private key. The signed JWT
-MUST then be sent in the `DPoP-Proof` request header.
+private key by providing a DPoP token in the `DPoP` request header.
 
 If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
 methods described in (#Confirmation)) it MUST check that a header
-`DPoP-Proof` was received in the HTTP request, and check the header's
+`DPoP` was received in the HTTP request, and check the header's
 contents according to the rules in (#checking).
 
 If (and only if) all checks are successful, the resource server MAY
 grant access to the resource.
-
-# Refresh Token Usage (Proof of Possession for Refresh Tokens)
-
-At the token endpoint, public clients using a refresh token MUST
-provide a proof of possession in the same way as for access tokens. 
 
 # Public Key Confirmation {#Confirmation}
 
@@ -318,22 +321,13 @@ This specification registers the following parameters in the IANA
 
 ## JSON Web Signature and Encryption Type Values Registration
 
-This specification registers the `dpop_proof+jwt` and
-`dpop_binding+jwt` type values in the IANA JSON Web Signature and
-Encryption Type Values registry [@RFC7515]:
+This specification registers the `dpop+jwt` type value in the IANA
+JSON Web Signature and Encryption Type Values registry [@RFC7515]:
 
- * "typ" Header Parameter Value: "dpop_proof+jwt"
+ * "typ" Header Parameter Value: "dpop+jwt"
  * Abbreviation for MIME Type: None
  * Change Controller: IETF
  * Specification Document(s): [[ this specification ]]
-
-<!-- -->
-
- * "typ" Header Parameter Value: "dpop_binding+jwt"
- * Abbreviation for MIME Type: None
- * Change Controller: IETF
- * Specification Document(s): [[ this specification ]]
-
 
 
 # Security Considerations {#Security}
@@ -343,17 +337,9 @@ Endpoint](#Objective_Replay_Different_Endpoint) is achieved through
 the binding of the DPoP JWT to a certain URI and HTTP method.
 
 
-## Token Replay at the Same Authorization Server
+## DPoP Token Replay
 
-If an adversary is able to get hold of an DPoP-Binding JWT, it might
-replay it at the authorization server's token endpoint with the same
-or different payload. The issued access token is useless as long as
-the adversary does not get hold of a valid DPoP-Binding JWT for the
-corresponding resource server.
-
-## Token Replay at the Same Resource Server Endpoint
-
-If an adversary is able to get hold of a DPoP-Proof JWT, the adversary
+If an adversary is able to get hold of a DPoP token, the adversary
 could replay that token later at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, clients MUST limit the lifetime of the JWTs, preferably
@@ -365,10 +351,35 @@ a `jti` value has been seen before.
 
 ## Signed JWT Swapping
 
-Servers accepting signed DPoP JWTs MUST check the `typ` field in the
+Servers accepting signed DPoP tokens MUST check the `typ` field in the
 headers of the JWTs to ensure that adversaries cannot use JWTs created
 for other purposes in the DPoP headers.
 
-## Comparison to mTLS and OAuth Token Binding
+## Signature Algorithms
 
-  * mTLS stronger against intercepted connections
+Implementers MUST ensure that only digital signature algorithms that
+are deemed secure can be used for signing DPoP tokens. In particular,
+the algorithm `none` MUST NOT be allowed.
+
+## Message Integrity {#request_integrity}
+
+DPoP does not ensure the integrity of the payload or headers of
+requests. The signature of DPoP tokens only contains the HTTP URI and
+method, not, for example, the message body or other request headers.
+
+This is an intentional design decision to keep DPoP simple to use, but
+as described, makes DPoP potentially susceptible to replay attacks
+where an attacker is able to modify message contents and headers. In
+many setups, the message integrity and confidentiality provided by TLS
+is sufficient to provide a reasonable level of protection.
+
+Implementers that have stronger requirements on the integrity of
+messages are encouraged to either use TLS-based mechanisms or signed
+requests. TLS-based mechanisms are in particular OAuth Mutual TLS
+[@I-D.ietf-oauth-mtls] and OAuth Token Binding
+[@I-D.ietf-oauth-token-binding].
+
+Note: While signatures on (parts of) requests are out of the scope of
+this specification, signatures or information to be signed can be
+added into DPoP tokens.
+
