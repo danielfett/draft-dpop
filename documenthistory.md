@@ -9,6 +9,9 @@
    * removed ability for key rotation
    * added security considerations on request integrity
    * explicit advice on extending DPoP tokens to sign other parts of the HTTP messages
+   * only use the jkt#S256 in ATs
+   * iat instead of exp in DPoP tokens
+   * updated guidance on token_type evaluation
 
 
    -01

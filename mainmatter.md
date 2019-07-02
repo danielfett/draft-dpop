@@ -109,10 +109,9 @@ The body of a DPoP token contains at least the following fields:
    attached, as defined in [@!RFC7231] (REQUIRED).
  * `http_uri`: The HTTP URI used for the request, without query and
    fragment parts (REQUIRED).
- * `exp`: Expiration time of the JWT (REQUIRED). See [Security
-   Considerations](#Security).
+ * `iat`: Time at which the JWT was created (REQUIRED).
 * `cnf`: Confirmation claim as per [@!RFC7800] containing a member
-   `dpop+jwk`, representing the public key chosen by the client in JWK
+   `jwk`, representing the public key chosen by the client in JWK
    format (REQUIRED).
 
 
@@ -127,9 +126,9 @@ An example DPoP token is shown in Figure 2.
     "jti": "HK2PmfnHKwXP",
     "http_method": "POST",
     "http_uri": "https://server.example.com/token",
-    "exp": 1555555555,
+    "iat": 1555555555,
     "cnf":{
-        "dpop+jwk": {
+        "jwk": {
              "kty": "EC",
              "crv": "P-256",
              "x": "f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU",
@@ -192,7 +191,7 @@ for display purposes only).
 POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
-DPoP: eyJhbGciOiJSU0ExXzUi ...
+DPoP: eyJhbGciOiJSU0ExXzUi...
 
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
@@ -205,9 +204,15 @@ The HTTP header `DPoP` MUST contain a valid DPoP token.
 
 If the token is valid, the authorization server MUST associate the
 access token issued at the token endpoint with the public key. It then
-sets `token_type` to `Bearer-DPoP` in the token response. The client
-MAY use the value of the `token_type` parameter to determine whether
-the server supports the mechanisms specified in this document.
+sets `token_type` to `Bearer-DPoP` in the token response. 
+
+A client typically cannot know whether a certain AS supports DPoP. It
+therefore SHOULD use the value of the `token_type` parameter returned
+from the AS to determine support for DPoP: If the token type returned
+is `Bearer` or another value, the AS does not support DPoP. If it is
+`Bearer-DPoP`, DPoP is supported. Only then, the client needs to send
+the `DPoP` header in subsequent requests and use the token type
+`Bearer-DPoP` in the `Authorization` header as described below.
 
 If a refresh token is issued to a public client at the token endpoint
 and a valid DPoP token is presented, the refresh token MUST be bound
@@ -225,6 +230,9 @@ To make use of an access token that is token-bound to a public key
 using DPoP, a client MUST prove the possession of the corresponding
 private key by providing a DPoP token in the `DPoP` request header.
 
+The DPoP-bound access token must be sent in the `Authorization` header
+with the prefix `Bearer-DPoP `.
+
 If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
 methods described in (#Confirmation)) it MUST check that a header
@@ -234,15 +242,30 @@ contents according to the rules in (#checking).
 If (and only if) all checks are successful, the resource server MAY
 grant access to the resource.
 
+
+!---
+~~~
+GET /protectedresource HTTP/1.1
+Host: resourceserver.example.com
+Authorization: Bearer-DPoP eyJhbGciOiJIUzI1...
+DPoP: eyJhbGciOiJSU0ExXzUi...
+~~~
+!---
+Figure 3: Token Request for a DPoP sender-constrained token.
+
 # Public Key Confirmation {#Confirmation}
 
 It MUST be ensured that resource servers can reliably identify whether
 a token is bound using DPoP and learn the public key to which the
 token is bound.
 
-Access tokens that are represented as JSON Web Tokens (JWT)[@!RFC7519]
+Access tokens that are represented as JSON Web Tokens (JWT) [@!RFC7519]
 MUST contain information about the DPoP public key (in JWK format) in
-the member `dpop+jwk` of the `cnf` claim, as shown in Figure 4.
+the member `jkt#S256` of the `cnf` claim, as shown in Figure 4.
+
+The value in `jkt#S256` MUST be the base64url encoding [@!RFC7515] of
+the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the public
+key to which the access token is bound.
 
 !---
 ```
@@ -252,12 +275,7 @@ the member `dpop+jwk` of the `cnf` claim, as shown in Figure 4.
     "exp": 1503726400,
     "nbf": 1503722800,
     "cnf":{
-        "dpop+jwk": {
-            "kty": "EC",
-            "crv": "P-256",
-            "x": "f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU",
-            "y": "x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0"
-        }
+        "jkt#S256": "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"
     }
 }
 ```
@@ -267,6 +285,9 @@ Figure 4: Example access token body with `cnf` claim.
 When access token introspection is used, the same `cnf` claim as above
 MUST be contained in the introspection response.
 
+Resource servers MUST ensure that the fingerprint of the public key in
+the DPoP token equals the value in the `jkt#S256` claim in the access
+token or introspection response.
 
 # Acknowledgements {#Acknowledgements}
       
@@ -291,34 +312,6 @@ OAuth Access Token Types registry defined in [RFC6749].
  * Specification document(s): [[ this specification ]]
 
 
-## JWT Confirmation Methods Registration
-
-This specification requests registration of the following value in
-the IANA "JWT Confirmation Methods" registry [IANA.JWT.Claims] for
-JWT "cnf" member values established by [@RFC7800].
-
- *  Confirmation Method Value: "dpop+jwk"
- *  Confirmation Method Description: JWK encoded public key for dpop proof token
- *  Change Controller: IESG
- *  Specification Document(s): [[ this specification ]]
- 
-<!--
-## OAuth Parameters Registry
-
-This specification registers the following parameters in the IANA
-"OAuth Parameters" registry defined in OAuth 2.0 [@RFC6749].
-
- * Parameter name: dpop_binding
- * Parameter usage location: token request
- * Change controller: IESG
- * Specification document(s): [[ this specification ]]
-
- * Parameter name: dpop_proof
- * Parameter usage location: token request
- * Change controller: IESG
- * Specification document(s): [[ this specification ]]
--->
-
 ## JSON Web Signature and Encryption Type Values Registration
 
 This specification registers the `dpop+jwt` type value in the IANA
@@ -342,12 +335,13 @@ the binding of the DPoP JWT to a certain URI and HTTP method.
 If an adversary is able to get hold of a DPoP token, the adversary
 could replay that token later at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
-prevent this, clients MUST limit the lifetime of the JWTs, preferably
-to a brief period. Furthermore, the `jti` claim in each JWT MUST
-contain a unique (incrementing or randomly chosen) value, as proposed
-in [@!RFC7253]. Resource servers SHOULD store values at least for the
-lifetime of the respective JWT and decline HTTP requests by clients if
-a `jti` value has been seen before.
+prevent this, servers MUST only accept DPoP tokens for a limited time
+window after their `iat` time, preferably only for a brief period.
+Furthermore, the `jti` claim in each JWT MUST contain a unique
+(incrementing or randomly chosen) value, as proposed in [@!RFC7253].
+Resource servers SHOULD store values at least for the time window in
+which the respective JWT is accepted and decline HTTP requests by
+clients if a `jti` value has been seen before.
 
 ## Signed JWT Swapping
 
