@@ -60,7 +60,7 @@ organization="Microsoft"
 
 This document describes a mechanism for sender-constraining OAuth 2.0
 tokens via a proof-of-possession mechanism on the application level.
-This mechanism allows to detect replay attacks with access and refresh
+This mechanism allows for the detection of replay attacks with access and refresh
 tokens.
 
 {mainmatter}
