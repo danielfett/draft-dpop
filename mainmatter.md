@@ -20,7 +20,7 @@ The main data structure introduced by this specification is a DPoP
 token, described in detail below. A client uses a DPoP token to prove
 the possession of a private key belonging to a certain public key.
 Roughly speaking, a DPoP token is a signature over some data of the
-request it is attached to and a timestamp.
+request to which it is attached to and a timestamp.
 
 !---
 ~~~ ascii-art
