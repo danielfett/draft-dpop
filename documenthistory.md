@@ -6,6 +6,8 @@
    
    * added normalization rules for URIs
    * removed distinction between proof and binding ("DPoP X JWT" -> "DPoP token")
+   * "jwk" header again used instead of "cnf" claim in DPoP tokens
+   * renamed "Bearer-DPoP" token type to "DPoP"
    * removed ability for key rotation
    * added security considerations on request integrity
    * explicit advice on extending DPoP tokens to sign other parts of the HTTP messages
