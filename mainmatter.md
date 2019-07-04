@@ -276,7 +276,7 @@ key to which the access token is bound.
     "exp": 1503726400,
     "nbf": 1503722800,
     "cnf":{
-        "jkt#S256": "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"
+        "jkt#S256": "oKIywvGUpTVTyxMQ3bwIIeQUudfr_CkLMjCE19ECD-U"
     }
 }
 ```
