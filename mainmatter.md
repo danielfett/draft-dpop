@@ -76,7 +76,7 @@ The basic steps of an OAuth flow with DPoP are shown in Figure 1:
     to the same public key.
 
 The mechanism presented herein is not a client authentication method.
-In fact, a primary use case are public clients (single page
+In fact, a primary use case is public clients (single page
 applications) that do not use client authentication. Nonetheless, DPoP
 is designed such that it is compatible with `private_key_jwt` and all
 other client authentication methods.
