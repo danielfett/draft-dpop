@@ -29,7 +29,7 @@ request to which it is attached to and a timestamp.
 | Client |        (DPoP Token)                      | Authorization |
 |        |                                          |     Server    |
 |        |<-(B)-- DPoP-bound Access Token ----------|               |
-|        |        (token_type=DPoP)          +---------------+
+|        |        (token_type=DPoP)                 +---------------+
 |        |        PoP Refresh Token for public clients
 |        | 
 |        |                                          +---------------+
