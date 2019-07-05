@@ -150,7 +150,7 @@ valid DPoP token, the receiving server MUST ensure that
  1. the string value is a well-formed JWT,
  1. all required claims are contained in the JWT,
  1. the `typ` field in the header has the value `dpop+jwt`,
- 1. the algorithm in the header of the JWT designates a digital
+ 1. the algorithm in the header of the JWT indicates an asymmetric digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
  1. that the JWT is signed using the public key contained in the `jwk`
