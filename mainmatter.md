@@ -166,7 +166,7 @@ valid DPoP token, the receiving server MUST ensure that
  1. the `http_uri` claims matches the respective value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
- 1. the token was issued within a certain timeframe (see (#Token_Replay)), and
+ 1. the token was issued within an acceptable timeframe (see (#Token_Replay)), and
  1. that a JWT with the same `jti` value has not been received
     previously (see (#Token_Replay)).
 
