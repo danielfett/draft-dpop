@@ -229,7 +229,7 @@ using DPoP, a client MUST prove the possession of the corresponding
 private key by providing a DPoP token in the `DPoP` request header.
 
 The DPoP-bound access token must be sent in the `Authorization` header
-with the prefix `DPoP `.
+with the prefix `DPoP`.
 
 If a resource server detects that an access token that is to be used
 for resource access is bound to a public key using DPoP (via the
