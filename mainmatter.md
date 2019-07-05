@@ -249,7 +249,7 @@ Authorization: DPoP eyJhbGciOiJIUzI1...
 DPoP: eyJhbGciOiJSU0ExXzUi...
 ~~~
 !---
-Figure 4: Token Request for a DPoP sender-constrained token.
+Figure 4: Protected Rresource Request with a DPoP sender-constrained access token.
 
 # Public Key Confirmation {#Confirmation}
 
