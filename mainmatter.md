@@ -161,7 +161,8 @@ valid DPoP token, the receiving server MUST ensure that
     request in which the JWT was received, ignoring any query and
     fragment parts,
  1. the token was issued within an acceptable timeframe (see (#Token_Replay)), and
- 1. that a JWT with the same `jti` value has not been received
+ 1. that, within a reasonable consideration of accuracy and resource utilization,
+    a JWT with the same `jti` value has not been received
     previously (see (#Token_Replay)).
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
