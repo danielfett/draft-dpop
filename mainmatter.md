@@ -155,12 +155,6 @@ valid DPoP token, the receiving server MUST ensure that
     application, and is deemed secure,
  1. that the JWT is signed using the public key contained in the `jwk`
     header of the JWT,
- 1. if a DPoP sender-constrained refresh token is to be used at the
-    token endpoint, that the JWT is signed using the public key the
-    refresh token is bound to,
- 1. if a DPoP sender-constrained access token is to be used at the
-    resource endpoint, that the JWT is signed using the public key the
-    access token is bound to (see below),
  1. the `http_method` claim matches the respective value for the HTTP
     request in which the JWT was received (case-insensitive),
  1. the `http_uri` claims matches the respective value for the HTTP
