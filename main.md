@@ -10,7 +10,7 @@ date = 2019-07-08T12:00:00Z
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-fett-oauth-dpop-02"
+value = "draft-fett-oauth-dpop-03"
 stream = "IETF"
 status = "standard"
     
