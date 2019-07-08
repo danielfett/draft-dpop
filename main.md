@@ -6,7 +6,7 @@ area = "Security"
 workgroup = "Web Authorization Protocol"
 keyword = ["security", "oauth2"]
 
-date = 2019-04-02T12:00:00Z
+date = 2019-07-08T12:00:00Z
 
 [seriesInfo]
 name = "Internet-Draft"
