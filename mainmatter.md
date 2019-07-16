@@ -106,7 +106,7 @@ The body of a DPoP proof contains at least the following claims:
 
  * `jti`: Unique identifier for this JWT chosen freshly when creating
    the DPoP proof (REQUIRED). SHOULD be used by the AS for replay
-   detection and prevention. See [Security Considerations](#Security).
+   detection and prevention. See Security Considerations, Section (#Security).
  * `http_method`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
  * `http_uri`: The HTTP URI used for the request, without query and
@@ -295,8 +295,8 @@ workshop (Ralf Küsters, Guido Schmitz).
 
 # Security Considerations {#Security}
 
-The [Prevention of Token Replay at a Different
-Endpoint](#Objective_Replay_Different_Endpoint) is achieved through
+The prevention of token replay at a different
+endpoint (see (#Objective_Replay_Different_Endpoint)) is achieved through
 the binding of the DPoP proof to a certain URI and HTTP method.
 However, DPoP does not achieve the same level of protection as, for
 example, OAuth Mutual TLS [@I-D.ietf-oauth-mtls], as described in the
