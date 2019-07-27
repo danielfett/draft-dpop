@@ -119,19 +119,19 @@ An example DPoP proof is shown in Figure 2.
 !---
 ```
 {
-    "typ": "dpop+jwt",
-    "alg": "ES256",
-    "jwk": {
-             "kty": "EC",
-             "crv": "P-256",
-             "x": "f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU",
-             "y": "x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0"
-    }
+  "typ":"dpop+jwt",
+  "alg":"ES256",
+  "jwk": {
+    "kty":"EC",
+    "x":"l8tFrhx-34tV3hRICRDY9zCkDlpBhF42UQUfWVAWBFs",
+    "y":"9VE4jf_Ok_o64zbTTlcuNJajHmt6v9TDVrU0CdvGRDA",
+    "crv":"P-256"
+  }
 }.{
-    "jti": "HK2PmfnHKwXP",
-    "http_method": "POST",
-    "http_uri": "https://server.example.com/token",
-    "iat": 1555555555
+  "jti":"-BwC3yESc04acc77lTc26x",
+  "http_method":"POST",
+  "http_uri":"https://server.example.com/token",
+  "iat":1562262616
 }
 ```
 !---
@@ -183,8 +183,13 @@ for display purposes only).
 POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
-DPoP: eyJhbGciOiJSU0ExXzUi...
-
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM3lFU2MwNGFjYzc3bFRjMjZ4Ii
+ wiaHR0cF9tZXRob2QiOiJQT1NUIiwiaHR0cF91cmkiOiJodHRwczovL3NlcnZlci5le
+ GFtcGxlLmNvbS90b2tlbiIsImlhdCI6MTU2MjI2MjYxNn0.PEWRcUkr9hlIVCzR6_Cu
+ gQdGgkZrQAaRfgaCq4cJpzhPqDFFKKIMr9-rHCJyY7tNU-IaDHmgm4JF4Fld93nczA
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
@@ -239,9 +244,22 @@ checks are successful.
 !---
 ~~~
 GET /protectedresource HTTP/1.1
-Host: resourceserver.example.com
-Authorization: DPoP eyJhbGciOiJIUzI1...
-DPoP: eyJhbGciOiJSU0ExXzUi...
+Host: resource.example.org
+Authorization: DPoP eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWI
+ iOiJzb21lb25lQGV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbX
+ BsZS5jb20iLCJhdWQiOiJodHRwczovL3Jlc291cmNlLmV4YW1wbGUub3JnIiwibmJmI
+ joxNTYyMjYyNjExLCJleHAiOjE1NjIyNjYyMTYsImNuZiI6eyJqa3QjUzI1NiI6IjBa
+ Y09DT1JaTll5LURXcHFxMzBqWnlKR0hUTjBkMkhnbEJWM3VpZ3VBNEkifX0.QOYhVi8
+ sYKUto_Efo6XerrEB2LGTvzfwp94yq6eY_gRgOTwl-pMCHIK_4sqygkjT06er2DIrqS
+ fINjpdFs9B4w
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiZHBvcEp3ayI6eyJrdH
+ kiOiJFQyIsIngiOiJsOHRGcmh4LTM0dFYzaFJJQ1JEWTl6Q2tEbHBCaEY0MlVRVWZXV
+ kFXQkZzIiwieSI6IjlWRTRqZl9Pa19vNjR6YlRUbGN1TkphakhtdDZ2OVREVnJVMENk
+ dkdSREEiLCJjcnYiOiJQLTI1NiJ9fQ.eyJqdGkiOiJVZTFqM1ZFUWFWenhEa0pwT2dM
+ QUVCIiwiaHR0cF9tZXRob2QiOiJHRVQiLCJodHRwX3VyaSI6Imh0dHBzOi8vcmVzb3V
+ yY2UuZXhhbXBsZS5vcmcvcHJvdGVjdGVkcmVzb3VyY2UiLCJpYXQiOjE1NjIyNjI2MT
+ h9.vtpNEjFw25uwWjHSpBIxcmKWfRysO4sGscBdKzkc9GSWKqKIxMhgdxJkUceHlv-s
+ _jBcJnHAlaCyfagt7BZVYA
 ~~~
 !---
 Figure 4: Protected Resource Request with a DPoP sender-constrained access token.
@@ -263,13 +281,14 @@ key to which the access token is bound.
 !---
 ```
 {
-    "iss": "https://server.example.com",
-    "sub": "something@example.com",
-    "exp": 1503726400,
-    "nbf": 1503722800,
-    "cnf":{
-        "jkt#S256": "oKIywvGUpTVTyxMQ3bwIIeQUudfr_CkLMjCE19ECD-U"
-    }
+  "sub":"someone@example.com",
+  "iss":"https://server.example.com",
+  "aud":"https://resource.example.org",
+  "nbf":1562262611,
+  "exp":1562266216,
+  "cnf":{
+      "jkt#S256":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
+  }
 }
 ```
 !---
