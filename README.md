@@ -7,4 +7,14 @@ a public/private key pair.
 
 Written in markdown for the [mmark processor](https://github.com/mmarkdown/mmark).
 
-Compiling: `mmark -2 main.md > draft.xml; xml2rfc --legacy --html draft.xml`
+## Compiling
+
+### using Docker
+From the root of this repository, run
+```bash
+docker run -v `pwd`:/data danielfett/markdown2rfc
+```
+(see https://github.com/oauthstuff/markdown2rfc)
+
+### without Docker
+compile using mmark and xml2rfc: `mmark -2 main.md > draft.xml; xml2rfc --legacy --html draft.xml`
