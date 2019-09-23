@@ -104,8 +104,10 @@ header of a DPoP JWT contains at least the following parameters:
    
 The body of a DPoP proof contains at least the following claims:
 
- * `jti`: Unique identifier for this JWT chosen freshly when creating
-   the DPoP proof (REQUIRED). SHOULD be used by the AS for replay
+ * `jti`: Unique identifier for the DPoP proof JWT (REQUIRED).
+   The value MUST be assigned such that there is a negligible 
+   probability that the same value will be assigned to any 
+   other DPoP proof. The `jti` SHOULD be used by the server for replay
    detection and prevention. See Security Considerations, Section (#Security).
  * `http_method`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
@@ -326,17 +328,17 @@ following.
 ## DPoP Proof Replay {#Token_Replay}
 
 If an adversary is able to get hold of a DPoP proof JWT, the adversary
-could replay that token later at the same endpoint (the HTTP endpoint
+could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a brief period.
-Furthermore, the `jti` claim in each JWT MUST contain a unique
-(incrementing or randomly chosen) value, as proposed in [@!RFC7253].
-Resource servers SHOULD store values at least for the time window in
-which the respective JWT is accepted and decline HTTP requests by
-clients if a `jti` value has been seen before.
+Furthermore, the `jti` claim in each JWT MUST contain a globally unique
+value (e.g., 128 bits of pseudorandom data base64url encoded). 
+Servers SHOULD store the `jti` value for the time window in
+which the respective JWT would be accepted and decline HTTP requests
+for which the `jti` value has been seen before.
 
-Note: To acommodate for clock offsets, the server MAY accept DPoP
+Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the near future (e.g., up to one
 second in the future).
 

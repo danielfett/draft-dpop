@@ -2,6 +2,10 @@
 
    [[ To be removed from the final specification ]]
 
+   -03 
+   
+   * rework the text around uniqueness requirements on the jti claim in the DPoP proof JWT
+
    -02
    
    * added normalization rules for URIs
