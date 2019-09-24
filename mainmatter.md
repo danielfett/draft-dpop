@@ -332,10 +332,10 @@ could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a brief period.
-Furthermore, the `jti` claim in each JWT MUST contain a globally unique
+Furthermore, the `jti` claim in each DPoP proof JWT MUST contain a globally unique
 value (e.g., 128 bits of pseudorandom data base64url encoded). 
 Servers SHOULD store the `jti` value for the time window in
-which the respective JWT would be accepted and decline HTTP requests
+which the respective DPoP proof JWT would be accepted and decline HTTP requests
 for which the `jti` value has been seen before.
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
