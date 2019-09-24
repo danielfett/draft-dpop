@@ -333,7 +333,7 @@ and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a brief period.
 Furthermore, the `jti` claim in each DPoP proof JWT MUST contain a globally unique
-value (e.g., 128 bits of pseudorandom d ata base64url encoded). 
+value (e.g., 128 bits of pseudorandom data base64url encoded). 
 Servers SHOULD store the `jti` value for the time window in
 which the respective DPoP proof JWT would be accepted and decline HTTP requests
 for which the `jti` value has been seen before. In order to guard against 
