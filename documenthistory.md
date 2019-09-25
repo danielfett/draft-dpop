@@ -4,7 +4,7 @@
 
    -03 
    
-   * rework the text around uniqueness requirements on the jti claim in the DPoP proof JWT
+   * make the jti claim optional and rework the text around its uniqueness requirements while moving to have the server track a hash of the full JWT for replay prevention 
 
    -02
    
