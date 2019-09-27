@@ -104,24 +104,16 @@ header of a DPoP JWT contains at least the following parameters:
    
 The body of a DPoP proof contains at least the following claims:
 
+ * `jti`: Unique identifier for the DPoP proof JWT (REQUIRED).
+   The value MUST be assigned such that there is a negligible 
+   probability that the same value will be assigned to any 
+   other DPoP proof. The `jti` SHOULD be used by the server for replay
+   detection and prevention. See Security Considerations, Section (#Security).
  * `http_method`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
  * `http_uri`: The HTTP URI used for the request, without query and
    fragment parts (REQUIRED).
  * `iat`: Time at which the JWT was created (REQUIRED).
- * `jti`: Contextually unique identifier for the DPoP proof JWT (OPTIONAL).
-    A `jti` value is needed only in cases where a deterministic signature algorithm 
-    is being used, which differentiates DPoP proof JWTs created during the 
-    same second with the same HTTP method and URI. When a deterministic 
-    signature algorithm is employed, the `jti` value needs to be 
-    unique in the context of the public key, HTTP method, HTTP URI, and 
-    time at which the JWT was created. Such uniqueness requirements can
-    be achieved by assigning `jti` values from a simple incrementing counter 
-    that periodically resets.    
-                                                                                 
-    
-The full DPoP proof JWT (or preferably a hash thereof) SHOULD be used by the server for replay
-detection and prevention. See (#Token_Replay) in the Security Considerations for details.
 
 
 An example DPoP proof is shown in Figure 2.
@@ -172,7 +164,7 @@ valid DPoP proof, the receiving server MUST ensure that
     fragment parts,
  1. the token was issued within an acceptable timeframe (see (#Token_Replay)), and
  1. that, within a reasonable consideration of accuracy and resource utilization,
-    the same JWT value has not been received
+    a JWT with the same `jti` value has not been received
     previously (see (#Token_Replay)).
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
@@ -340,9 +332,13 @@ could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a brief period.
-Furthermore, servers SHOULD store a hash of the full DPoP proof JWT 
-value for the time window in which it would be accepted and decline 
-HTTP requests with a DPoP proof JWT that has been seen before. 
+Furthermore, the `jti` claim in each DPoP proof JWT MUST contain a globally unique
+value (e.g., 128 bits of pseudorandom data base64url encoded). 
+Servers SHOULD store the `jti` value for the time window in
+which the respective DPoP proof JWT would be accepted and decline HTTP requests
+for which the `jti` value has been seen before. In order to guard against 
+memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessarily
+large `jti` values or store only a hash thereof.    
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the near future (e.g., up to one
