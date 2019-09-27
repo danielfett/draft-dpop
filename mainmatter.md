@@ -167,7 +167,7 @@ valid DPoP proof, the receiving server MUST ensure that
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
-[@!RFC3986] before comparing the `htu` claim to the .
+[@!RFC3986] before comparing the `htu` claim.
 
 
 # Token Request (Binding Tokens to a Public Key)
