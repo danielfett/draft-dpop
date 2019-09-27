@@ -128,6 +128,7 @@ An example DPoP proof is shown in Figure 2.
     "crv":"P-256"
   }
 }.{
+  "jti":"-BwC3yESc04acc77lTc26x",
   "htm":"POST",
   "htu":"https://server.example.com/token",
   "iat":1562262616
@@ -185,10 +186,10 @@ Content-Type: application/x-www-form-urlencoded;charset=UTF-8
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJodG0iOiJQT1NUIiwiaHR1IjoiaHR0cHM6Ly9zZX
- J2ZXIuZXhhbXBsZS5jb20vdG9rZW4iLCJpYXQiOjE1NjIyNjI2MTZ9.fS61WocqX7bB
- blFErI9LWuGZfx5QXq95OJJTkN4SxR0VVIkuTjQWhYUDD3P0NMPKE76BYqAXOZk_ruC
- 37CJdqw
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM3lFU2MwNGFjYzc3bFRjMjZ4Ii
+ wiaHRtIjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva
+ 2VuIiwiaWF0IjoxNTYyMjYyNjE2fQ.CFfJCMOMfCFnf7UD7ifJ3wODRcMyUQpCb5_gW
+ meMGoqoIZ7HWd6x01fQtaK9Cqf6y4mplhTDhQEUllMeY_6X_A
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
@@ -255,10 +256,10 @@ Authorization: DPoP eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWI
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJodG0iOiJHRVQiLCJodHUiOiJodHRwczovL3Jlc2
- 91cmNlLmV4YW1wbGUub3JnL3Byb3RlY3RlZHJlc291cmNlIiwiaWF0IjoxNTYyMjYyN
- jE4fQ.fnqQs7Btj_PlVx20X9hzoFlfYrMMbMVk7VNfs74n40sGIf2NFbd5afKIa6mHi
- SjTnwXQ-XrkVfNpd8WMjPMFoQ
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJVZTFqM1ZFUWFWenhEa0pwT2dMQUVCIi
+ wiaHRtIjoiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wc
+ m90ZWN0ZWRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOH0.fywDjkV02kftSACnpXJM
+ CHMLdSBs0Jg0_iiCLalHsuk60bAqry_YGBabt1r4fkBE8SKA91uDWP2i6tPkBVZOXA
 ~~~
 !---
 Figure 4: Protected Resource Request with a DPoP sender-constrained access token.
