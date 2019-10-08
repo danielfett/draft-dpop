@@ -2,6 +2,10 @@
 
    [[ To be removed from the final specification ]]
 
+   -03
+   
+   * make tokens a bit smaller by using `htm`, `htu`, and `jku` rather than `http_method`, `http_uri`, and `jku#S256` respectively
+
    -02
    
    * added normalization rules for URIs
