@@ -4,8 +4,8 @@
 # Main Objective {#Objective_Replay_Different_Endpoint}
 
 Under the attacker model defined in [@I-D.ietf-oauth-security-topics],
-the mechanism defined by this specification tries to ensure that token
-replay at a different endpoint is prevented.
+the mechanism defined by this specification aims to prevent token
+replay at a different endpoint.
 
 More precisely, if an adversary is able to get hold of an access token
 or refresh token because it set up a counterfeit authorization server
