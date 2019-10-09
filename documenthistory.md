@@ -1,10 +1,11 @@
 # Document History
 
    [[ To be removed from the final specification ]]
-
+   
    -03 
    
-   * rework the text around uniqueness requirements on the jti claim in the DPoP proof JWT
+   * rework the text around uniqueness requirements on the jti claim in the DPoP proof JWT   
+   * make tokens a bit smaller by using `htm`, `htu`, and `jku` rather than `http_method`, `http_uri`, and `jku#S256` respectively
 
    -02
    

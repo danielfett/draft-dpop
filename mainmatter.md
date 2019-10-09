@@ -4,8 +4,8 @@
 # Main Objective {#Objective_Replay_Different_Endpoint}
 
 Under the attacker model defined in [@I-D.ietf-oauth-security-topics],
-the mechanism defined by this specification tries to ensure that token
-replay at a different endpoint is prevented.
+the mechanism defined by this specification aims to prevent token
+replay at a different endpoint.
 
 More precisely, if an adversary is able to get hold of an access token
 or refresh token because it set up a counterfeit authorization server
@@ -112,9 +112,9 @@ The body of a DPoP proof contains at least the following claims:
    or a version 4 UUID according to [@RFC4122].
    The `jti` SHOULD be used by the server for replay
    detection and prevention. See Security Considerations, Section (#Security).
- * `http_method`: The HTTP method for the request to which the JWT is
+ * `htm`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
- * `http_uri`: The HTTP URI used for the request, without query and
+ * `htu`: The HTTP URI used for the request, without query and
    fragment parts (REQUIRED).
  * `iat`: Time at which the JWT was created (REQUIRED).
 
@@ -134,8 +134,8 @@ An example DPoP proof is shown in Figure 2.
   }
 }.{
   "jti":"-BwC3yESc04acc77lTc26x",
-  "http_method":"POST",
-  "http_uri":"https://server.example.com/token",
+  "htm":"POST",
+  "htu":"https://server.example.com/token",
   "iat":1562262616
 }
 ```
@@ -160,9 +160,9 @@ valid DPoP proof, the receiving server MUST ensure that
     application, and is deemed secure,
  1. that the JWT is signed using the public key contained in the `jwk`
     header of the JWT,
- 1. the `http_method` claim matches the respective value for the HTTP
+ 1. the `htm` claim matches the HTTP method value of the HTTP
     request in which the JWT was received (case-insensitive),
- 1. the `http_uri` claims matches the respective value for the HTTP
+ 1. the `htu` claims matches the HTTP URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
  1. the token was issued within an acceptable timeframe (see (#Token_Replay)), and
@@ -172,7 +172,7 @@ valid DPoP proof, the receiving server MUST ensure that
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
-[@!RFC3986] before comparing the `http_uri` claim.
+[@!RFC3986] before comparing the `htu` claim.
 
 
 # Token Request (Binding Tokens to a Public Key)
@@ -192,9 +192,9 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
  QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM3lFU2MwNGFjYzc3bFRjMjZ4Ii
- wiaHR0cF9tZXRob2QiOiJQT1NUIiwiaHR0cF91cmkiOiJodHRwczovL3NlcnZlci5le
- GFtcGxlLmNvbS90b2tlbiIsImlhdCI6MTU2MjI2MjYxNn0.PEWRcUkr9hlIVCzR6_Cu
- gQdGgkZrQAaRfgaCq4cJpzhPqDFFKKIMr9-rHCJyY7tNU-IaDHmgm4JF4Fld93nczA
+ wiaHRtIjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva
+ 2VuIiwiaWF0IjoxNTYyMjYyNjE2fQ.CFfJCMOMfCFnf7UD7ifJ3wODRcMyUQpCb5_gW
+ meMGoqoIZ7HWd6x01fQtaK9Cqf6y4mplhTDhQEUllMeY_6X_A
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
@@ -254,18 +254,17 @@ Host: resource.example.org
 Authorization: DPoP eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWI
  iOiJzb21lb25lQGV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbX
  BsZS5jb20iLCJhdWQiOiJodHRwczovL3Jlc291cmNlLmV4YW1wbGUub3JnIiwibmJmI
- joxNTYyMjYyNjExLCJleHAiOjE1NjIyNjYyMTYsImNuZiI6eyJqa3QjUzI1NiI6IjBa
- Y09DT1JaTll5LURXcHFxMzBqWnlKR0hUTjBkMkhnbEJWM3VpZ3VBNEkifX0.QOYhVi8
- sYKUto_Efo6XerrEB2LGTvzfwp94yq6eY_gRgOTwl-pMCHIK_4sqygkjT06er2DIrqS
- fINjpdFs9B4w
-DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiZHBvcEp3ayI6eyJrdH
- kiOiJFQyIsIngiOiJsOHRGcmh4LTM0dFYzaFJJQ1JEWTl6Q2tEbHBCaEY0MlVRVWZXV
- kFXQkZzIiwieSI6IjlWRTRqZl9Pa19vNjR6YlRUbGN1TkphakhtdDZ2OVREVnJVMENk
- dkdSREEiLCJjcnYiOiJQLTI1NiJ9fQ.eyJqdGkiOiJVZTFqM1ZFUWFWenhEa0pwT2dM
- QUVCIiwiaHR0cF9tZXRob2QiOiJHRVQiLCJodHRwX3VyaSI6Imh0dHBzOi8vcmVzb3V
- yY2UuZXhhbXBsZS5vcmcvcHJvdGVjdGVkcmVzb3VyY2UiLCJpYXQiOjE1NjIyNjI2MT
- h9.vtpNEjFw25uwWjHSpBIxcmKWfRysO4sGscBdKzkc9GSWKqKIxMhgdxJkUceHlv-s
- _jBcJnHAlaCyfagt7BZVYA
+ joxNTYyMjYyNjExLCJleHAiOjE1NjIyNjYyMTYsImNuZiI6eyJqa3QiOiIwWmNPQ09S
+ Wk5ZeS1EV3BxcTMwalp5SkdIVE4wZDJIZ2xCVjN1aWd1QTRJIn19.vsFiVqHCyIkBYu
+ 50c69bmPJsj8qYlsXfuC6nZcLl8YYRNOhqMuRXu6oSZHe2dGZY0ODNaGg1cg-kVigzY
+ hF1MQ
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJVZTFqM1ZFUWFWenhEa0pwT2dMQUVCIi
+ wiaHRtIjoiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wc
+ m90ZWN0ZWRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOH0.fywDjkV02kftSACnpXJM
+ CHMLdSBs0Jg0_iiCLalHsuk60bAqry_YGBabt1r4fkBE8SKA91uDWP2i6tPkBVZOXA
 ~~~
 !---
 Figure 4: Protected Resource Request with a DPoP sender-constrained access token.
@@ -278,9 +277,9 @@ token is bound.
 
 Access tokens that are represented as JSON Web Tokens (JWT) [@!RFC7519]
 MUST contain information about the DPoP public key (in JWK format) in
-the member `jkt#S256` of the `cnf` claim, as shown in Figure 5.
+the member `jkt` of the `cnf` claim, as shown in Figure 5.
 
-The value in `jkt#S256` MUST be the base64url encoding [@!RFC7515] of
+The value in `jkt` MUST be the base64url encoding [@!RFC7515] of
 the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the public
 key to which the access token is bound.
 
@@ -293,7 +292,7 @@ key to which the access token is bound.
   "nbf":1562262611,
   "exp":1562266216,
   "cnf":{
-      "jkt#S256":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
+      "jkt":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
   }
 }
 ```
@@ -304,7 +303,7 @@ When access token introspection is used, the same `cnf` claim as above
 MUST be contained in the introspection response.
 
 Resource servers MUST ensure that the fingerprint of the public key in
-the DPoP proof JWT equals the value in the `jkt#S256` claim in the access
+the DPoP proof JWT equals the value in the `jkt` claim in the access
 token or introspection response.
 
 # Acknowledgements {#Acknowledgements}

@@ -1,5 +1,5 @@
 %%%
-title = "OAuth 2.0 Demonstration of Proof-of-Possession at the Application Layer"
+title = "OAuth 2.0 Demonstration of Proof-of-Possession at the Application Layer (DPoP)"
 abbrev = "oauth-dpop"
 ipr = "trust200902"
 area = "Security"
