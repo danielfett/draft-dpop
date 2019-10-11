@@ -107,11 +107,12 @@ The body of a DPoP proof contains at least the following claims:
  * `jti`: Unique identifier for the DPoP proof JWT (REQUIRED).
    The value MUST be assigned such that there is a negligible 
    probability that the same value will be assigned to any 
-   other DPoP proof, which can be accomplished with 128 bits of
-   pseudorandom data in base64url encoding (or any other suitable encoding),
-   or a version 4 UUID according to [@RFC4122].
+   other DPoP proof used in the same context during the time window of validity.
+   Such uniqueness can be accomplished by encoding (base64url or any other
+   suitable encoding) at least 128 bits of
+   pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
    The `jti` SHOULD be used by the server for replay
-   detection and prevention. See Security Considerations, Section (#Security).
+   detection and prevention. See (#Security) in the Security Considerations.
  * `htm`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
  * `htu`: The HTTP URI used for the request, without query and
