@@ -4,7 +4,7 @@
 
    -03
    
-   * make tokens a bit smaller by using `htm`, `htu`, and `jku` rather than `http_method`, `http_uri`, and `jku#S256` respectively
+   * make tokens a bit smaller by using `htm`, `htu`, and `jkt` rather than `http_method`, `http_uri`, and `jkt#S256` respectively
 
    -02
    
