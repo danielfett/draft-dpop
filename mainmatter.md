@@ -104,9 +104,15 @@ header of a DPoP JWT contains at least the following parameters:
    
 The body of a DPoP proof contains at least the following claims:
 
- * `jti`: Unique identifier for this JWT chosen freshly when creating
-   the DPoP proof (REQUIRED). SHOULD be used by the AS for replay
-   detection and prevention. See Security Considerations, Section (#Security).
+ * `jti`: Unique identifier for the DPoP proof JWT (REQUIRED).
+   The value MUST be assigned such that there is a negligible 
+   probability that the same value will be assigned to any 
+   other DPoP proof used in the same context during the time window of validity.
+   Such uniqueness can be accomplished by encoding (base64url or any other
+   suitable encoding) at least 96 bits of
+   pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
+   The `jti` SHOULD be used by the server for replay
+   detection and prevention. See (#Security) in the Security Considerations.
  * `htm`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
  * `htu`: The HTTP URI used for the request, without query and
@@ -128,7 +134,7 @@ An example DPoP proof is shown in Figure 2.
     "crv":"P-256"
   }
 }.{
-  "jti":"-BwC3yESc04acc77lTc26x",
+  "jti":"-BwC3ESc6acc2lTc",
   "htm":"POST",
   "htu":"https://server.example.com/token",
   "iat":1562262616
@@ -186,10 +192,10 @@ Content-Type: application/x-www-form-urlencoded;charset=UTF-8
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM3lFU2MwNGFjYzc3bFRjMjZ4Ii
- wiaHRtIjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva
- 2VuIiwiaWF0IjoxNTYyMjYyNjE2fQ.CFfJCMOMfCFnf7UD7ifJ3wODRcMyUQpCb5_gW
- meMGoqoIZ7HWd6x01fQtaK9Cqf6y4mplhTDhQEUllMeY_6X_A
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
+ oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
+ WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg
+ 4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
@@ -256,10 +262,10 @@ Authorization: DPoP eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWI
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJVZTFqM1ZFUWFWenhEa0pwT2dMQUVCIi
- wiaHRtIjoiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wc
- m90ZWN0ZWRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOH0.fywDjkV02kftSACnpXJM
- CHMLdSBs0Jg0_iiCLalHsuk60bAqry_YGBabt1r4fkBE8SKA91uDWP2i6tPkBVZOXA
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJlMWozVl9iS2ljOC1MQUVCIiwiaHRtIj
+ oiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wcm90ZWN0Z
+ WRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOH0.lNhmpAX1WwmpBvwhok4E74kWCiGB
+ NdavjLAeevGy32H3dbF0Jbri69Nm2ukkwb-uyUI4AUg1JSskfWIyo4UCbQ
 ~~~
 !---
 Figure 4: Protected Resource Request with a DPoP sender-constrained access token.
@@ -330,17 +336,17 @@ suitable for the scenario at hand.
 ## DPoP Proof Replay {#Token_Replay}
 
 If an adversary is able to get hold of a DPoP proof JWT, the adversary
-could replay that token later at the same endpoint (the HTTP endpoint
+could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a brief period.
-Furthermore, the `jti` claim in each JWT MUST contain a unique
-(incrementing or randomly chosen) value, as proposed in [@!RFC7253].
-Resource servers SHOULD store values at least for the time window in
-which the respective JWT is accepted and decline HTTP requests by
-clients if a `jti` value has been seen before.
+Servers SHOULD store the `jti` value of each DPoP proof for the time window in
+which the respective DPoP proof JWT would be accepted and decline HTTP requests
+for which the `jti` value has been seen before. In order to guard against 
+memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessarily
+large `jti` values or store only a hash thereof.    
 
-Note: To acommodate for clock offsets, the server MAY accept DPoP
+Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the near future (e.g., up to one
 second in the future).
 
