@@ -112,7 +112,7 @@ The body of a DPoP proof contains at least the following claims:
    suitable encoding) at least 96 bits of
    pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
    The `jti` SHOULD be used by the server for replay
-   detection and prevention. See (#Security) in the Security Considerations.
+   detection and prevention, see (#Token_Replay).
  * `htm`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
  * `htu`: The HTTP URI used for the request, without query and
