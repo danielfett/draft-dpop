@@ -314,12 +314,17 @@ workshop (Ralf Küsters, Guido Schmitz).
 
 # Security Considerations {#Security}
 
-The prevention of token replay at a different
-endpoint (see (#Objective_Replay_Different_Endpoint)) is achieved through
-the binding of the DPoP proof to a certain URI and HTTP method.
-However, DPoP does not achieve the same level of protection as, for
-example, OAuth Mutual TLS [@I-D.ietf-oauth-mtls], as described in the
-following.
+In DPoP, the prevention of token replay at a different endpoint (see
+(#Objective_Replay_Different_Endpoint)) is achieved through the
+binding of the DPoP proof to a certain URI and HTTP method. DPoP does
+not, however, achieve the same level of protection as TLS-based
+methods such as OAuth Mutual TLS [@I-D.ietf-oauth-mtls] or OAuth Token
+Binding [@I-D.ietf-oauth-token-binding] (see also (#Token_Replay) and (#request_integrity)). 
+TLS-based mechanisms can leverage a tight integration
+between the TLS layer and the application layer to achieve a very high
+level of message integrity and replay protection. Therefore, it is
+RECOMMENDED to prefer TLS-based methods over DPoP if such methods are
+suitable for the scenario at hand.
 
 
 ## DPoP Proof Replay {#Token_Replay}
