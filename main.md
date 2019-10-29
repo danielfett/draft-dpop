@@ -21,6 +21,14 @@ organization="yes.com"
     email = "mail@danielfett.de"
 
 [[author]]
+initials="B."
+surname="Campbell"
+fullname="Brian Campbell"
+organization="Ping Identity"
+    [author.address]
+    email = "bcampbell@pingidentity.com"
+
+[[author]]
 initials="J."
 surname="Bradley"
 fullname="John Bradley"
@@ -28,13 +36,6 @@ organization="Yubico"
     [author.address]
     email = "ve7jtb@ve7jtb.com"
 
-[[author]]
-initials="B."
-surname="Campbell"
-fullname="Brian Campbell"
-organization="Ping Identity"
-    [author.address]
-    email = "bcampbell@pingidentity.com"
 
 [[author]]
 initials="T."
