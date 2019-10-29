@@ -51,6 +51,15 @@ fullname="Michael Jones"
 organization="Microsoft"
     [author.address]
     email = "mbj@microsoft.com"
+    
+    
+[[author]]
+initials="D."
+surname="Waite"
+fullname="David Waite"
+organization="Ping Identity"
+    [author.address]
+    email = "david@alkaline-solutions.com"
 
 %%%
 
