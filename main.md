@@ -1,6 +1,6 @@
 %%%
 title = "OAuth 2.0 Demonstration of Proof-of-Possession at the Application Layer (DPoP)"
-abbrev = "oauth-dpop"
+abbrev = "OAuth DPoP"
 ipr = "trust200902"
 area = "Security"
 workgroup = "Web Authorization Protocol"

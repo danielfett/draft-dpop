@@ -8,6 +8,7 @@
    * make tokens a bit smaller by using `htm`, `htu`, and `jkt` rather than `http_method`, `http_uri`, and `jkt#S256` respectively
    * more explicit recommendation to use mTLS if that is available
    * added David Waite as co-author
+   * editorial updates 
 
    -02
    

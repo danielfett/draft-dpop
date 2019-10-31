@@ -20,7 +20,7 @@ The main data structure introduced by this specification is a DPoP
 proof JWT, described in detail below. A client uses a DPoP proof JWT to prove
 the possession of a private key belonging to a certain public key.
 Roughly speaking, a DPoP proof is a signature over some data of the
-request to which it is attached to and a timestamp.
+HTTP request to which it is attached to and a timestamp.
 
 !---
 ~~~ ascii-art
@@ -60,8 +60,8 @@ The basic steps of an OAuth flow with DPoP are shown in Figure 1:
     flexible than binding it to a particular public key.
   * (C) If the client wants to use the access token, it has to prove
     possession of the private key by, again, adding a header to the
-    request that contains a DPoP proof. The resource server needs to
-    receive information about which public key to check against. This
+    request that carries the DPoP proof. The resource server needs to
+    receive information about the public key to which the access token is bound. This
     information is either encoded directly into the access token (for
     JWT structured access tokens), or provided at the token
     introspection endpoint of the authorization server (not
@@ -120,7 +120,7 @@ The body of a DPoP proof contains at least the following claims:
  * `iat`: Time at which the JWT was created (REQUIRED).
 
 
-An example DPoP proof is shown in Figure 2.
+Figure 2 shows the JSON header and payload of a DPoP proof JWT. 
 
 !---
 ```
@@ -206,7 +206,7 @@ Figure 3: Token Request for a DPoP sender-constrained token.
 
 The HTTP header `DPoP` MUST contain a valid DPoP proof.
 
-The authorization server, after checking the validity of the token,
+The authorization server, after checking the validity of the DPoP proof,
 MUST associate the access token issued at the token endpoint with the
 public key. It then sets `token_type` to `DPoP` in the token
 response.
@@ -339,7 +339,7 @@ If an adversary is able to get hold of a DPoP proof JWT, the adversary
 could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
-window after their `iat` time, preferably only for a brief period.
+window after their `iat` time, preferably only for a relatively brief period.
 Servers SHOULD store the `jti` value of each DPoP proof for the time window in
 which the respective DPoP proof JWT would be accepted and decline HTTP requests
 for which the `jti` value has been seen before. In order to guard against 
@@ -347,8 +347,8 @@ memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessar
 large `jti` values or store only a hash thereof.    
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
-proofs that carry an `iat` time in the near future (e.g., up to one
-second in the future).
+proofs that carry an `iat` time in the near future (e.g., up to a few
+seconds in the future).
 
 ## Signed JWT Swapping
 
@@ -358,7 +358,7 @@ for other purposes in the DPoP headers.
 
 ## Signature Algorithms
 
-Implementers MUST ensure that only digital signature algorithms that
+Implementers MUST ensure that only asymmetric digital signature algorithms that
 are deemed secure can be used for signing DPoP proofs. In particular,
 the algorithm `none` MUST NOT be allowed.
 

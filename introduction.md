@@ -13,7 +13,7 @@ can be used if an OAuth client is a Single Page Application (SPA)
 running in a web browser.
 
 This document outlines an application-level sender-constraining for
-access tokens and refresh tokens that can be used if neither mTLS nor
+access and refresh tokens that can be used in cases where neither mTLS nor
 OAuth Token Binding are available. It uses proof-of-possession based on
 a public/private key pair and application-level signing.
 
