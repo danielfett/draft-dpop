@@ -314,7 +314,7 @@ their valuable input and feedback.
 
 This document resulted from discussions at the 4th OAuth Security
 Workshop in Stuttgart, Germany. We thank the organizers of this
-workshop (Ralf Küsters, Guido Schmitz).
+workshop (Ralf Kusters, Guido Schmitz).
 
 
 

@@ -17,4 +17,4 @@ docker run -v `pwd`:/data danielfett/markdown2rfc
 (see https://github.com/oauthstuff/markdown2rfc)
 
 ### without Docker
-compile using mmark and xml2rfc: `mmark -2 main.md > draft.xml; xml2rfc --legacy --html draft.xml`
+compile using mmark and xml2rfc: `mmark main.md > draft.xml; xml2rfc --html draft.xml`

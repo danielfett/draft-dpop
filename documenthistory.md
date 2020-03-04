@@ -5,6 +5,7 @@
    -04
 
    * Update OAuth MTLS reference to RFC 8705
+   * Use the newish RFC v3 XML and HTML format
 
    -03 
    
