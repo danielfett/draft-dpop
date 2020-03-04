@@ -1,6 +1,6 @@
 # Introduction {#Introduction}
 
-[@I-D.ietf-oauth-mtls] describes methods to bind (sender-constrain) access tokens
+[@RFC8705] describes methods to bind (sender-constrain) access tokens
 using mutual Transport Layer Security (TLS) authentication with X.509
 certificates. 
 

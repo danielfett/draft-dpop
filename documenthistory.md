@@ -2,6 +2,10 @@
 
    [[ To be removed from the final specification ]]
    
+   -04
+
+   * Update OAuth MTLS reference to RFC 8705
+
    -03 
    
    * rework the text around uniqueness requirements on the jti claim in the DPoP proof JWT

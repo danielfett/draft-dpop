@@ -324,7 +324,7 @@ In DPoP, the prevention of token replay at a different endpoint (see
 (#Objective_Replay_Different_Endpoint)) is achieved through the
 binding of the DPoP proof to a certain URI and HTTP method. DPoP does
 not, however, achieve the same level of protection as TLS-based
-methods such as OAuth Mutual TLS [@I-D.ietf-oauth-mtls] or OAuth Token
+methods such as OAuth Mutual TLS [@RFC8705] or OAuth Token
 Binding [@I-D.ietf-oauth-token-binding] (see also (#Token_Replay) and (#request_integrity)). 
 TLS-based mechanisms can leverage a tight integration
 between the TLS layer and the application layer to achieve a very high
@@ -378,7 +378,7 @@ is sufficient to provide a good level of protection.
 Implementers that have stronger requirements on the integrity of
 messages are encouraged to either use TLS-based mechanisms or signed
 requests. TLS-based mechanisms are in particular OAuth Mutual TLS
-[@I-D.ietf-oauth-mtls] and OAuth Token Binding
+[@RFC8705] and OAuth Token Binding
 [@I-D.ietf-oauth-token-binding].
 
 Note: While signatures on (parts of) requests are out of the scope of
