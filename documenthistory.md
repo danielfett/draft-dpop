@@ -2,8 +2,9 @@
 
    [[ To be removed from the final specification ]]
    
-   -05
+   -00 [[ Working Group Draft ]]
 
+   * Working group draft
 
    -04
 
