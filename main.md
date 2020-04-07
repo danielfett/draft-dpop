@@ -52,8 +52,8 @@ fullname="Michael Jones"
 organization="Microsoft"
     [author.address]
     email = "mbj@microsoft.com"
-    
-    
+    uri = "https://self-issued.info/"
+
 [[author]]
 initials="D."
 surname="Waite"
