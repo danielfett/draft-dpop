@@ -52,6 +52,7 @@ fullname="Michael Jones"
 organization="Microsoft"
     [author.address]
     email = "mbj@microsoft.com"
+    uri = "https://self-issued.info/"
     
     
 [[author]]
@@ -420,7 +421,7 @@ token or introspection response.
 
 # Acknowledgements {#Acknowledgements}
       
-We would like to thank David Waite, Filip Skokan, Mike Engan, and Justin Richer for
+We would like to thank Filip Skokan, Mike Engan, and Justin Richer for
 their valuable input and feedback.
 
 This document resulted from discussions at the 4th OAuth Security
