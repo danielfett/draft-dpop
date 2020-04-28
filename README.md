@@ -12,7 +12,7 @@ Written in markdown for the [mmark processor](https://github.com/mmarkdown/mmark
 ### using Docker
 From the root of this repository, run
 ```bash
-docker run -v `pwd`:/data danielfett/markdown2rfc
+docker run -v `pwd`:/data danielfett/markdown2rfc main.md
 ```
 (see https://github.com/oauthstuff/markdown2rfc)
 
