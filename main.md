@@ -525,7 +525,6 @@ JSON Web Signature and Encryption Type Values registry [@RFC7515]:
  * Specification Document(s): [[ this specification ]]
 
 
-{{references.md}}
 
 {backmatter}
 
