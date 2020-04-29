@@ -77,25 +77,30 @@ tokens.
 
 # Introduction {#Introduction}
 
-[@RFC8705] describes methods to bind (sender-constrain) access tokens
-using mutual Transport Layer Security (TLS) authentication with X.509
-certificates. 
+This document outlines a relatively simple application-level mechanism for 
+sender-constraining OAuth access and refresh tokens. It enables a client to
+demonstrate proof-of-possession of a public/private key pair by including 
+the `DPoP` header in an HTTP request. Using that header, an authorization
+server is able to bind issued tokens to the public part of the client's 
+key pair. Recipients of such tokens are then able to verify the binding of the
+token to the key pair that the client has demonstrated that it holds via
+the `DPoP` header, thereby providing some assurance that the client presenting
+the token also possesses the private key.
+In other words, the legitimate presenter of the token is constrained to be
+the sender that holds and can prove possession of the private part of the
+key pair.    
 
-[@I-D.ietf-oauth-token-binding] provides mechanisms to
-sender-constrain access tokens using HTTP token binding.
+The mechanism described herein can be used in cases where potentially stronger
+methods of sender-constraining tokens that utilize elements of the underlying
+secure transport layer, such as [@RFC8705] or [@I-D.ietf-oauth-token-binding],
+are not available or desirable. For example, due to a sub-par user experience 
+of TLS client authentication in user agents and a lack of support for HTTP token
+binding, neither mechanism can be used if an OAuth client is a Single Page
+Application (SPA) running in a web browser. 
 
-Due to a sub-par user experience of TLS client authentication in user
-agents and a lack of support for HTTP token binding, neither mechanism
-can be used if an OAuth client is a Single Page Application (SPA)
-running in a web browser.
-
-This document outlines an application-level sender-constraining for
-access and refresh tokens that can be used in cases where neither mTLS nor
-OAuth Token Binding are available. It uses proof-of-possession based on
-a public/private key pair and application-level signing.
-
-DPoP can be used with public clients and, in case of confidential
-clients, can be combined with any client authentication method.
+DPoP can be used with public clients to sender-constrain access tokens and 
+refresh tokens. With confidential clients, DPoP can be used in conjunction
+with any client authentication method to sender-constrain access tokens.
 
 ## Conventions and Terminology
 
@@ -131,8 +136,8 @@ Secondary objectives are discussed in (#Security).
 The main data structure introduced by this specification is a DPoP
 proof JWT, described in detail below. A client uses a DPoP proof JWT to prove
 the possession of a private key belonging to a certain public key.
-Roughly speaking, a DPoP proof is a signature over some data of the
-HTTP request to which it is attached to and a timestamp.
+Roughly speaking, a DPoP proof is a signature over a timestamp and some 
+data of the HTTP request to which it is attached.
 
 !---
 ~~~ ascii-art
@@ -535,7 +540,7 @@ JSON Web Signature and Encryption Type Values registry [@RFC7515]:
    
   -01
   
-  * 
+   * Editorial updates  
    
    -00 [[ Working Group Draft ]]
 
