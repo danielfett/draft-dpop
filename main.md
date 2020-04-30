@@ -159,9 +159,9 @@ data of the HTTP request to which it is attached.
 +--------+
 ~~~
 !---
-Figure 1: Basic DPoP Flow
+Figure: Basic DPoP Flow {#basic-flow}
 
-The basic steps of an OAuth flow with DPoP are shown in Figure 1:
+The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
 
   * (A) In the Token Request, the client sends an authorization code
     to the authorization server in order to obtain an access token
@@ -243,7 +243,7 @@ The body of a DPoP proof contains at least the following claims:
  * `iat`: Time at which the JWT was created (REQUIRED).
 
 
-Figure 2 shows the JSON header and payload of a DPoP proof JWT. 
+(#dpop-proof) shows the JSON header and payload of a DPoP proof JWT. 
 
 !---
 ```
@@ -264,7 +264,7 @@ Figure 2 shows the JSON header and payload of a DPoP proof JWT.
 }
 ```
 !---
-Figure 2: Example JWT content for `DPoP` proof header.
+Figure: Example JWT content for `DPoP` proof header {#dpop-proof}
 
 Note: To keep DPoP simple to implement, only the HTTP method and URI
 are signed in DPoP proofs. The idea is sign just enough of the HTTP data to 
@@ -306,7 +306,7 @@ Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 
 To bind a token to a public key in the token request, the client MUST
 provide a valid DPoP proof JWT in a `DPoP` header. The HTTPS request shown
-in Figure 3 illustrates the protocol for this (with extra line breaks
+in (#token-request) illustrates the protocol for this (with extra line breaks
 for display purposes only).
 
 
@@ -328,7 +328,7 @@ grant_type=authorization_code
 &code_verifier=bEaL42izcC-o-xBk0K2vuJ6U-y1p9r_wW2dFWIWgjz-
 ~~~
 !---
-Figure 3: Token Request for a DPoP sender-constrained token.
+Figure: Token Request for a DPoP sender-constrained token {#token-request}
 
 The HTTP header `DPoP` MUST contain a valid DPoP proof JWT.
 
@@ -392,7 +392,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  NdavjLAeevGy32H3dbF0Jbri69Nm2ukkwb-uyUI4AUg1JSskfWIyo4UCbQ
 ~~~
 !---
-Figure 4: Protected Resource Request with a DPoP sender-constrained access token.
+Figure: Protected Resource Request with a DPoP sender-constrained access token {#protected-resource-request}
 
 # Public Key Confirmation {#Confirmation}
 
@@ -402,7 +402,7 @@ token is bound.
 
 Access tokens that are represented as JSON Web Tokens (JWT) [@!RFC7519]
 MUST contain information about the DPoP public key (in JWK format) in
-the member `jkt` of the `cnf` claim, as shown in Figure 5.
+the member `jkt` of the `cnf` claim, as shown in (#cnf-claim).
 
 The value in `jkt` MUST be the base64url encoding [@!RFC7515] of
 the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the public
@@ -422,7 +422,7 @@ key to which the access token is bound.
 }
 ```
 !---
-Figure 5: Example access token body with `cnf` claim.
+Figure: Example access token body with `cnf` claim {#cnf-claim}
 
 When access token introspection is used, the same `cnf` claim as above
 MUST be contained in the introspection response.
