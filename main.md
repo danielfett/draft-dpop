@@ -566,6 +566,7 @@ JSON Web Signature and Encryption Type Values registry [@RFC7515]:
   -01
   
    * Editorial updates  
+   * Attempt to more formally define the DPoP Authorization header scheme
    
    -00 [[ Working Group Draft ]]
 
