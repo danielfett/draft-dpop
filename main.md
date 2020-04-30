@@ -361,8 +361,26 @@ To make use of an access token that is bound to a public key
 using DPoP, a client MUST prove the possession of the corresponding
 private key by providing a DPoP proof in the `DPoP` request header.
 
-A DPoP-bound access token must be sent in the `Authorization` header
-with the prefix `DPoP`. For such an access token, a resource server 
+A DPoP-bound access token is sent using the `Authorization` request
+header field per Section 2 of [@!RFC7235] using an
+authentication scheme of `DPoP`. The syntax of the `Authorization` 
+header field for the `DPoP` scheme
+uses the `token68` syntax defined in Section 2.1 of [@!RFC7235] 
+(repeated below for ease of reference) for credentials. 
+The Augmented Backus-Naur Form (ABNF) notation [@!RFC5234] syntax 
+for DPoP Authorization scheme credentials is as follows:
+
+!---
+```
+ token68    = 1*( ALPHA / DIGIT /
+                   "-" / "." / "_" / "~" / "+" / "/" ) *"="
+
+ credentials = "DPoP" 1*SP token68
+```
+!---
+Figure: DPoP Authorization Scheme ABNF
+
+For such an access token, a resource server
 MUST check that a `DPoP` header was received in the HTTP request, 
 check the header's contents according to the rules in (#checking), 
 and check that the public key of the DPoP proof matches the public
