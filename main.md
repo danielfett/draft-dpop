@@ -330,7 +330,10 @@ grant_type=authorization_code
 !---
 Figure: Token Request for a DPoP sender-constrained token {#token-request}
 
-The HTTP header `DPoP` MUST contain a valid DPoP proof JWT.
+The `DPoP` HTTP header MUST contain a valid DPoP proof JWT.
+If the DPoP proof is invalid, the authorization server issues an error 
+response per Section 5.2 of [@RFC6749] with `invalid_dpop_proof` as the 
+value of the `error` parameter. 
 
 The authorization server, after checking the validity of the DPoP proof,
 MUST associate the access token issued at the token endpoint with the
@@ -619,6 +622,7 @@ JSON Web Signature and Encryption Type Values registry [@RFC7515]:
    * Editorial updates  
    * Attempt to more formally define the DPoP Authorization header scheme
    * Define the 401/WWW-Authenticate challenge 
+   * Added invalid_dpop_proof error for DPoP errors in token request 
    
    -00 [[ Working Group Draft ]]
 
