@@ -412,6 +412,57 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
 !---
 Figure: Protected Resource Request with a DPoP sender-constrained access token {#protected-resource-request}
 
+Upon receipt of a request for a URI of a protected resource within 
+the protection space requiring DPoP authorization, if the request does
+not include valid credentials or or does not contain an access 
+token sufficient for access to the protected resource, the server
+can reply with a challenge using the 401 (Unauthorized) status code
+([@!RFC7235], Section 3.1) and the `WWW-Authenticate` header field
+([@!RFC7235], Section 4.1). The server MAY include the 
+`WWW-Authenticate` header in response to other conditions as well.
+
+In such challenges:
+
+*  The scheme name is `DPoP`.
+*  The authentication parameter `realm` MAY be included to indicate the 
+scope of protection in the manner described in [@!RFC7235], Section 2.2.
+*  A `scope` authentication parameter MAY be included as defined in 
+[@!RFC6750], Section 3.
+*  An `error` parameter ([@!RFC6750], Section 3) SHOULD be included
+to indicate the reason why the request was declined,
+if the request included an access token but failed authorization. 
+Parameter values are described in Section 3.1 of [@!RFC6750]. 
+* An `error_description` parameter ([@!RFC6750], Section 3) MAY be included 
+along with the `error` parameter to provide developers a human-readable
+explanation that is not meant to be displayed to end-users.
+* An `algs` parameter SHOULD be included to signal to the client the 
+JWS algorithms that are acceptable for the DPoP proof JWT. 
+The value of the parameter is a space-delimited list of JWS `alg` (Algorithm)
+ header values ([@!RFC7515], Section 4.1.1).
+* Additional authentication parameters MAY be used and unknown parameters 
+MUST be ignored by recipients
+
+
+For example, in response to a protected resource request without
+authentication:
+!---
+```
+ HTTP/1.1 401 Unauthorized
+ WWW-Authenticate: DPoP realm="WallyWorld", algs="ES256 PS256"
+```
+!---
+
+And in response to a protected resource request that was rejected 
+because the confirmation of the DPoP binding in the access token failed: 
+
+!---
+```
+ HTTP/1.1 401 Unauthorized
+ WWW-Authenticate: DPoP realm="WallyWorld", error="invalid_token",
+   error_description="Invalid DPoP key binding", algs="ES256"
+```
+!---
+
 # Public Key Confirmation {#Confirmation}
 
 It MUST be ensured that resource servers can reliably identify whether
@@ -567,6 +618,7 @@ JSON Web Signature and Encryption Type Values registry [@RFC7515]:
   
    * Editorial updates  
    * Attempt to more formally define the DPoP Authorization header scheme
+   * Define the 401/WWW-Authenticate challenge 
    
    -00 [[ Working Group Draft ]]
 
