@@ -212,7 +212,7 @@ keys and proving knowledge about private keys. The DPoP proof JWT is sent with
 an HTTP request using the `DPoP` header field.  
 
 
-## DPoP Proof JWT Syntax
+## DPoP Proof JWT Syntax {#DPoP-Proof}
 
 A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JWS,
 [@!RFC7515]) using a private key chosen by the client (see below). The
@@ -358,7 +358,7 @@ same public key as the one the refresh token is bound to. The access
 token issued MUST be bound to the public key contained in the DPoP
 proof.
 
-# Resource Access (Proof of Possession for Access Tokens)
+# Resource Access (Proof of Possession for Access Tokens) {#http-auth-scheme}
 
 To make use of an access token that is bound to a public key
 using DPoP, a client MUST prove the possession of the corresponding
@@ -589,26 +589,80 @@ added into DPoP proofs.
       
 ##  OAuth Access Token Type Registration
 
-This specification registers the following access token type in the
-OAuth Access Token Types registry defined in [RFC6749].
+This specification requests registration of the following access token
+type in the "OAuth Access Token Types" registry [@IANA.OAuth.Params]
+established by [@!RFC6749].
 
- * Type name: "DPoP"
+ * Type name: DPoP
  * Additional Token Endpoint Response Parameters: (none)
- * HTTP Authentication Scheme(s): Bearer
- * Change controller: IETF
+ * HTTP Authentication Scheme(s): DPoP
+ * Change controller: IESG
  * Specification document(s): [[ this specification ]]
 
+## HTTP Authentication Scheme Registration
 
-## JSON Web Signature and Encryption Type Values Registration
+This specification requests registration of the following scheme in the 
+"Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry" [@RFC7235;@IANA.HTTP.AuthSchemes]:
 
-This specification registers the `dpop+jwt` type value in the IANA
-JSON Web Signature and Encryption Type Values registry [@RFC7515]:
+ * Authentication Scheme Name: DPoP
+ * Reference: [[ (#http-auth-scheme) of this specification ]]
 
- * "typ" Header Parameter Value: "dpop+jwt"
- * Abbreviation for MIME Type: None
- * Change Controller: IETF
- * Specification Document(s): [[ this specification ]]
+## Media Type Registration
+    
+[[
+Is a media type registration at [@IANA.MediaTypes] necessary for `application/dpop+jwt`? 
+There is a `+jwt` structured syntax suffix registered already at [@IANA.MediaType.StructuredSuffixs]
+by Section 7.2 of [@RFC8417], which is maybe sufficient? A fullblown registration
+of `application/dpop+jwt` seems like it'd be overkill. 
+The `dpop+jwt` is used in the JWS/JWT `typ` header for explicit typing of the JWT per 
+Section 3.11 of [@RFC8725] but it is not used anywhere else (such as the `Content-Type` of HTTP messages). 
 
+Note that there does seem to be some precedence for [@IANA.MediaTypes] registration with 
+ [@I-D.ietf-oauth-access-token-jwt], [@I-D.ietf-oauth-jwsreq], [@RFC8417], and of course [@RFC7519].
+But precedence isn't always right. 
+]]
+
+## JWT Confirmation Methods Registration
+
+This specification requests registration of the following value
+in the IANA "JWT Confirmation Methods" registry [@IANA.JWT]
+for JWT `cnf` member values established by [@!RFC7800].
+          
+ * Confirmation Method Value:  jkt
+ * Confirmation Method Description: JWK SHA-256 Thumbprint
+ * Change Controller:  IESG
+ * Specification Document(s):  [[ (#Confirmation) of this specification ]]
+
+## JSON Web Token Claims Registration
+
+This specification requests registration of the following Claims in the 
+IANA "JSON Web Token Claims" registry [@IANA.JWT] established by [@RFC7519].
+
+HTTP method:
+
+ *  Claim Name: htm
+ *  Claim Description: The HTTP method of the request 
+ *  Change Controller: IESG
+ *  Specification Document(s):  [[ (#DPoP-Proof) of this specification ]]
+ 
+HTTP URI:
+ 
+ *  Claim Name: htu
+ *  Claim Description: The HTTP URI of the request (without query and fragment parts)
+ *  Change Controller: IESG
+ *  Specification Document(s):  [[ (#DPoP-Proof) of this specification ]]
+ 
+## HTTP Message Header Field Names Registration
+ 
+This document specifies the following new HTTP header fields,
+registration of which is requested in the "Permanent Message Header
+Field Names" registry [@IANA.Headers] defined in [@RFC3864].
+ 
+ *  Header Field Name: DPoP
+ *  Applicable protocol: HTTP
+ *  Status: standard
+ *  Author/change Controller: IETF
+ *  Specification Document(s): [[ this specification ]]
 
 
 {backmatter}
@@ -619,10 +673,11 @@ JSON Web Signature and Encryption Type Values registry [@RFC7515]:
    
   -01
   
-   * Editorial updates  
+   * Editorial updates
    * Attempt to more formally define the DPoP Authorization header scheme
    * Define the 401/WWW-Authenticate challenge 
-   * Added invalid_dpop_proof error for DPoP errors in token request 
+   * Added `invalid_dpop_proof` error code for DPoP errors in token request 
+   * Fixed up and added to the IANA section
    
    -00 [[ Working Group Draft ]]
 
@@ -668,5 +723,48 @@ JSON Web Signature and Encryption Type Values registry [@RFC7515]:
    *  first draft
    
 
-   
+<reference anchor="IANA.OAuth.Params" target="https://www.iana.org/assignments/oauth-parameters">
+ <front>
+   <title>OAuth Parameters</title>
+   <author><organization>IANA</organization></author>
+ </front>
+</reference>
+
+<reference anchor="IANA.MediaType.StructuredSuffixs" target="https://www.iana.org/assignments/media-type-structured-suffixs">
+ <front>
+   <title>Structured Syntax Suffix Registry</title>
+   <author><organization>IANA</organization></author>
+ </front>
+</reference>
+
+<reference anchor="IANA.MediaTypes" target="https://www.iana.org/assignments/media-types">
+ <front>
+   <title>Media Types</title>
+   <author><organization>IANA</organization></author>
+ </front>
+</reference>
+
+<reference anchor="IANA.HTTP.AuthSchemes" target="https://www.iana.org/assignments/http-authschemes">
+ <front>
+   <title>Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry</title>
+   <author><organization>IANA</organization></author>
+ </front>
+</reference>
+
+<reference anchor="IANA.JWT" target="http://www.iana.org/assignments/jwt">
+<front>
+  <title>JSON Web Token Claims</title>
+  <author><organization>IANA</organization></author>
+  <date/>
+</front>
+</reference>
+
+<reference anchor="IANA.Headers" target="https://www.iana.org/assignments/message-headers">
+<front>
+  <title>Message Headers</title>
+  <author><organization>IANA</organization></author>
+  <date/>
+</front>
+</reference>
+
 
