@@ -674,8 +674,27 @@ established by [@RFC8414].
 
 # Acknowledgements {#Acknowledgements}
       
-We would like to thank Filip Skokan, Mike Engan, and Justin Richer for
-their valuable input and feedback.
+We would like to thank 
+Filip Skokan, 
+Mike Engan, 
+Justin Richer, 
+Michael Peck,
+Vladimir Dzhuvinov, 
+Rob Otto,
+Dominick Baier,
+Jim Willeke,
+Annabelle Backman,
+Bjorn Hjelm,
+Steinar Noem,
+Aaron Parecki,
+Neil Madden,
+Paul Querna,
+Dick Hardt,
+Dave Tonge,
+Jared Jennings,
+Mark Haine 
+and others (please let us know, if you've been mistakenly omitted)
+for their valuable input, feedback and general support of this work.
 
 This document resulted from discussions at the 4th OAuth Security
 Workshop in Stuttgart, Germany. We thank the organizers of this
@@ -693,6 +712,7 @@ workshop (Ralf Kusters, Guido Schmitz).
    * Added `invalid_dpop_proof` error code for DPoP errors in token request 
    * Fixed up and added to the IANA section
    * Added `dpop_signing_alg_values_supported` authorization server metadata
+   * Moved the Acknowledgements into an Appendix and added a bunch of names (best effort)
    
    -00 [[ Working Group Draft ]]
 
