@@ -336,17 +336,10 @@ response per Section 5.2 of [@RFC6749] with `invalid_dpop_proof` as the
 value of the `error` parameter. 
 
 The authorization server, after checking the validity of the DPoP proof,
-MUST associate the access token issued at the token endpoint with the
+associates the access token issued at the token endpoint with the
 public key. It then sets `token_type` to `DPoP` in the token
-response.
-
-A client typically cannot know whether a certain AS supports DPoP. It
-therefore SHOULD use the value of the `token_type` parameter returned
-from the AS to determine support for DPoP: If the token type returned
-is `Bearer` or another value, the AS does not support DPoP. If it is
-`DPoP`, DPoP is supported. Only then, the client needs to send
-the `DPoP` header in subsequent requests and use the token type
-`DPoP` in the `Authorization` header as described below.
+response, which signals to the client that the access token was bound to
+its DPoP key and can used as described in (#http-auth-scheme).
 
 If a refresh token is issued to a public client at the token endpoint
 and a valid DPoP proof is presented, the refresh token MUST be bound
@@ -503,6 +496,16 @@ Resource servers MUST ensure that the fingerprint of the public key in
 the DPoP proof JWT equals the value in the `jkt` claim in the access
 token or introspection response.
 
+# Authorization Server Metadata {#as-meta}
+
+This document introduces the following new authorization server metadata
+[@RFC8414] parameter to signal the JWS `alg` values the authorization server
+supports for DPoP proof JWTs:
+
+`dpop_signing_alg_values_supported`
+:      OPTIONAL.  JSON array containing a list of the JWS `alg` values supported
+by the authorization server for DPoP proof JWTs
+
 # Acknowledgements {#Acknowledgements}
       
 We would like to thank Filip Skokan, Mike Engan, and Justin Richer for
@@ -593,9 +596,9 @@ This specification requests registration of the following access token
 type in the "OAuth Access Token Types" registry [@IANA.OAuth.Params]
 established by [@!RFC6749].
 
- * Type name: DPoP
+ * Type name: `DPoP`
  * Additional Token Endpoint Response Parameters: (none)
- * HTTP Authentication Scheme(s): DPoP
+ * HTTP Authentication Scheme(s): `DPoP`
  * Change controller: IESG
  * Specification document(s): [[ this specification ]]
 
@@ -604,7 +607,7 @@ established by [@!RFC6749].
 This specification requests registration of the following scheme in the 
 "Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry" [@RFC7235;@IANA.HTTP.AuthSchemes]:
 
- * Authentication Scheme Name: DPoP
+ * Authentication Scheme Name: `DPoP`
  * Reference: [[ (#http-auth-scheme) of this specification ]]
 
 ## Media Type Registration
@@ -628,7 +631,7 @@ This specification requests registration of the following value
 in the IANA "JWT Confirmation Methods" registry [@IANA.JWT]
 for JWT `cnf` member values established by [@!RFC7800].
           
- * Confirmation Method Value:  jkt
+ * Confirmation Method Value:  `jkt`
  * Confirmation Method Description: JWK SHA-256 Thumbprint
  * Change Controller:  IESG
  * Specification Document(s):  [[ (#Confirmation) of this specification ]]
@@ -640,14 +643,14 @@ IANA "JSON Web Token Claims" registry [@IANA.JWT] established by [@RFC7519].
 
 HTTP method:
 
- *  Claim Name: htm
+ *  Claim Name: `htm`
  *  Claim Description: The HTTP method of the request 
  *  Change Controller: IESG
  *  Specification Document(s):  [[ (#DPoP-Proof) of this specification ]]
  
 HTTP URI:
  
- *  Claim Name: htu
+ *  Claim Name: `htu`
  *  Claim Description: The HTTP URI of the request (without query and fragment parts)
  *  Change Controller: IESG
  *  Specification Document(s):  [[ (#DPoP-Proof) of this specification ]]
@@ -658,12 +661,22 @@ This document specifies the following new HTTP header fields,
 registration of which is requested in the "Permanent Message Header
 Field Names" registry [@IANA.Headers] defined in [@RFC3864].
  
- *  Header Field Name: DPoP
+ *  Header Field Name: `DPoP`
  *  Applicable protocol: HTTP
  *  Status: standard
  *  Author/change Controller: IETF
  *  Specification Document(s): [[ this specification ]]
 
+## Authorization Server Metadata Registration
+   
+This specification requests registration of the following values
+in the IANA "OAuth Authorization Server Metadata" registry [IANA.OAuth.Parameters]
+established by [@RFC8414].
+
+ *  Metadata Name:  `dpop_signing_alg_values_supported`
+ *  Metadata Description:  JSON array containing a list of the JWS algorithms supported for DPoP proof JWTs
+ *  Change Controller:  IESG
+ *  Specification Document(s):  [[ (#as-meta) of this specification ]]
 
 {backmatter}
 
@@ -678,6 +691,7 @@ Field Names" registry [@IANA.Headers] defined in [@RFC3864].
    * Define the 401/WWW-Authenticate challenge 
    * Added `invalid_dpop_proof` error code for DPoP errors in token request 
    * Fixed up and added to the IANA section
+   * Added `dpop_signing_alg_values_supported` authorization server metadata
    
    -00 [[ Working Group Draft ]]
 
