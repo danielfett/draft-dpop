@@ -506,14 +506,6 @@ supports for DPoP proof JWTs:
 :      OPTIONAL.  JSON array containing a list of the JWS `alg` values supported
 by the authorization server for DPoP proof JWTs
 
-# Acknowledgements {#Acknowledgements}
-      
-We would like to thank Filip Skokan, Mike Engan, and Justin Richer for
-their valuable input and feedback.
-
-This document resulted from discussions at the 4th OAuth Security
-Workshop in Stuttgart, Germany. We thank the organizers of this
-workshop (Ralf Kusters, Guido Schmitz).
 
 
 
@@ -679,6 +671,15 @@ established by [@RFC8414].
  *  Specification Document(s):  [[ (#as-meta) of this specification ]]
 
 {backmatter}
+
+# Acknowledgements {#Acknowledgements}
+      
+We would like to thank Filip Skokan, Mike Engan, and Justin Richer for
+their valuable input and feedback.
+
+This document resulted from discussions at the 4th OAuth Security
+Workshop in Stuttgart, Germany. We thank the organizers of this
+workshop (Ralf Kusters, Guido Schmitz).
 
 # Document History
 
