@@ -606,8 +606,8 @@ This specification requests registration of the following scheme in the
     
 [[
 Is a media type registration at [@IANA.MediaTypes] necessary for `application/dpop+jwt`? 
-There is a `+jwt` structured syntax suffix registered already at [@IANA.MediaType.StructuredSuffixs]
-by Section 7.2 of [@RFC8417], which is maybe sufficient? A fullblown registration
+There is a `+jwt` structured syntax suffix registered already at [@IANA.MediaType.StructuredSuffix]
+by Section 7.2 of [@RFC8417], which is maybe sufficient? A full-blown registration
 of `application/dpop+jwt` seems like it'd be overkill. 
 The `dpop+jwt` is used in the JWS/JWT `typ` header for explicit typing of the JWT per 
 Section 3.11 of [@RFC8725] but it is not used anywhere else (such as the `Content-Type` of HTTP messages). 
@@ -769,7 +769,7 @@ workshop (Ralf Kusters, Guido Schmitz).
  </front>
 </reference>
 
-<reference anchor="IANA.MediaType.StructuredSuffixs" target="https://www.iana.org/assignments/media-type-structured-suffixs">
+<reference anchor="IANA.MediaType.StructuredSuffix" target="https://www.iana.org/assignments/media-type-structured-suffix">
  <front>
    <title>Structured Syntax Suffix Registry</title>
    <author><organization>IANA</organization></author>
