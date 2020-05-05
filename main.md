@@ -410,7 +410,7 @@ Figure: Protected Resource Request with a DPoP sender-constrained access token {
 
 Upon receipt of a request for a URI of a protected resource within 
 the protection space requiring DPoP authorization, if the request does
-not include valid credentials or or does not contain an access 
+not include valid credentials or does not contain an access 
 token sufficient for access to the protected resource, the server
 can reply with a challenge using the 401 (Unauthorized) status code
 ([@!RFC7235], Section 3.1) and the `WWW-Authenticate` header field
@@ -692,7 +692,8 @@ Paul Querna,
 Dick Hardt,
 Dave Tonge,
 Jared Jennings,
-Mark Haine 
+Mark Haine,
+Nikos Fotiou,
 and others (please let us know, if you've been mistakenly omitted)
 for their valuable input, feedback and general support of this work.
 
