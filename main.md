@@ -707,7 +707,7 @@ workshop (Ralf Kusters, Guido Schmitz).
  
   -02
   
-   * 
+   * Editorial updates
    
   -01
   
