@@ -558,7 +558,7 @@ memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessar
 large `jti` values or store only a hash thereof.    
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
-proofs that carry an `iat` time in the near future (e.g., up to a few
+proofs that carry an `iat` time in the near future (e.g., a few
 seconds in the future).
 
 ## Signed JWT Swapping
@@ -576,11 +576,11 @@ the algorithm `none` MUST NOT be allowed.
 ## Message Integrity {#request_integrity}
 
 DPoP does not ensure the integrity of the payload or headers of
-requests. The signature of DPoP proofs only contains the HTTP URI and
-method, but not, for example, the message body or other request
+requests. The DPoP proofs only contains claims for the HTTP URI and
+method, but not, for example, the message body or general request
 headers.
 
-This is an intentional design decision to keep DPoP simple to use, but
+This is an intentional design decision intended to keep DPoP simple to use, but
 as described, makes DPoP potentially susceptible to replay attacks
 where an attacker is able to modify message contents and headers. In
 many setups, the message integrity and confidentiality provided by TLS
@@ -592,8 +592,8 @@ requests. TLS-based mechanisms are in particular OAuth Mutual TLS
 [@RFC8705] and OAuth Token Binding
 [@I-D.ietf-oauth-token-binding].
 
-Note: While signatures on (parts of) requests are out of the scope of
-this specification, signatures or information to be signed can be
+Note: While signatures covering other parts of requests are out of the scope of
+this specification, addional information to be signed can be
 added into DPoP proofs.
 
 
