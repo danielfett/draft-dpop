@@ -99,9 +99,10 @@ of TLS client authentication in user agents and a lack of support for HTTP token
 binding, neither mechanism can be used if an OAuth client is a Single Page
 Application (SPA) running in a web browser. 
 
-DPoP can be used with public clients to sender-constrain access tokens and 
-refresh tokens. With confidential clients, DPoP can be used in conjunction
-with any client authentication method to sender-constrain access tokens.
+DPoP can be used to sender-constrain access tokens regardless of the 
+client authentication method employed. Furthermore, DPoP can
+also be used to sender-constrain refresh tokens issued to public clients 
+(those without authentication credentials associated with the `client_id`).
 
 ## Conventions and Terminology
 
@@ -149,7 +150,7 @@ data of the HTTP request to which it is attached.
 |        |                                          |     Server    |
 |        |<-(B)-- DPoP-bound Access Token ----------|               |
 |        |        (token_type=DPoP)                 +---------------+
-|        |        PoP Refresh Token for public clients
+|        |
 |        | 
 |        |                                          +---------------+
 |        |--(C)-- DPoP-bound Access Token --------->|               |
@@ -164,21 +165,16 @@ Figure: Basic DPoP Flow {#basic-flow}
 
 The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
 
-  * (A) In the Token Request, the client sends an authorization code
+  * (A) In the Token Request, the client sends an authorization grant 
+    (e.g., an authorization code, refresh token, etc.)  
     to the authorization server in order to obtain an access token
     (and potentially a refresh token). The client attaches a DPoP
     proof to the request in an HTTP header.
   * (B) The AS binds (sender-constrains) the access token to the
     public key claimed by the client in the DPoP proof; that is, the access token cannot
     be used without proving possession of the respective private key.
-    This is signaled to the client by using the `token_type` value
-    `DPoP`. 
-  * If a refresh token is issued to a public client, it is
-    bound to the public key of the DPoP proof in a similar way. 
-    Note that for confidential clients, refresh tokens are required by [@!RFC6749] 
-    to bound to the `client_id` and associated authentication credentials,
-    which is a sender-constraining mechanism that is more flexible than binding
-    to a particular public key.
+    If a refresh token is issued to a public client, it too is
+    bound to the public key of the DPoP proof. 
   * (C) If the client wants to use the access token, it has to prove
     possession of the private key by, again, adding a header to the
     request that carries the DPoP proof. The resource server needs to
@@ -192,14 +188,10 @@ The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
     signature check fails or the data in the DPoP proof is wrong,
     e.g., the request URI does not match the URI claim in the DPoP
     proof JWT.
-  * When a refresh token that is sender-constrained using DPoP is used
-    by the client, the client has to provide a DPoP proof just as in
-    the case of a resource access. The new access token will be bound
-    to the same public key.
-
+    
 The mechanism presented herein is not a client authentication method.
 In fact, a primary use case of DPoP is for public clients (e.g., single page
-applications) that do not use client authentication. Nonetheless, DPoP
+applications or native applications) that do not use client authentication. Nonetheless, DPoP
 is designed such that it is compatible with `private_key_jwt` and all
 other client authentication methods.
 
@@ -307,7 +299,8 @@ Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 
 To bind a token to a public key in the token request, the client MUST
 provide a valid DPoP proof JWT in a `DPoP` header. The HTTPS request shown
-in (#token-request) illustrates the protocol for this (with extra line breaks
+in (#token-request) illustrates such an access token request using an 
+an authorization code grant (with extra line breaks and whitespace 
 for display purposes only).
 
 
@@ -336,21 +329,32 @@ If the DPoP proof is invalid, the authorization server issues an error
 response per Section 5.2 of [@RFC6749] with `invalid_dpop_proof` as the 
 value of the `error` parameter. 
 
-The authorization server, after checking the validity of the DPoP proof,
+To sender-constrained the access token the authorization server, 
+after checking the validity of the DPoP proof,
 associates the access token issued at the token endpoint with the
-public key. It then sets `token_type` to `DPoP` in the token
-response, which signals to the client that the access token was bound to
+public key from the DPoP proof. A `token_type` of `DPoP` in the token
+response signals to the client that the access token was bound to
 its DPoP key and can used as described in (#http-auth-scheme).
 
-If a refresh token is issued to a public client at the token endpoint
-and a valid DPoP proof is presented, the refresh token MUST be bound
-to the public key contained in the header of the DPoP proof JWT.
+When the authorization server issues a
+refresh token to a public client that presents a valid DPoP proof at the 
+token endpoint, it MUST also bind the refresh token
+to the respective public key and check the binding when the refresh
+token is presented to get new access tokens. The implementation
+details of the binding of the refresh token are at the discretion of
+the authorization server. 
 
-When a DPoP-bound refresh token is used at the token endpoint by a
-public client, the AS MUST ensure that the DPoP proof contains the
-same public key as the one the refresh token is bound to. The access
-token issued MUST be bound to the public key contained in the DPoP
-proof.
+Refresh tokens issued to confidential clients (those having
+established authentication credentials with the authorization server) 
+are not bound to the DPoP proof public key because they are already 
+sender-constrained with a different existing mechanism. The OAuth 2.0 Authorization 
+Framework [RFC6749] already requires that an authorization server bind 
+refresh tokens to the client to which they were issued and that 
+confidential clients authenticate to the authorization server when 
+presenting a refresh token.  As a result, such refresh tokens
+are sender-constrained by way of the client ID and the associated 
+authentication requirement.
+
 
 # Resource Access (Proof of Possession for Access Tokens) {#http-auth-scheme}
 
