@@ -236,7 +236,22 @@ The body of a DPoP proof contains at least the following claims:
  * `iat`: Time at which the JWT was created (REQUIRED).
 
 
-(#dpop-proof) shows the JSON header and payload of a DPoP proof JWT. 
+(#dpop-proof-jwt) shows an example DPoP proof JWT (with line breaks for display
+purposes only) while (#dpop-proof) conceptually shows its content with 
+JSON header and payload decoded and signature part omitted. 
+
+!---
+```
+eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwi
+eCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5
+IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JEQSIsImNy
+diI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIjoiUE9TVCI
+sImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwiaWF0IjoxNTY
+yMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg4PtFLbdLXiO
+SsX0x7NVY-FNyJK70nfbV37xRZT3Lg
+```
+!---
+Figure: Example `DPoP` proof JWT {#dpop-proof-jwt}
 
 !---
 ```
@@ -257,7 +272,7 @@ The body of a DPoP proof contains at least the following claims:
 }
 ```
 !---
-Figure: Example JWT content for `DPoP` proof header {#dpop-proof}
+Figure: Example JWT content of a `DPoP` proof header {#dpop-proof}
 
 Note: To keep DPoP simple to implement, only the HTTP method and URI
 are signed in DPoP proofs. The idea is sign just enough of the HTTP data to 
