@@ -372,6 +372,16 @@ presenting a refresh token.  As a result, such refresh tokens
 are sender-constrained by way of the client ID and the associated 
 authentication requirement.
 
+## Authorization Server Metadata {#as-meta}
+
+This document introduces the following new authorization server metadata
+[@RFC8414] parameter to signal the JWS `alg` values the authorization server
+supports for DPoP proof JWTs:
+
+`dpop_signing_alg_values_supported`
+:   A JSON array containing a list of the JWS `alg` values supported
+by the authorization server for DPoP proof JWTs. 
+
 
 # Resource Access (Proof of Possession for Access Tokens) {#http-auth-scheme}
 
@@ -517,18 +527,6 @@ MUST be contained in the introspection response.
 Resource servers MUST ensure that the fingerprint of the public key in
 the DPoP proof JWT equals the value in the `jkt` claim in the access
 token or introspection response.
-
-# Authorization Server Metadata {#as-meta}
-
-This document introduces the following new authorization server metadata
-[@RFC8414] parameter to signal the JWS `alg` values the authorization server
-supports for DPoP proof JWTs:
-
-`dpop_signing_alg_values_supported`
-:      OPTIONAL.  JSON array containing a list of the JWS `alg` values supported
-by the authorization server for DPoP proof JWTs
-
-
 
 
 # Security Considerations {#Security}
