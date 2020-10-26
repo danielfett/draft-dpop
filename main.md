@@ -170,7 +170,7 @@ The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
     to the authorization server in order to obtain an access token
     (and potentially a refresh token). The client attaches a DPoP
     proof to the request in an HTTP header.
-  * (B) The AS binds (sender-constrains) the access token to the
+  * (B) The authorization server binds (sender-constrains) the access token to the
     public key claimed by the client in the DPoP proof; that is, the access token cannot
     be used without proving possession of the respective private key.
     If a refresh token is issued to a public client, it too is
@@ -274,8 +274,10 @@ Figure: Example `DPoP` proof JWT {#dpop-proof-jwt}
 !---
 Figure: Example JWT content of a `DPoP` proof header {#dpop-proof}
 
-Note: To keep DPoP simple to implement, only the HTTP method and URI
-are signed in DPoP proofs. The idea is sign just enough of the HTTP data to 
+Of the HTTP content in the request, only the HTTP method and URI are
+included in the DPoP JWT, and therefore only these 2 headers of the request
+are covered by the DPoP proof and its signature.
+The idea is sign just enough of the HTTP data to
 provide reasonable proof-of-possession with respect to the HTTP request. But 
 that it be a minimal subset of the HTTP data so as to avoid the substantial 
 difficulties inherent in attempting to normalize HTTP messages. 
