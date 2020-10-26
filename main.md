@@ -1,5 +1,5 @@
 %%%
-title = "OAuth 2.0 Demonstration of Proof-of-Possession at the Application Layer (DPoP)"
+title = "OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)"
 abbrev = "OAuth DPoP"
 ipr = "trust200902"
 area = "Security"
@@ -77,7 +77,8 @@ tokens.
 
 # Introduction {#Introduction}
 
-This document outlines a relatively simple application-level mechanism for 
+DPoP, an abbreviation for Demonstrating Proof-of-Possession at the Application Layer,
+is a relatively simple application-level mechanism for
 sender-constraining OAuth access and refresh tokens. It enables a client to
 demonstrate proof-of-possession of a public/private key pair by including 
 the `DPoP` header in an HTTP request. Using that header, an authorization
@@ -675,25 +676,26 @@ established by [@RFC8414].
 # Acknowledgements {#Acknowledgements}
       
 We would like to thank 
-Filip Skokan, 
-Mike Engan, 
-Justin Richer, 
-Michael Peck,
-Vladimir Dzhuvinov, 
-Rob Otto,
-Dominick Baier,
-Jim Willeke,
 Annabelle Backman,
-Bjorn Hjelm,
-Steinar Noem,
-Aaron Parecki,
-Neil Madden,
-Paul Querna,
-Dick Hardt,
-Dave Tonge,
-Jared Jennings,
-Mark Haine,
+Dominick Baier,
+William Denniss,
+Vladimir Dzhuvinov,
+Mike Engan,
 Nikos Fotiou,
+Mark Haine,
+Dick Hardt,
+Bjorn Hjelm,
+Jared Jennings,
+Steinar Noem,
+Neil Madden,
+Rob Otto,
+Aaron Parecki,
+Michael Peck,
+Paul Querna,
+Justin Richer,
+Filip Skokan,
+Dave Tonge,
+Jim Willeke,
 and others (please let us know, if you've been mistakenly omitted)
 for their valuable input, feedback and general support of this work.
 
