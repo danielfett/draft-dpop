@@ -78,7 +78,7 @@ tokens.
 # Introduction {#Introduction}
 
 DPoP, an abbreviation for Demonstrating Proof-of-Possession at the Application Layer,
-is a relatively simple application-level mechanism for
+is an application-level mechanism for
 sender-constraining OAuth access and refresh tokens. It enables a client to
 demonstrate proof-of-possession of a public/private key pair by including 
 the `DPoP` header in an HTTP request. Using that header, an authorization
@@ -91,13 +91,17 @@ In other words, the legitimate presenter of the token is constrained to be
 the sender that holds and can prove possession of the private part of the
 key pair.    
 
-The mechanism described herein can be used in cases where potentially stronger
+The mechanism described herein can be used in cases where other
 methods of sender-constraining tokens that utilize elements of the underlying
 secure transport layer, such as [@RFC8705] or [@I-D.ietf-oauth-token-binding],
 are not available or desirable. For example, due to a sub-par user experience 
 of TLS client authentication in user agents and a lack of support for HTTP token
 binding, neither mechanism can be used if an OAuth client is a Single Page
-Application (SPA) running in a web browser. 
+Application (SPA) running in a web browser. Native applications installed
+and run on a user's device, which often have dedicated protected storage
+for cryptographic keys. are another example well positioned to benefit
+from DPoP-bound tokens to guard against misuse of tokens by a compromised
+or malicious resource.
 
 DPoP can be used to sender-constrain access tokens regardless of the 
 client authentication method employed. Furthermore, DPoP can
