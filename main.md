@@ -204,9 +204,21 @@ layer for that purpose. See (#Security) for details.
 
 # DPoP Proof JWTs
 
-DPoP introduces concept of a DPoP proof JWT, which is used for binding public 
-keys and proving knowledge about private keys. The DPoP proof JWT is sent with
-an HTTP request using the `DPoP` header field.  
+DPoP introduces the concept of a DPoP proof, which is a JWT created by
+the client and sent with an HTTP request using the `DPoP` header field.
+A valid DPoP proof demonstrates to the server that the client holds the private
+key that was used to sign the JWT. This enables authorization servers to bind
+issued tokens to the corresponding public key (as described in (#token-request-binding))
+and for resource servers to verify the key-binding of tokens that
+it receives (see (#http-auth-scheme)), which prevents said tokens from
+being used by any entity that does not have access to the private key.
+
+The DPoP proof demonstrates possession of a key and, by itself, is not
+an authentication or access control mechanism. When presented
+in conjunction with a key-bound access token as described in (#http-auth-scheme),
+the DPoP proof provides additional assurance about the legitimacy of the client
+to present the access token. But a valid DPoP proof JWT is not sufficient alone
+to make access control decisions.
 
 
 ## DPoP Proof JWT Syntax {#DPoP-Proof}
@@ -316,7 +328,7 @@ Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 [@!RFC3986] before comparing the `htu` claim.
 
 
-# Token Request (Binding Tokens to a Public Key)
+# Token Request (Binding Tokens to a Public Key) {#token-request-binding}
 
 To bind a token to a public key in the token request, the client MUST
 provide a valid DPoP proof JWT in a `DPoP` header. The HTTPS request shown
