@@ -370,12 +370,14 @@ response signals to the client that the access token was bound to
 its DPoP key and can used as described in (#http-auth-scheme).
 
 When the authorization server issues a
-refresh token to a public client that presents a valid DPoP proof at the 
-token endpoint, it MUST also bind the refresh token
+refresh token to a public client presenting a valid DPoP proof at the
+token endpoint, it MUST bind the refresh token
 to the respective public key and check the binding when the refresh
-token is presented to get new access tokens. The implementation
+token is later presented to get new access tokens. The implementation
 details of the binding of the refresh token are at the discretion of
-the authorization server. 
+the authorization server. The authorization server both produces and
+validates the refresh tokens that it issues so there's no interoperability
+consideration in the specific details of the binding.
 
 Refresh tokens issued to confidential clients (those having
 established authentication credentials with the authorization server) 
@@ -386,7 +388,9 @@ refresh tokens to the client to which they were issued and that
 confidential clients authenticate to the authorization server when 
 presenting a refresh token.  As a result, such refresh tokens
 are sender-constrained by way of the client ID and the associated 
-authentication requirement.
+authentication requirement. This existing sender-constraining mechanism
+is more flexible (e.g., it allows credential rotation for the client
+without invalidating the token) than binding directly to a particular public key.
 
 ## Authorization Server Metadata {#as-meta}
 
