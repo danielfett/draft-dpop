@@ -179,23 +179,24 @@ The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
     be used without proving possession of the respective private key.
     If a refresh token is issued to a public client, it too is
     bound to the public key of the DPoP proof. 
-  * (C) If the client wants to use the access token, it has to prove
+  * (C) To use the access token the client has to prove
     possession of the private key by, again, adding a header to the
     request that carries the DPoP proof. The resource server needs to
     receive information about the public key to which the access token is bound. This
-    information is either encoded directly into the access token (for
-    JWT structured access tokens), or provided at the token
-    introspection endpoint of the authorization server (not
-    shown). The resource server verifies that the public key to which the
+    information may be encoded directly into the access token (for
+    JWT structured access tokens) or provided via token
+    introspection endpoint (not shown). 
+    The resource server verifies that the public key to which the
     access token is bound matches the public key of the DPoP proof.
   * (D) The resource server refuses to serve the request if the
     signature check fails or the data in the DPoP proof is wrong,
     e.g., the request URI does not match the URI claim in the DPoP
-    proof JWT.
+    proof JWT. The access token itself, of course, must also be 
+    valid in all other respects. 
     
-The mechanism presented herein is not a client authentication method.
+The DPoP mechanism presented herein is not a client authentication method.
 In fact, a primary use case of DPoP is for public clients (e.g., single page
-applications or native applications) that do not use client authentication. Nonetheless, DPoP
+applications and native applications) that do not use client authentication. Nonetheless, DPoP
 is designed such that it is compatible with `private_key_jwt` and all
 other client authentication methods.
 
