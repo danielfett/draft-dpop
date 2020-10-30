@@ -362,8 +362,8 @@ If the DPoP proof is invalid, the authorization server issues an error
 response per Section 5.2 of [@RFC6749] with `invalid_dpop_proof` as the 
 value of the `error` parameter. 
 
-To sender-constrained the access token the authorization server, 
-after checking the validity of the DPoP proof,
+To sender-constrain the access token, after checking the validity of the
+DPoP proof, the authorization server
 associates the access token issued at the token endpoint with the
 public key from the DPoP proof. A `token_type` of `DPoP` in the token
 response signals to the client that the access token was bound to
