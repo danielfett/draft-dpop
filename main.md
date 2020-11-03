@@ -209,7 +209,7 @@ DPoP introduces the concept of a DPoP proof, which is a JWT created by
 the client and sent with an HTTP request using the `DPoP` header field.
 A valid DPoP proof demonstrates to the server that the client holds the private
 key that was used to sign the JWT. This enables authorization servers to bind
-issued tokens to the corresponding public key (as described in (#token-request-binding))
+issued tokens to the corresponding public key (as described in (#access-token-request))
 and for resource servers to verify the key-binding of tokens that
 it receives (see (#http-auth-scheme)), which prevents said tokens from
 being used by any entity that does not have access to the private key.
@@ -329,14 +329,17 @@ Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 [@!RFC3986] before comparing the `htu` claim.
 
 
-# Token Request (Binding Tokens to a Public Key) {#token-request-binding}
+# DPoP Access Token Request {#access-token-request}
 
-To bind a token to a public key in the token request, the client MUST
-provide a valid DPoP proof JWT in a `DPoP` header. The HTTPS request shown
-in (#token-request) illustrates such an access token request using an 
-an authorization code grant (with extra line breaks and whitespace 
-for display purposes only).
-
+To request an access token that is bound to a public key using DPoP, the client MUST 
+provide a valid DPoP proof JWT in a `DPoP` header when making an access token
+request to the authorization server's token endpoint. This is applicable for all
+access token requests regardless of grant type (including, for example,
+the common `authorization_code` and `refresh_token` grant types but also extension grants
+such as the JWT authorization grant [@RFC7523]). The HTTPS request shown in
+(#token-request-code) illustrates an such an access 
+token request using an an authorization code grant with a DPoP proof JWT
+in the `DPoP` header (extra line breaks and whitespace for display purposes only).
 
 !---
 ~~~
@@ -350,13 +353,14 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
  WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg
  4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
+ 
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 &code_verifier=bEaL42izcC-o-xBk0K2vuJ6U-y1p9r_wW2dFWIWgjz-
 ~~~
 !---
-Figure: Token Request for a DPoP sender-constrained token {#token-request}
+Figure: Token Request for a DPoP sender-constrained token using an authorization code {#token-request-code}
 
 The `DPoP` HTTP header MUST contain a valid DPoP proof JWT.
 If the DPoP proof is invalid, the authorization server issues an error 
@@ -364,21 +368,76 @@ response per Section 5.2 of [@RFC6749] with `invalid_dpop_proof` as the
 value of the `error` parameter. 
 
 To sender-constrain the access token, after checking the validity of the
-DPoP proof, the authorization server
-associates the access token issued at the token endpoint with the
-public key from the DPoP proof. A `token_type` of `DPoP` in the token
+DPoP proof, the authorization server associates the issued access token with the
+public key from the DPoP proof, which can be accomplished as described in (#Confirmation).
+A `token_type` of `DPoP` in the access token
 response signals to the client that the access token was bound to
-its DPoP key and can used as described in (#http-auth-scheme).
+its DPoP key and can used as described in (#http-auth-scheme). 
+The example response shown in (#token-response) illustrates such a 
+response. 
 
-When the authorization server issues a
-refresh token to a public client presenting a valid DPoP proof at the
-token endpoint, it MUST bind the refresh token
-to the respective public key and check the binding when the refresh
-token is later presented to get new access tokens. The implementation
-details of the binding of the refresh token are at the discretion of
-the authorization server. The authorization server both produces and
+!---
+~~~
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache, no-store
+
+{
+ "access_token": "Kz68mXK1EalYznwH-LCC7fBHAo4LjprzsPE_NeO6gxU",
+ "token_type": "DPoP",
+ "expires_in": 2677,
+ "refresh_token": "QZkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g"
+}
+~~~
+!---
+Figure: Access Token Response {#token-response}
+
+The example response in (#token-response) included a refresh token, which the 
+client can use to obtain a new access token when the the previous one expires.
+Refreshing an access token is a token request using the `refresh_token`
+grant type made to the the authorization server's token endpoint.  As with 
+all access token requests, the client makes it a DPoP request by including 
+a DPoP proof, which is shown in the (#token-request-rt) example
+(extra line breaks and whitespace for display purposes only). 
+
+!---
+~~~
+POST /token HTTP/1.1
+Host: server.example.com
+Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
+ oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
+ WF0IjoxNTYyMjY1Mjk2fQ.pAqut2IRDm_De6PR93SYmGBPXpwrAk90e8cP2hjiaG5Qs
+ GSuKDYW7_X620BxqhvYC8ynrrvZLTk41mSRroapUA
+
+rant_type=refresh_token
+&refresh_token=QZkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g
+
+~~~
+!---
+Figure: Token Request for a DPoP-bound token using a refresh token {#token-request-rt}
+
+When an authorization server supporting DPoP issues a
+refresh token to a public client that presents a valid DPoP proof at the
+token endpoint, the refresh token MUST be bound
+to the respective public key. The binding MUST be validated when the refresh
+token is later presented to get new access tokens. As a result, such a client 
+MUST present a DPoP proof for the same key that was used to obtain the refresh
+token each time that refresh token is used to obtain a new access token. 
+The implementation details of the binding of the refresh token are at the discretion of
+the authorization server. The server both produces and
 validates the refresh tokens that it issues so there's no interoperability
-consideration in the specific details of the binding.
+consideration in the specific details of the binding. 
+
+An authorization server MAY elect to issue access tokens which are not DPoP bound,
+which is signaled to the client with a value of `Bearer` in the `token_type` parameter 
+of the access token response per [@RFC6750]. For a public client that is
+also issued a refresh token, this has the effect of DPoP-binding the refresh token
+alone, which can improve the security posture even when protected resources are not 
+updated to support DPoP. 
 
 Refresh tokens issued to confidential clients (those having
 established authentication credentials with the authorization server) 
@@ -391,7 +450,7 @@ presenting a refresh token.  As a result, such refresh tokens
 are sender-constrained by way of the client ID and the associated 
 authentication requirement. This existing sender-constraining mechanism
 is more flexible (e.g., it allows credential rotation for the client
-without invalidating the token) than binding directly to a particular public key.
+without invalidating refresh tokens) than binding directly to a particular public key.
 
 ## Authorization Server Metadata {#as-meta}
 
