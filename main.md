@@ -315,7 +315,7 @@ valid DPoP proof, the receiving server MUST ensure that
  1. that the JWT is signed using the public key contained in the `jwk`
     header of the JWT,
  1. the `htm` claim matches the HTTP method value of the HTTP
-    request in which the JWT was received (case-insensitive),
+    request in which the JWT was received,
  1. the `htu` claims matches the HTTP URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
@@ -809,6 +809,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -02
   
    * Editorial updates
+   * Remove the case-insensitive qualification on the`htm` claim check
    
   -01
   
