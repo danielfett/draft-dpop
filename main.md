@@ -316,7 +316,7 @@ valid DPoP proof, the receiving server MUST ensure that
     header of the JWT,
  1. the `htm` claim matches the HTTP method value of the HTTP
     request in which the JWT was received,
- 1. the `htu` claims matches the HTTP URI value for the HTTP
+ 1. the `htu` claims matches the HTTPS URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
  1. the token was issued within an acceptable timeframe (see (#Token_Replay)), and
