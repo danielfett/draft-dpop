@@ -81,8 +81,9 @@ DPoP, an abbreviation for Demonstrating Proof-of-Possession at the Application L
 is an application-level mechanism for
 sender-constraining OAuth access and refresh tokens. It enables a client to
 demonstrate proof-of-possession of a public/private key pair by including 
-the `DPoP` header in an HTTP request. Using that header, an authorization
-server is able to bind issued tokens to the public part of the client's 
+a`DPoP` header in an HTTP request. The value of the header is a JWT [@!RFC7519] that 
+enables the authorization
+server to bind issued tokens to the public part of the client's 
 key pair. Recipients of such tokens are then able to verify the binding of the
 token to the key pair that the client has demonstrated that it holds via
 the `DPoP` header, thereby providing some assurance that the client presenting
@@ -221,6 +222,33 @@ the DPoP proof provides additional assurance about the legitimacy of the client
 to present the access token. But a valid DPoP proof JWT is not sufficient alone
 to make access control decisions.
 
+## DPoP HTTP Header
+
+A DPoP proof is included in an HTTP request using the following message header field.
+
+`DPoP`
+:   A JWT that adheres to the structure and syntax of (#DPoP-Proof). 
+
+(#dpop-proof-jwt) shows an example DPoP HTTP header field (line breaks 
+and extra whitespace for display purposes only). 
+
+!---
+```
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
+ oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
+ WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg
+ 4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
+```
+!---
+Figure: Example `DPoP` header {#dpop-proof-jwt}
+
+Note that per [@RFC7230] header field names are case-insensitive;
+so `DPoP`, `DPOP`, `dpop`, etc., are all valid and equivalent header
+field names. Case is significant in the header field value, however.  
+
 
 ## DPoP Proof JWT Syntax {#DPoP-Proof}
 
@@ -253,25 +281,14 @@ The body of a DPoP proof contains at least the following claims:
  * `iat`: Time at which the JWT was created (REQUIRED).
 
 
-(#dpop-proof-jwt) shows an example DPoP proof JWT (with line breaks for display
-purposes only) while (#dpop-proof) conceptually shows its content with 
-JSON header and payload decoded and signature part omitted. 
+(#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
+proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown
+but the signature part is omitted. As usual line breaks and extra whitespace 
+are included for formatting and readability.
 
 !---
 ```
-eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwi
-eCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5
-IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JEQSIsImNy
-diI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIjoiUE9TVCI
-sImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwiaWF0IjoxNTY
-yMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg4PtFLbdLXiO
-SsX0x7NVY-FNyJK70nfbV37xRZT3Lg
-```
-!---
-Figure: Example `DPoP` proof JWT {#dpop-proof-jwt}
-
-!---
-```
+HEADER: 
 {
   "typ":"dpop+jwt",
   "alg":"ES256",
@@ -281,7 +298,10 @@ Figure: Example `DPoP` proof JWT {#dpop-proof-jwt}
     "y":"9VE4jf_Ok_o64zbTTlcuNJajHmt6v9TDVrU0CdvGRDA",
     "crv":"P-256"
   }
-}.{
+}
+
+PAYLOAD:
+{
   "jti":"-BwC3ESc6acc2lTc",
   "htm":"POST",
   "htu":"https://server.example.com/token",
@@ -289,7 +309,7 @@ Figure: Example `DPoP` proof JWT {#dpop-proof-jwt}
 }
 ```
 !---
-Figure: Example JWT content of a `DPoP` proof header {#dpop-proof}
+Figure: Example JWT content of a `DPoP` proof {#dpop-proof}
 
 Of the HTTP content in the request, only the HTTP method and URI are
 included in the DPoP JWT, and therefore only these 2 headers of the request
