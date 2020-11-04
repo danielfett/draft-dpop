@@ -676,7 +676,7 @@ the algorithm `none` MUST NOT be allowed.
 ## Message Integrity {#request_integrity}
 
 DPoP does not ensure the integrity of the payload or headers of
-requests. The DPoP proofs only contains claims for the HTTP URI and
+requests. The DPoP proof only contains claims for the HTTP URI and
 method, but not, for example, the message body or general request
 headers.
 
