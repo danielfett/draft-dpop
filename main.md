@@ -482,6 +482,46 @@ supports for DPoP proof JWTs:
 :   A JSON array containing a list of the JWS `alg` values supported
 by the authorization server for DPoP proof JWTs. 
 
+# Public Key Confirmation {#Confirmation}
+
+It MUST be ensured that resource servers can reliably identify whether
+a token is bound using DPoP and learn the public key to which the
+token is bound.
+
+Access tokens that are represented as JSON Web Tokens (JWT) [@!RFC7519]
+MUST contain information about the DPoP public key (in JWK format) in
+the member `jkt` of the `cnf` claim, as shown in (#cnf-claim).
+
+The value in `jkt` MUST be the base64url encoding [@!RFC7515] of
+the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the public
+key to which the access token is bound.
+
+!---
+```
+{
+  "sub":"someone@example.com",
+  "iss":"https://server.example.com",
+  "aud":"https://resource.example.org",
+  "nbf":1562262611,
+  "exp":1562266216,
+  "cnf":{
+      "jkt":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
+  }
+}
+```
+!---
+Figure: Example access token body with `cnf` claim {#cnf-claim}
+
+When access token introspection is used, the same `cnf` claim as above
+MUST be returned as a parameter of the introspection response. The resource server
+does not send a DPoP proof with the introspection request and the authorization 
+server does not validate an access token's DPoP binding at the introspection 
+endpoint. Rather the resource server uses the data of the introspection response
+to validate the access token binding itself locally.
+
+Resource servers MUST ensure that the fingerprint of the public key in
+the DPoP proof JWT equals the value in the `jkt` claim in the access
+token or introspection response.
 
 # Resource Access (Proof of Possession for Access Tokens) {#http-auth-scheme}
 
@@ -590,48 +630,6 @@ because the confirmation of the DPoP binding in the access token failed:
    error_description="Invalid DPoP key binding", algs="ES256"
 ```
 !---
-
-# Public Key Confirmation {#Confirmation}
-
-It MUST be ensured that resource servers can reliably identify whether
-a token is bound using DPoP and learn the public key to which the
-token is bound.
-
-Access tokens that are represented as JSON Web Tokens (JWT) [@!RFC7519]
-MUST contain information about the DPoP public key (in JWK format) in
-the member `jkt` of the `cnf` claim, as shown in (#cnf-claim).
-
-The value in `jkt` MUST be the base64url encoding [@!RFC7515] of
-the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the public
-key to which the access token is bound.
-
-!---
-```
-{
-  "sub":"someone@example.com",
-  "iss":"https://server.example.com",
-  "aud":"https://resource.example.org",
-  "nbf":1562262611,
-  "exp":1562266216,
-  "cnf":{
-      "jkt":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
-  }
-}
-```
-!---
-Figure: Example access token body with `cnf` claim {#cnf-claim}
-
-When access token introspection is used, the same `cnf` claim as above
-MUST be returned as a parameter of the introspection response. The resource server
-does not send a DPoP proof with the introspection request and the authorization 
-server does not validate an access token's DPoP binding at the introspection 
-endpoint. Rather the resource server uses the data of the introspection response
-to validate the access token binding itself locally.
-
-Resource servers MUST ensure that the fingerprint of the public key in
-the DPoP proof JWT equals the value in the `jkt` claim in the access
-token or introspection response.
-
 
 # Security Considerations {#Security}
 
