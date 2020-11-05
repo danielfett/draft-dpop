@@ -622,7 +622,11 @@ key to which the access token is bound.
 Figure: Example access token body with `cnf` claim {#cnf-claim}
 
 When access token introspection is used, the same `cnf` claim as above
-MUST be contained in the introspection response.
+MUST be returned as a parameter of the introspection response. The resource server
+does not send a DPoP proof with the introspection request and the authorization 
+server does not validate an access token's DPoP binding at the introspection 
+endpoint. Rather the resource server uses the data of the introspection response
+to validate the access token binding itself locally.
 
 Resource servers MUST ensure that the fingerprint of the public key in
 the DPoP proof JWT equals the value in the `jkt` claim in the access
