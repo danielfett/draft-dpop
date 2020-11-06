@@ -713,10 +713,7 @@ methods such as OAuth Mutual TLS [@RFC8705] or OAuth Token
 Binding [@I-D.ietf-oauth-token-binding] (see also (#Token_Replay) and (#request_integrity)). 
 TLS-based mechanisms can leverage a tight integration
 between the TLS layer and the application layer to achieve a very high
-level of message integrity and replay protection. Therefore, it is
-RECOMMENDED to prefer TLS-based methods over DPoP if such methods are
-suitable for the scenario at hand.
-
+level of message integrity and replay protection.
 
 ## DPoP Proof Replay {#Token_Replay}
 
