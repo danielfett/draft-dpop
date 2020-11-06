@@ -403,10 +403,10 @@ Content-Type: application/json
 Cache-Control: no-cache, no-store
 
 {
- "access_token": "Kz68mXK1EalYznwH-LCC7fBHAo4LjprzsPE_NeO6gxU",
+ "access_token": "Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU",
  "token_type": "DPoP",
  "expires_in": 2677,
- "refresh_token": "QZkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g"
+ "refresh_token": "Q..Zkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g"
 }
 ~~~
 !---
@@ -433,8 +433,8 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  WF0IjoxNTYyMjY1Mjk2fQ.pAqut2IRDm_De6PR93SYmGBPXpwrAk90e8cP2hjiaG5Qs
  GSuKDYW7_X620BxqhvYC8ynrrvZLTk41mSRroapUA
 
-rant_type=refresh_token
-&refresh_token=QZkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g
+grant_type=refresh_token
+&refresh_token=Q..Zkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g
 
 ~~~
 !---
@@ -475,8 +475,8 @@ without invalidating refresh tokens) than binding directly to a particular publi
 ## Authorization Server Metadata {#as-meta}
 
 This document introduces the following new authorization server metadata
-[@RFC8414] parameter to signal the JWS `alg` values the authorization server
-supports for DPoP proof JWTs:
+[@RFC8414] parameter to signal support for DPoP in general and the specific 
+JWS `alg` values the authorization server supports for DPoP proof JWTs.
 
 `dpop_signing_alg_values_supported`
 :   A JSON array containing a list of the JWS `alg` values supported
@@ -484,44 +484,117 @@ by the authorization server for DPoP proof JWTs.
 
 # Public Key Confirmation {#Confirmation}
 
-It MUST be ensured that resource servers can reliably identify whether
-a token is bound using DPoP and learn the public key to which the
-token is bound.
+Resource servers MUST be able to reliably identify whether
+an access token is bound using DPoP and ascertain sufficient information
+about the public key to which the token is bound in order to verify the
+binding with respect to the the presented DPoP proof (see (#http-auth-scheme)). 
+Such a binding is accomplished by associating the public key 
+with the token in a way that can be
+accessed by the protected resource, such as embedding the JWK
+hash in the issued access token directly, using the syntax described
+in (#jwk-thumb-jwt), or through token introspection as described in
+(#jwk-thumb-intro). Other methods of associating a
+public key with an access token are possible, per agreement by the
+authorization server and the protected resource, but are beyond the
+scope of this specification.
 
-Access tokens that are represented as JSON Web Tokens (JWT) [@!RFC7519]
-MUST contain information about the DPoP public key (in JWK format) in
-the member `jkt` of the `cnf` claim, as shown in (#cnf-claim).
+Resource servers supporting DPoP MUST ensure that the the public key from
+the DPoP proof matches the pubic key to which the access token is bound.
 
-The value in `jkt` MUST be the base64url encoding [@!RFC7515] of
-the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the public
-key to which the access token is bound.
+## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
+When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
+the public key information SHOULD be represented
+using the `jkt` confirmation method member defined herein. 
+To convey the hash of a public key in a JWT, this specification
+introduces the following new JWT Confirmation Method [@!RFC7800] member for
+use under the `cnf` claim.
+
+`jkt`
+:   JWK SHA-256 Thumbprint Confirmation Method. The value of the `jkt` member 
+MUST be the base64url encoding (as defined in [@!RFC7515]) 
+of the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the DPoP public key 
+(in JWK format) to which the access token is bound. 
+
+The following example JWT in (#cnf-claim-jwt) with decoded JWT payload shown in 
+(#cnf-claim) contains a `cnf` claim with the `jkt` JWK thumbprint confirmation 
+method member.  The `jkt` value in these examples is the hash of the public key 
+from the DPoP proofs in the examples in (#access-token-request).
+
+!---
+```
+eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWIiOiJzb21lb25lQGV4YW1
+wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbXBsZS5jb20iLCJuYmYiOjE
+1NjIyNjI2MTEsImV4cCI6MTU2MjI2NjIxNiwiY25mIjp7ImprdCI6IjBaY09DT1JaTll
+5LURXcHFxMzBqWnlKR0hUTjBkMkhnbEJWM3VpZ3VBNEkifX0.3Tyo8VTcn6u_PboUmAO
+YUY1kfAavomW_YwYMkmRNizLJoQzWy2fCo79Zi5yObpIzjWb5xW4OGld7ESZrh0fsrA
+```
+!---
+Figure: JWT containing a JWK SHA-256 Thumbprint Confirmation {#cnf-claim-jwt}
 
 !---
 ```
 {
   "sub":"someone@example.com",
   "iss":"https://server.example.com",
-  "aud":"https://resource.example.org",
   "nbf":1562262611,
   "exp":1562266216,
-  "cnf":{
-      "jkt":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
-  }
+  "cnf":{"jkt":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"}
 }
 ```
 !---
-Figure: Example access token body with `cnf` claim {#cnf-claim}
+Figure: JWT Claims Set with a JWK SHA-256 Thumbprint Confirmation {#cnf-claim}
 
-When access token introspection is used, the same `cnf` claim as above
-MUST be returned as a parameter of the introspection response. The resource server
+## JWK Thumbprint Confirmation Method in Token Introspection {#jwk-thumb-intro}
+
+OAuth 2.0 Token Introspection [@RFC7662] defines a method for a
+protected resource to query an authorization server about the active
+state of an access token as well as to determine metainformation
+about the token.
+
+For DPoP-bound access token, the hash of the public key to which the token 
+is bound is conveyed to the protected resource as metainformation in a token
+introspection response. The hash is conveyed using the same `cnf` content with 
+`jkt` member structure as the JWK thumbprint confirmation method, described in 
+(#jwk-thumb-jwt), as a top-level member of the
+introspection response JSON. Note that the resource server
 does not send a DPoP proof with the introspection request and the authorization 
 server does not validate an access token's DPoP binding at the introspection 
 endpoint. Rather the resource server uses the data of the introspection response
 to validate the access token binding itself locally.
 
-Resource servers MUST ensure that the fingerprint of the public key in
-the DPoP proof JWT equals the value in the `jkt` claim in the access
-token or introspection response.
+The example introspection request in (#introspect-req) and corresponding response in 
+(#introspect-resp) illustrate an introspection exchange for the example DPoP-bound 
+access token that was issued in (#token-response).
+
+!---
+```
+POST /as/introspect.oauth2 HTTP/1.1
+Host: server.example.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic cnM6cnM6TWt1LTZnX2xDektJZHo0ZnNON2tZY3lhK1Rp
+
+token=Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
+```
+!---
+Figure: Example Introspection Request {#introspect-req}
+
+!---
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache, no-store
+
+{
+  "active": true,
+  "sub": "someone@example.com",
+  "iss": "https://server.example.com",
+  "nbf": 1562262611,
+  "exp": 1562266216,
+  "cnf": {"jkt": "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"}
+}
+```
+!---
+Figure: Example Introspection Response for a DPoP-Bound Access Token {#introspect-resp}
 
 # Resource Access (Proof of Possession for Access Tokens) {#http-auth-scheme}
 
@@ -564,11 +637,10 @@ GET /protectedresource HTTP/1.1
 Host: resource.example.org
 Authorization: DPoP eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWI
  iOiJzb21lb25lQGV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbX
- BsZS5jb20iLCJhdWQiOiJodHRwczovL3Jlc291cmNlLmV4YW1wbGUub3JnIiwibmJmI
- joxNTYyMjYyNjExLCJleHAiOjE1NjIyNjYyMTYsImNuZiI6eyJqa3QiOiIwWmNPQ09S
- Wk5ZeS1EV3BxcTMwalp5SkdIVE4wZDJIZ2xCVjN1aWd1QTRJIn19.vsFiVqHCyIkBYu
- 50c69bmPJsj8qYlsXfuC6nZcLl8YYRNOhqMuRXu6oSZHe2dGZY0ODNaGg1cg-kVigzY
- hF1MQ
+ BsZS5jb20iLCJuYmYiOjE1NjIyNjI2MTEsImV4cCI6MTU2MjI2NjIxNiwiY25mIjp7I
+ mprdCI6IjBaY09DT1JaTll5LURXcHFxMzBqWnlKR0hUTjBkMkhnbEJWM3VpZ3VBNEki
+ fX0.3Tyo8VTcn6u_PboUmAOYUY1kfAavomW_YwYMkmRNizLJoQzWy2fCo79Zi5yObpI
+ zjWb5xW4OGld7ESZrh0fsrA
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
@@ -695,7 +767,7 @@ requests. TLS-based mechanisms are in particular OAuth Mutual TLS
 [@I-D.ietf-oauth-token-binding].
 
 Note: While signatures covering other parts of requests are out of the scope of
-this specification, addional information to be signed can be
+this specification, additional information to be signed can be
 added into DPoP proofs.
 
 
