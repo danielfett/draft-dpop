@@ -683,12 +683,7 @@ checks are successful.
 ~~~
 GET /protectedresource HTTP/1.1
 Host: resource.example.org
-Authorization: DPoP eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWI
- iOiJzb21lb25lQGV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbX
- BsZS5jb20iLCJuYmYiOjE1NjIyNjI2MTEsImV4cCI6MTU2MjI2NjIxNiwiY25mIjp7I
- mprdCI6IjBaY09DT1JaTll5LURXcHFxMzBqWnlKR0hUTjBkMkhnbEJWM3VpZ3VBNEki
- fX0.3Tyo8VTcn6u_PboUmAOYUY1kfAavomW_YwYMkmRNizLJoQzWy2fCo79Zi5yObpI
- zjWb5xW4OGld7ESZrh0fsrA
+Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
@@ -698,7 +693,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  NdavjLAeevGy32H3dbF0Jbri69Nm2ukkwb-uyUI4AUg1JSskfWIyo4UCbQ
 ~~~
 !---
-Figure: Protected Resource Request with a DPoP sender-constrained access token {#protected-resource-request}
+Figure: DPoP Protected Resource Request {#protected-resource-request}
 
 Upon receipt of a request for a URI of a protected resource within 
 the protection space requiring DPoP authorization, if the request does
