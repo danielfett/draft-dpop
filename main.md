@@ -125,18 +125,66 @@ This specification uses the terms "access token", "refresh token",
 "client" defined by The OAuth 2.0 Authorization Framework [@!RFC6749].
 
 
-# Main Objective {#Objective_Replay_Different_Endpoint}
+# Objectives {#objective}
 
-Under the attacker model defined in [@I-D.ietf-oauth-security-topics],
-the mechanism defined by this specification aims to prevent token
-replay at a different endpoint.
+The primary aim of DPoP is to prevent unauthorized or illegitimate 
+parties from using leaked or stolen access tokens by binding a token
+to a public key upon issuance and requiring that the client demonstrate
+possession of the corresponding private key when using the token. 
+This constrains the legitimate sender of the token to only the party with
+access to the private key and gives the server receiving the token 
+assurances that the sender is legitimately authorized to use it.  
 
-More precisely, if an adversary is able to get hold of an access token
-or refresh token because it set up a counterfeit authorization server
-or resource server, the adversary is not able to replay the respective
-token at another authorization or resource server.
+Access tokens that are sender-constrained via DPoP binding thus stand in 
+contrast to the typical bearer token, which can be used by any party in
+possession of such a token. Although protections generally exist to 
+prevent unintended disclosure of bearer tokens, unforeseen vectors for 
+leakage have occurred due to vulnerabilities and implementation issues
+in other layers in the protocol or software stack (CRIME, BREACH,
+Heartbleed, and the Cloudflare parser bug are some examples). 
+There have also been numerous published token theft attacks on OAuth 
+implementations themselves. DPoP provides a general defense in depth 
+against the impact of unanticipated token leakage.
 
-Secondary objectives are discussed in (#Security).
+The very nature of the typical OAuth protocol interaction
+necessitates that the client disclose the access token to the 
+protected resources that it accesses. The attacker model 
+in [@I-D.ietf-oauth-security-topics] describes cases where a 
+protected resource might be counterfeit, malicious or compromised 
+and play received tokens against other protected resources to gain
+unauthorized access. Properly audience restricting access tokens can
+prevent such misuse but doing so in practice has proven to be 
+prohibitively cumbersome (even despite extensions such as [@RFC8707]).
+Sender-constraining access tokens is a more robust and straightforward
+mechanism to prevent such token replay at a different endpoint and DPoP 
+is an accessible application layer means of doing so.
+
+Due to the potential for cross-site scripting (XSS), browser-based 
+OAuth clients bring to bear added considerations with respect to protecting 
+tokens. The most straightforward XSS-based attack is for an attacker to
+exfiltrate a token and use it themselves completely independent from the 
+legitimate client. A stolen access token is used for protected
+resource access and a stolen refresh token for obtaining new access tokens. 
+If the private key is non-extractable (as is possible with [@W3C.WebCryptoAPI]),
+DPoP renders exfiltrated tokens alone unusable. 
+
+XXS vulnerabilities also allow an attacker to execute code in the context of
+the browser-based client application and maliciously use a token indirectly 
+through the the client. That execution context has access to utilize the signing 
+key and thus can produce DPoP proofs to use in conjunction with the token. 
+At this application layer there is most likely no feasible defense against
+this threat except generally preventing XSS, therefore it is considered 
+out of scope for DPoP.
+
+Malicious XSS code executed in the context of the browser-based client application
+is also in a position to create DPoP proofs with timestamp values in the future
+and exfiltrate them in conjunction with a token. These stolen artifacts 
+can later be used together independent of the client application a to access
+protected resources. The impact of such precomputed DPoP proofs can be limited 
+somewhat by a browser-based client generating and using a new DPoP key for 
+each new authorization code grant. 
+
+Additional security considerations are discussed in (#Security).
 
 # Concept
 
@@ -706,7 +754,7 @@ because the confirmation of the DPoP binding in the access token failed:
 # Security Considerations {#Security}
 
 In DPoP, the prevention of token replay at a different endpoint (see
-(#Objective_Replay_Different_Endpoint)) is achieved through the
+(#objective)) is achieved through the
 binding of the DPoP proof to a certain URI and HTTP method. DPoP does
 not, however, achieve the same level of protection as TLS-based
 methods such as OAuth Mutual TLS [@RFC8705] or OAuth Token
@@ -998,6 +1046,16 @@ workshop (Ralf Kusters, Guido Schmitz).
   <author><organization>IANA</organization></author>
   <date/>
 </front>
+</reference>
+
+<reference anchor="W3C.WebCryptoAPI" target="https://www.w3.org/TR/2017/REC-WebCryptoAPI-20170126">
+<front>
+  <title>Web Cryptography API</title>
+  <author initials="M." surname="Watson" fullname="Mark Watson"><organization/></author>
+  <date month="January" day="26" year="2017"/>
+</front>
+<seriesInfo name="World Wide Web Consortium Recommendation" value="REC-WebCryptoAPI-20170126"/>
+<format type="HTML" target="https://www.w3.org/TR/2017/REC-WebCryptoAPI-20170126"/>
 </reference>
 
 
