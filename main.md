@@ -275,7 +275,7 @@ to make access control decisions.
 A DPoP proof is included in an HTTP request using the following message header field.
 
 `DPoP`
-:   A JWT that adheres to the structure and syntax of (#DPoP-Proof). 
+:   A JWT that adheres to the structure and syntax of (#DPoP-Proof-Syntax). 
 
 (#dpop-proof-jwt) shows an example DPoP HTTP header field (line breaks 
 and extra whitespace for display purposes only). 
@@ -298,7 +298,7 @@ so `DPoP`, `DPOP`, `dpop`, etc., are all valid and equivalent header
 field names. Case is significant in the header field value, however.  
 
 
-## DPoP Proof JWT Syntax {#DPoP-Proof}
+## DPoP Proof JWT Syntax {#DPoP-Proof-Syntax}
 
 A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JWS,
 [@!RFC7515]) using a private key chosen by the client (see below). The
@@ -336,7 +336,6 @@ are included for formatting and readability.
 
 !---
 ```
-HEADER: 
 {
   "typ":"dpop+jwt",
   "alg":"ES256",
@@ -347,8 +346,7 @@ HEADER:
     "crv":"P-256"
   }
 }
-
-PAYLOAD:
+.
 {
   "jti":"-BwC3ESc6acc2lTc",
   "htm":"POST",
@@ -872,14 +870,14 @@ HTTP method:
  *  Claim Name: `htm`
  *  Claim Description: The HTTP method of the request 
  *  Change Controller: IESG
- *  Specification Document(s):  [[ (#DPoP-Proof) of this specification ]]
+ *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
  
 HTTP URI:
  
  *  Claim Name: `htu`
  *  Claim Description: The HTTP URI of the request (without query and fragment parts)
  *  Change Controller: IESG
- *  Specification Document(s):  [[ (#DPoP-Proof) of this specification ]]
+ *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
  
 ## HTTP Message Header Field Names Registration
  
