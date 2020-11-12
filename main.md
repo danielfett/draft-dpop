@@ -252,7 +252,7 @@ other client authentication methods.
 DPoP does not directly ensure message integrity but relies on the TLS
 layer for that purpose. See (#Security) for details.
 
-# DPoP Proof JWTs
+# DPoP Proof JWTs {#the-proof}
 
 DPoP introduces the concept of a DPoP proof, which is a JWT created by
 the client and sent with an HTTP request using the `DPoP` header field.
@@ -642,11 +642,16 @@ Cache-Control: no-cache, no-store
 !---
 Figure: Example Introspection Response for a DPoP-Bound Access Token {#introspect-resp}
 
-# Resource Access (Proof of Possession for Access Tokens) {#http-auth-scheme}
+# Protected Resource Access {#protected-resource-access}
 
 To make use of an access token that is bound to a public key
 using DPoP, a client MUST prove the possession of the corresponding
 private key by providing a DPoP proof in the `DPoP` request header.
+As such, protected resource requests with a DPoP-bound access token 
+necessarily must include both a DPoP proof as per (#the-proof) and 
+the access token as described in (#http-auth-scheme). 
+
+## DPoP Authorization Request Header Scheme {#http-auth-scheme}
 
 A DPoP-bound access token is sent using the `Authorization` request
 header field per Section 2 of [@!RFC7235] using an
@@ -667,9 +672,9 @@ for DPoP Authorization scheme credentials is as follows:
 !---
 Figure: DPoP Authorization Scheme ABNF
 
-For such an access token, a resource server
-MUST check that a `DPoP` header was received in the HTTP request, 
-check the header's contents according to the rules in (#checking), 
+For such an access token, a resource server MUST check that a DPoP proof
+was received in the `DPoP` header field of the HTTP request, 
+check the DPoP proof according to the rules in (#checking), 
 and check that the public key of the DPoP proof matches the public
 key to which the access token is bound per (#Confirmation). 
 
@@ -732,6 +737,7 @@ authentication:
  WWW-Authenticate: DPoP realm="WallyWorld", algs="ES256 PS256"
 ```
 !---
+Figure: 401 Response To A Protected Resource Request Without Authentication 
 
 And in response to a protected resource request that was rejected 
 because the confirmation of the DPoP binding in the access token failed: 
@@ -743,6 +749,8 @@ because the confirmation of the DPoP binding in the access token failed:
    error_description="Invalid DPoP key binding", algs="ES256"
 ```
 !---
+Figure: 401 Response To A Protected Resource Request With An Invalid Token 
+
 
 # Security Considerations {#Security}
 
