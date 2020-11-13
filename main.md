@@ -995,9 +995,9 @@ workshop (Ralf Kusters, Guido Schmitz).
      better describing mixed bearer/dpop token type deployments, clarify RT binding only being
      done for public clients and why, more clearly allow for a bound RT but with bearer AT, 
      explain/justify the choice of SHA-256 for key binding, and more
-   * Require that a protected resource supporting bearer and DPoP at the same time 
-     must reject an access token received as bearer, if that token is DPoP-bound   
-   * Remove the case-insensitive qualification on the`htm` claim check
+   * Require that a protected resource supporting bearer and DPoP at the same time
+     must reject an access token received as bearer, if that token is DPoP-bound
+   * Remove the case-insensitive qualification on the `htm` claim check
    * Relax the jti tracking requirements a bit and qualify it by URI
   
    
