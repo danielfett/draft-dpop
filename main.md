@@ -645,13 +645,13 @@ Figure: Example Introspection Response for a DPoP-Bound Access Token {#introspec
 # Protected Resource Access {#protected-resource-access}
 
 To make use of an access token that is bound to a public key
-using DPoP, a client MUST prove the possession of the corresponding
+using DPoP, a client MUST prove possession of the corresponding
 private key by providing a DPoP proof in the `DPoP` request header.
 As such, protected resource requests with a DPoP-bound access token 
 necessarily must include both a DPoP proof as per (#the-proof) and 
 the access token as described in (#http-auth-scheme). 
 
-## DPoP Authorization Request Header Scheme {#http-auth-scheme}
+## The DPoP Authorization Request Header Scheme {#http-auth-scheme}
 
 A DPoP-bound access token is sent using the `Authorization` request
 header field per Section 2 of [@!RFC7235] using an
@@ -673,7 +673,7 @@ for DPoP Authorization scheme credentials is as follows:
 Figure: DPoP Authorization Scheme ABNF
 
 For such an access token, a resource server MUST check that a DPoP proof
-was received in the `DPoP` header field of the HTTP request, 
+was also received in the `DPoP` header field of the HTTP request, 
 check the DPoP proof according to the rules in (#checking), 
 and check that the public key of the DPoP proof matches the public
 key to which the access token is bound per (#Confirmation). 
@@ -681,6 +681,10 @@ key to which the access token is bound per (#Confirmation).
 The resource server MUST NOT grant access to the resource unless all
 checks are successful.
 
+(#protected-resource-request) shows an example request to a protected
+resource with a DPoP-bound access token in the `Authorization` header 
+and the DPoP proof in the `DPoP` header (line breaks and extra 
+whitespace for display purposes only). 
 
 !---
 ~~~
@@ -737,7 +741,7 @@ authentication:
  WWW-Authenticate: DPoP realm="WallyWorld", algs="ES256 PS256"
 ```
 !---
-Figure: 401 Response To A Protected Resource Request Without Authentication 
+Figure: HTTP 401 Response To A Protected Resource Request Without Authentication 
 
 And in response to a protected resource request that was rejected 
 because the confirmation of the DPoP binding in the access token failed: 
@@ -749,20 +753,43 @@ because the confirmation of the DPoP binding in the access token failed:
    error_description="Invalid DPoP key binding", algs="ES256"
 ```
 !---
-Figure: 401 Response To A Protected Resource Request With An Invalid Token 
+Figure: HTTP 401 Response To A Protected Resource Request With An Invalid Token 
 
+## The Bearer Authorization Request Header Scheme
+
+Protected resources simultaneously supporting both the `DPoP` and `Bearer` 
+schemes need to update how evaluation of bearer tokens is performed to prevent 
+downgraded usage of a DPoP-bound access tokens. 
+Specifically, such a protected resource MUST reject an access
+token received as a bearer token per [!@RFC6750], if that token is 
+determined to be DPoP-bound. 
+
+A protected resource that supports only [@RFC6750] and is unaware of DPoP 
+would most presumably accept a DPoP-bound access token as a bearer token
+(JWT [@RFC7519] says to ignore unrecognized claims, Introspection [@RFC7662] 
+says that other parameters might be present while placing no functional 
+requirements on their presence, and [@RFC6750] is effectively silent on
+the content of the access token as it relates to validity).  As such, a 
+client MAY send a DPoP-bound access token using the `Bearer` scheme upon 
+receipt of a `WWW-Authenticate: Bearer` challenge from a protected resource
+(or if it has prior such knowledge about the capabilities of the protected
+resource). The effect of this likely simplifies the logistics of phased 
+upgrades to protected resources in their support DPoP or even 
+prolonged deployments of protected resources with mixed token type support. 
+  
 
 # Security Considerations {#Security}
 
 In DPoP, the prevention of token replay at a different endpoint (see
 (#objective)) is achieved through the
-binding of the DPoP proof to a certain URI and HTTP method. DPoP does
-not, however, achieve the same level of protection as TLS-based
+binding of the DPoP proof to a certain URI and HTTP method. DPoP, however,
+has a somewhat different nature of protection than TLS-based
 methods such as OAuth Mutual TLS [@RFC8705] or OAuth Token
 Binding [@I-D.ietf-oauth-token-binding] (see also (#Token_Replay) and (#request_integrity)). 
 TLS-based mechanisms can leverage a tight integration
 between the TLS layer and the application layer to achieve a very high
-level of message integrity and replay protection.
+level of message integrity with respect to the transport layer to which the token is bound
+and replay protection in general. 
 
 ## DPoP Proof Replay {#Token_Replay}
 
@@ -778,7 +805,7 @@ memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessar
 large `jti` values or store only a hash thereof.    
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
-proofs that carry an `iat` time in the near future (e.g., a few
+proofs that carry an `iat` time in the reasonably near future (e.g., a few
 seconds in the future).
 
 ## Signed JWT Swapping
