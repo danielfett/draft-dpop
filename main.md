@@ -144,7 +144,9 @@ in other layers in the protocol or software stack (CRIME, BREACH,
 Heartbleed, and the Cloudflare parser bug are some examples). 
 There have also been numerous published token theft attacks on OAuth 
 implementations themselves. DPoP provides a general defense in depth 
-against the impact of unanticipated token leakage.
+against the impact of unanticipated token leakage. DPoP is not, however, 
+a substitute for a secure transport and MUST always be used in 
+conjunction with HTTPS. 
 
 The very nature of the typical OAuth protocol interaction
 necessitates that the client disclose the access token to the 
