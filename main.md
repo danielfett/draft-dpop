@@ -322,7 +322,7 @@ The body of a DPoP proof contains at least the following claims:
    Such uniqueness can be accomplished by encoding (base64url or any other
    suitable encoding) at least 96 bits of
    pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
-   The `jti` SHOULD be used by the server for replay
+   The `jti` can be used by the server for replay
    detection and prevention, see (#Token_Replay).
  * `htm`: The HTTP method for the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
@@ -389,8 +389,8 @@ valid DPoP proof, the receiving server MUST ensure that
     fragment parts,
  1. the token was issued within an acceptable timeframe (see (#Token_Replay)), and
  1. that, within a reasonable consideration of accuracy and resource utilization,
-    a JWT with the same `jti` value has not been received
-    previously (see (#Token_Replay)).
+    a JWT with the same `jti` value has not previously been received at the same URI
+     (see (#Token_Replay)).
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
@@ -800,8 +800,9 @@ could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a relatively brief period.
-Servers SHOULD store the `jti` value of each DPoP proof for the time window in
-which the respective DPoP proof JWT would be accepted and decline HTTP requests
+Servers SHOULD store, in the context of the requst URI, the `jti` value of 
+each DPoP proof for the time window in which the respective DPoP proof JWT
+would be accepted and decline HTTP requests to the same URI
 for which the `jti` value has been seen before. In order to guard against 
 memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessarily
 large `jti` values or store only a hash thereof.    
