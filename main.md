@@ -81,7 +81,7 @@ DPoP, an abbreviation for Demonstrating Proof-of-Possession at the Application L
 is an application-level mechanism for
 sender-constraining OAuth access and refresh tokens. It enables a client to
 demonstrate proof-of-possession of a public/private key pair by including 
-a`DPoP` header in an HTTP request. The value of the header is a JWT [@!RFC7519] that 
+a `DPoP` header in an HTTP request. The value of the header is a JWT [@!RFC7519] that 
 enables the authorization
 server to bind issued tokens to the public part of the client's 
 key pair. Recipients of such tokens are then able to verify the binding of the
@@ -132,10 +132,10 @@ parties from using leaked or stolen access tokens by binding a token
 to a public key upon issuance and requiring that the client demonstrate
 possession of the corresponding private key when using the token. 
 This constrains the legitimate sender of the token to only the party with
-access to the private key and gives the server receiving the token 
+access to the private key and gives the server receiving the token added 
 assurances that the sender is legitimately authorized to use it.  
 
-Access tokens that are sender-constrained via DPoP binding thus stand in 
+Access tokens that are sender-constrained via DPoP thus stand in 
 contrast to the typical bearer token, which can be used by any party in
 possession of such a token. Although protections generally exist to 
 prevent unintended disclosure of bearer tokens, unforeseen vectors for 
@@ -155,8 +155,9 @@ in [@I-D.ietf-oauth-security-topics] describes cases where a
 protected resource might be counterfeit, malicious or compromised 
 and play received tokens against other protected resources to gain
 unauthorized access. Properly audience restricting access tokens can
-prevent such misuse but doing so in practice has proven to be 
-prohibitively cumbersome (even despite extensions such as [@RFC8707]).
+prevent such misuse, however, doing so in practice has proven to be 
+prohibitively cumbersome (even despite extensions such as [@RFC8707])
+for many deployments.
 Sender-constraining access tokens is a more robust and straightforward
 mechanism to prevent such token replay at a different endpoint and DPoP 
 is an accessible application layer means of doing so.
@@ -181,7 +182,7 @@ out of scope for DPoP.
 Malicious XSS code executed in the context of the browser-based client application
 is also in a position to create DPoP proofs with timestamp values in the future
 and exfiltrate them in conjunction with a token. These stolen artifacts 
-can later be used together independent of the client application a to access
+can later be used together independent of the client application to access
 protected resources. The impact of such precomputed DPoP proofs can be limited 
 somewhat by a browser-based client generating and using a new DPoP key for 
 each new authorization code grant. 
@@ -191,7 +192,7 @@ Additional security considerations are discussed in (#Security).
 # Concept
 
 The main data structure introduced by this specification is a DPoP
-proof JWT, described in detail below, sent as a header in an 
+proof JWT, described in detail below, which is sent as a header in an 
 HTTP request. A client uses a DPoP proof JWT to prove
 the possession of a private key corresponding to a certain public key.
 Roughly speaking, a DPoP proof is a signature over a timestamp and some 
@@ -272,7 +273,7 @@ the DPoP proof provides additional assurance about the legitimacy of the client
 to present the access token. But a valid DPoP proof JWT is not sufficient alone
 to make access control decisions.
 
-## DPoP HTTP Header
+## The DPoP HTTP Header
 
 A DPoP proof is included in an HTTP request using the following message header field.
 
@@ -303,7 +304,7 @@ field names. Case is significant in the header field value, however.
 ## DPoP Proof JWT Syntax {#DPoP-Proof-Syntax}
 
 A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JWS,
-[@!RFC7515]) using a private key chosen by the client (see below). The
+[@!RFC7515]) with a private key chosen by the client (see below). The
 header of a DPoP JWT contains at least the following parameters:
 
  * `typ`: type header, value `dpop+jwt` (REQUIRED).
@@ -333,7 +334,7 @@ The body of a DPoP proof contains at least the following claims:
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
 proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown
-but the signature part is omitted. As usual line breaks and extra whitespace 
+but the signature part is omitted. As usual, line breaks and extra whitespace 
 are included for formatting and readability.
 
 !---
@@ -599,7 +600,7 @@ protected resource to query an authorization server about the active
 state of an access token as well as to determine metainformation
 about the token.
 
-For DPoP-bound access token, the hash of the public key to which the token 
+For a DPoP-bound access token, the hash of the public key to which the token 
 is bound is conveyed to the protected resource as metainformation in a token
 introspection response. The hash is conveyed using the same `cnf` content with 
 `jkt` member structure as the JWK thumbprint confirmation method, described in 
@@ -800,7 +801,7 @@ could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a relatively brief period.
-Servers SHOULD store, in the context of the requst URI, the `jti` value of 
+Servers SHOULD store, in the context of the request URI, the `jti` value of 
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
 for which the `jti` value has been seen before. In order to guard against 
