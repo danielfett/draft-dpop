@@ -845,9 +845,21 @@ Note: While signatures covering other parts of requests are out of the scope of
 this specification, additional information to be signed can be
 added into DPoP proofs.
 
+##  Public Key Binding
 
-
-
+The binding between the DPoP public key and the access token, which is 
+specified in (#Confirmation), uses a cryptographic hash of the JWK
+representation of the public key.  It relies
+on the hash function having sufficient second-preimage resistance so
+as to make it computationally infeasible to find or create another
+key that produces to the same hash output value. The SHA-256
+hash function was used because it meets the aforementioned
+requirement while being widely available.  If, in the future,
+JWK thumbprints need to be computed using hash function(s)
+other than SHA-256, it is suggested that, for additional related JWT
+confirmation methods, members be defined for that purpose and
+registered in the IANA "JWT Confirmation Methods" registry
+[IANA.JWT.Claims] for JWT "cnf" member values.
 
 # IANA Considerations {#IANA}
       
