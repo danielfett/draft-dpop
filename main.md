@@ -173,7 +173,7 @@ DPoP renders exfiltrated tokens alone unusable.
 
 XXS vulnerabilities also allow an attacker to execute code in the context of
 the browser-based client application and maliciously use a token indirectly 
-through the the client. That execution context has access to utilize the signing 
+through the client. That execution context has access to utilize the signing 
 key and thus can produce DPoP proofs to use in conjunction with the token. 
 At this application layer there is most likely no feasible defense against
 this threat except generally preventing XSS, therefore it is considered 
@@ -462,9 +462,9 @@ Cache-Control: no-cache, no-store
 Figure: Access Token Response {#token-response}
 
 The example response in (#token-response) included a refresh token, which the 
-client can use to obtain a new access token when the the previous one expires.
+client can use to obtain a new access token when the previous one expires.
 Refreshing an access token is a token request using the `refresh_token`
-grant type made to the the authorization server's token endpoint.  As with 
+grant type made to the authorization server's token endpoint.  As with 
 all access token requests, the client makes it a DPoP request by including 
 a DPoP proof, which is shown in the (#token-request-rt) example
 (extra line breaks and whitespace for display purposes only). 
@@ -536,7 +536,7 @@ by the authorization server for DPoP proof JWTs.
 Resource servers MUST be able to reliably identify whether
 an access token is bound using DPoP and ascertain sufficient information
 about the public key to which the token is bound in order to verify the
-binding with respect to the the presented DPoP proof (see (#http-auth-scheme)). 
+binding with respect to the presented DPoP proof (see (#http-auth-scheme)). 
 Such a binding is accomplished by associating the public key 
 with the token in a way that can be
 accessed by the protected resource, such as embedding the JWK
@@ -547,7 +547,7 @@ public key with an access token are possible, per agreement by the
 authorization server and the protected resource, but are beyond the
 scope of this specification.
 
-Resource servers supporting DPoP MUST ensure that the the public key from
+Resource servers supporting DPoP MUST ensure that the public key from
 the DPoP proof matches the pubic key to which the access token is bound.
 
 ## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
