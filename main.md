@@ -833,7 +833,7 @@ to pre-compute DPoP proofs using timestamps in the future and
 exfiltrate these together with the access or refresh token.
 
 An adversary might further try to associate tokens issued from the
-token endpoint with a keypair under the adversary's control. One way
+token endpoint with a key pair under the adversary's control. One way
 to achieve this is to modify existing code, e.g., by replacing
 cryptographic APIs. Another way is to launch a new authorization grant
 between the client and the authorization server in an iframe. This
