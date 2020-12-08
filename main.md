@@ -83,7 +83,7 @@ sender-constraining OAuth access and refresh tokens. It enables a client to
 demonstrate proof-of-possession of a public/private key pair by including 
 a `DPoP` header in an HTTP request. The value of the header is a JWT [@!RFC7519] that 
 enables the authorization
-server to bind issued tokens to the public part of the client's 
+server to bind issued tokens to the public part of a client's 
 key pair. Recipients of such tokens are then able to verify the binding of the
 token to the key pair that the client has demonstrated that it holds via
 the `DPoP` header, thereby providing some assurance that the client presenting
@@ -233,7 +233,7 @@ The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
     bound to the public key of the DPoP proof. 
   * (C) To use the access token the client has to prove
     possession of the private key by, again, adding a header to the
-    request that carries the DPoP proof. The resource server needs to
+    request that carries a DPoP proof for that request. The resource server needs to
     receive information about the public key to which the access token is bound. This
     information may be encoded directly into the access token (for
     JWT structured access tokens) or provided via token
@@ -259,8 +259,9 @@ layer for that purpose. See (#Security) for details.
 
 DPoP introduces the concept of a DPoP proof, which is a JWT created by
 the client and sent with an HTTP request using the `DPoP` header field.
+Each HTTP request requires a unique DPoP proof.
 A valid DPoP proof demonstrates to the server that the client holds the private
-key that was used to sign the JWT. This enables authorization servers to bind
+key that was used to sign the  DPoP proof JWT. This enables authorization servers to bind
 issued tokens to the corresponding public key (as described in (#access-token-request))
 and for resource servers to verify the key-binding of tokens that
 it receives (see (#http-auth-scheme)), which prevents said tokens from
@@ -376,22 +377,22 @@ To check if a string that was received as part of an HTTP Request is a
 valid DPoP proof, the receiving server MUST ensure that
 
  1. the string value is a well-formed JWT,
- 1. all required claims are contained in the JWT,
+ 1. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
  1. the `typ` field in the header has the value `dpop+jwt`,
  1. the algorithm in the header of the JWT indicates an asymmetric digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
- 1. that the JWT is signed using the public key contained in the `jwk`
+ 1. the JWT signature verifies with the public key contained in the `jwk`
     header of the JWT,
  1. the `htm` claim matches the HTTP method value of the HTTP
     request in which the JWT was received,
  1. the `htu` claims matches the HTTPS URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
- 1. the token was issued within an acceptable timeframe (see (#Token_Replay)), and
- 1. that, within a reasonable consideration of accuracy and resource utilization,
-    a JWT with the same `jti` value has not previously been received at the same URI
-     (see (#Token_Replay)).
+ 1. the token was issued within an acceptable timeframe and,
+    within a reasonable consideration of accuracy and resource utilization,
+    a proof JWT with the same `jti` value has not previously been received at the same resource
+    during that time period (see (#Token_Replay)).
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
@@ -507,6 +508,9 @@ of the access token response per [@RFC6750]. For a public client that is
 also issued a refresh token, this has the effect of DPoP-binding the refresh token
 alone, which can improve the security posture even when protected resources are not 
 updated to support DPoP. 
+
+A client expecting a DPoP-bound access token MAY discard the response, if
+a `Bearer` token type is received.
 
 Refresh tokens issued to confidential clients (those having
 established authentication credentials with the authorization server) 
