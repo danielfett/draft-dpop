@@ -816,6 +816,43 @@ Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the reasonably near future (e.g., a few
 seconds in the future).
 
+## Untrusted Code in the Client Context
+
+If an adversary is able to run code in the client's execution context,
+the security of DPoP is no longer guaranteed. Common issues in web
+applications leading to the execution of untrusted code are cross-site
+scripting and remote code inclusion attacks.
+
+If the private key used for DPoP is stored in such a way that it
+cannot be exported, e.g., in a hardware or software security module,
+the adversary cannot exfiltrate the key and use it to create arbitrary
+DPoP proofs. The adversary can, however, create new DPoP proofs as
+long as the client is online, and use these proofs (together with the
+respective tokens) either on the victim's device or on a device under
+the attacker's control to send arbitrary requests that will be
+accepted by servers.
+
+To send requests even when the client is offline, an adversary can try
+to pre-compute DPoP proofs using timestamps in the future and
+exfiltrate these together with the access or refresh token.
+
+An adversary might further try to associate tokens issued from the
+token endpoint with a key pair under the adversary's control. One way
+to achieve this is to modify existing code, e.g., by replacing
+cryptographic APIs. Another way is to launch a new authorization grant
+between the client and the authorization server in an iframe. This
+grant needs to be "silent", i.e., not require interaction with the
+user. With code running in the client's origin, the adversary has
+access to the resulting authorization code and can use it to associate
+their own DPoP keys with the tokens returned from the token endpoint.
+The adversary is then able to use the resulting tokens on their own
+device even if the client is offline.
+
+Therefore, protecting clients against the execution of untrusted code
+is extremely important even if DPoP is used. Besides secure coding
+practices, Content Security Policy [@W3C.CSP] can be used as a second
+layer of defense against cross-site scripting.
+
 ## Signed JWT Swapping
 
 Servers accepting signed DPoP proof JWTs MUST check the `typ` field in the
@@ -982,6 +1019,7 @@ Justin Richer,
 Filip Skokan,
 Dave Tonge,
 Jim Willeke,
+Philippe De Ryck,
 and others (please let us know, if you've been mistakenly omitted)
 for their valuable input, feedback and general support of this work.
 
@@ -1115,3 +1153,13 @@ workshop (Ralf Kusters, Guido Schmitz).
 </reference>
 
 
+
+<reference anchor="W3C.CSP" target="https://www.w3.org/TR/2018/WD-CSP3-20181015/">
+<front>
+  <title>Content Security Policy Level 3</title>
+  <author initials="M." surname="West" fullname="Mike West"><organization/></author>
+  <date month="October" day="15" year="2018"/>
+</front>
+<seriesInfo name="World Wide Web Consortium Working Draft" value="WD-CSP3-20181015"/>
+<format type="HTML" target="https://www.w3.org/TR/2018/WD-CSP3-20181015/"/>
+</reference>
