@@ -332,6 +332,13 @@ The body of a DPoP proof contains at least the following claims:
    fragment parts (REQUIRED).
  * `iat`: Time at which the JWT was created (REQUIRED).
 
+When the DPoP proof is used to present an access token to a resource server
+(#protected-resource-access), the DPoP proof also contains the following claim:
+
+* `ath`: hash of the access token (REQUIRED).
+   The value MUST be the result of a base64 url encoding (with no padding) the SHA-256
+   hash of the ASCII encoding of the associated access token's value.
+
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
 proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown
@@ -398,6 +405,9 @@ Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 [@!RFC3986] before comparing the `htu` claim.
 
+If presented with an access token to a protected resource, the server MUST ensure
+that the value of the `ath` claim equals the hash of the access token that has been
+presented along side the DPoP proof.
 
 # DPoP Access Token Request {#access-token-request}
 
@@ -656,7 +666,9 @@ using DPoP, a client MUST prove possession of the corresponding
 private key by providing a DPoP proof in the `DPoP` request header.
 As such, protected resource requests with a DPoP-bound access token 
 necessarily must include both a DPoP proof as per (#the-proof) and 
-the access token as described in (#http-auth-scheme). 
+the access token as described in (#http-auth-scheme).
+The DPoP proof MUST include the `ath` claim with a valid hash of the
+associated access token.
 
 ## The DPoP Authorization Request Header Scheme {#http-auth-scheme}
 
