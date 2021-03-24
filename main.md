@@ -332,11 +332,11 @@ The body of a DPoP proof contains at least the following claims:
    fragment parts (REQUIRED).
  * `iat`: Time at which the JWT was created (REQUIRED).
 
-When the DPoP proof is used to present an access token to a resource server
+When the DPoP proof is used in conjunction with the presentation of an access token, see 
 (#protected-resource-access), the DPoP proof also contains the following claim:
 
 * `ath`: hash of the access token (REQUIRED).
-   The value MUST be the result of a base64 url encoding (with no padding) the SHA-256
+   The value MUST be the result of a base64url encoding (with no padding) the SHA-256
    hash of the ASCII encoding of the associated access token's value.
 
 
@@ -982,7 +982,14 @@ HTTP URI:
  *  Claim Description: The HTTP URI of the request (without query and fragment parts)
  *  Change Controller: IESG
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
- 
+
+ Access token hash:
+
+ *  Claim Name: `ath`
+ *  Claim Description: The base64url encoded SHA-256 hash of the ASCII encoding of the associated access token's value
+ *  Change Controller: IESG
+ *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
+
 ## HTTP Message Header Field Names Registration
  
 This document specifies the following new HTTP header fields,
@@ -1043,6 +1050,10 @@ workshop (Ralf Kusters, Guido Schmitz).
 
    [[ To be removed from the final specification ]]
  
+  -03
+
+  * Add an access token hash (`ath`) claim to the DPoP proof when used in conjunction with the presentation of an access token for protected resource access
+
   -02
   
    * Lots of editorial updates and additions including expanding on the objectives, 
