@@ -702,9 +702,11 @@ checks are successful.
 
 (#protected-resource-request) shows an example request to a protected
 resource with a DPoP-bound access token in the `Authorization` header 
-and the DPoP proof in the `DPoP` header (line breaks and extra 
-whitespace for display purposes only). 
-
+and the DPoP proof in the `DPoP` header.
+Following that is (#dpop-proof-pr), which shows the decoded content of that DPoP
+proof. The JSON of the JOSE header and payload are shown
+but the signature part is omitted. As usual, line breaks and extra whitespace
+are included for formatting and readability in both examples.
 !---
 ~~~
 GET /protectedresource HTTP/1.1
@@ -721,6 +723,30 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
 ~~~
 !---
 Figure: DPoP Protected Resource Request {#protected-resource-request}
+
+!---
+```
+{
+  "typ":"dpop+jwt",
+  "alg":"ES256",
+  "jwk": {
+    "kty":"EC",
+    "x":"l8tFrhx-34tV3hRICRDY9zCkDlpBhF42UQUfWVAWBFs",
+    "y":"9VE4jf_Ok_o64zbTTlcuNJajHmt6v9TDVrU0CdvGRDA",
+    "crv":"P-256"
+  }
+}
+.
+{
+  "jti":"e1j3V_bKic8-LAEB",
+  "htm":"GET",
+  "htu":"https://resource.example.org/protectedresource",
+  "iat":1562262618,
+  "ath":"fUHyO2r2Z3DZ53EsNrWBb0xWXoaNy59IiKCAqksmQEo"
+}
+```
+!---
+Figure: Decoded Content of the `DPoP` proof JWT in (#protected-resource-request) {#dpop-proof-pr}
 
 Upon receipt of a request for a URI of a protected resource within 
 the protection space requiring DPoP authorization, if the request does
