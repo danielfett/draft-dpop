@@ -183,9 +183,11 @@ Malicious XSS code executed in the context of the browser-based client applicati
 is also in a position to create DPoP proofs with timestamp values in the future
 and exfiltrate them in conjunction with a token. These stolen artifacts 
 can later be used together independent of the client application to access
-protected resources. The impact of such precomputed DPoP proofs can be limited 
-somewhat by a browser-based client generating and using a new DPoP key for 
-each new authorization code grant. 
+protected resources. The impact of such precomputed DPoP proofs is limited
+somewhat by the proof being bound to an access token on protected resource access.
+Because a proof covering an access token that don't yet exist cannot feasibly be created,
+access tokens obtained with an exfiltrated refresh token and pre-computed proofs will be
+unusable.
 
 Additional security considerations are discussed in (#Security).
 
@@ -927,21 +929,23 @@ Note: While signatures covering other parts of requests are out of the scope of
 this specification, additional information to be signed can be
 added into DPoP proofs.
 
-##  Public Key Binding
+##  Access Token and Public Key Binding
 
-The binding between the DPoP public key and the access token, which is 
+The binding of the access token to the DPoP public key, which is
 specified in (#Confirmation), uses a cryptographic hash of the JWK
-representation of the public key.  It relies
+representation of the public key.  Similarly, the binding of the DPoP proof
+to the access token, via the `ath` claim in {#DPoP-Proof-Syntax}, uses a
+cryptographic hash of that access token.
+Both bindings rely
 on the hash function having sufficient second-preimage resistance so
 as to make it computationally infeasible to find or create another
-key that produces to the same hash output value. The SHA-256
+item that produces to the same hash output value. The SHA-256
 hash function was used because it meets the aforementioned
 requirement while being widely available.  If, in the future,
-JWK thumbprints need to be computed using hash function(s)
-other than SHA-256, it is suggested that, for additional related JWT
-confirmation methods, members be defined for that purpose and
-registered in the IANA "JWT Confirmation Methods" registry
-[IANA.JWT.Claims] for JWT "cnf" member values.
+these bindings need to be conveyed using hash function(s)
+other than SHA-256, it is suggested that additional related JWT
+claims and confirmation methods members be defined for that purpose and
+registered in the respective IANA registry.
 
 # IANA Considerations {#IANA}
       
