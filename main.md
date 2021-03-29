@@ -100,7 +100,7 @@ of TLS client authentication in user agents and a lack of support for HTTP token
 binding, neither mechanism can be used if an OAuth client is a Single Page
 Application (SPA) running in a web browser. Native applications installed
 and run on a user's device, which often have dedicated protected storage
-for cryptographic keys. are another example well positioned to benefit
+for cryptographic keys are another example well positioned to benefit
 from DPoP-bound tokens to guard against misuse of tokens by a compromised
 or malicious resource.
 
