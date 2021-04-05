@@ -933,19 +933,27 @@ added into DPoP proofs.
 
 The binding of the access token to the DPoP public key, which is
 specified in (#Confirmation), uses a cryptographic hash of the JWK
-representation of the public key.  Similarly, the binding of the DPoP proof
-to the access token, via the `ath` claim in {#DPoP-Proof-Syntax}, uses a
-cryptographic hash of that access token.
-Both bindings rely
+representation of the public key. It relies
 on the hash function having sufficient second-preimage resistance so
 as to make it computationally infeasible to find or create another
-item that produces to the same hash output value. The SHA-256
+key that produces to the same hash output value. The SHA-256
 hash function was used because it meets the aforementioned
 requirement while being widely available.  If, in the future,
-these bindings need to be conveyed using hash function(s)
-other than SHA-256, it is suggested that additional related JWT
-claims and confirmation methods members be defined for that purpose and
-registered in the respective IANA registry.
+JWK thumbprints need to be computed using hash function(s)
+other than SHA-256, it is suggested that an additional related JWT
+confirmation method member be defined for that purpose,
+registered in the respective IANA registry, and used in place of the
+`jkt` confirmation method defined herein.
+
+Similarly, the binding of the DPoP proof to the access token uses a
+hash of that access token as the value of the `ath` claim
+in the DPoP proof (see (#DPoP-Proof-Syntax)). This relies on the value
+of the hash being sufficiently unique so as to reliably identify the
+access token. The collision resistance of SHA-256 meets that requirement.
+If, in the future, access token digests need be computed using hash function(s)
+other than SHA-256, it is suggested that an additional related JWT
+claim be defined for that purpose, registered in the respective IANA registry,
+ and used in place of the `ath` claim defined herein.
 
 # IANA Considerations {#IANA}
       
