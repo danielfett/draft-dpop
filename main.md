@@ -100,7 +100,7 @@ of TLS client authentication in user agents and a lack of support for HTTP token
 binding, neither mechanism can be used if an OAuth client is a Single Page
 Application (SPA) running in a web browser. Native applications installed
 and run on a user's device, which often have dedicated protected storage
-for cryptographic keys. are another example well positioned to benefit
+for cryptographic keys are another example well positioned to benefit
 from DPoP-bound tokens to guard against misuse of tokens by a compromised
 or malicious resource.
 
@@ -273,7 +273,7 @@ The DPoP proof demonstrates possession of a key and, by itself, is not
 an authentication or access control mechanism. When presented
 in conjunction with a key-bound access token as described in (#http-auth-scheme),
 the DPoP proof provides additional assurance about the legitimacy of the client
-to present the access token. But a valid DPoP proof JWT is not sufficient alone
+to present the access token. However, a valid DPoP proof JWT is not sufficient alone
 to make access control decisions.
 
 ## The DPoP HTTP Header
@@ -419,8 +419,8 @@ request to the authorization server's token endpoint. This is applicable for all
 access token requests regardless of grant type (including, for example,
 the common `authorization_code` and `refresh_token` grant types but also extension grants
 such as the JWT authorization grant [@RFC7523]). The HTTPS request shown in
-(#token-request-code) illustrates an such an access 
-token request using an an authorization code grant with a DPoP proof JWT
+(#token-request-code) illustrates such an access 
+token request using an authorization code grant with a DPoP proof JWT
 in the `DPoP` header (extra line breaks and whitespace for display purposes only).
 
 !---
@@ -564,7 +564,7 @@ authorization server and the protected resource, but are beyond the
 scope of this specification.
 
 Resource servers supporting DPoP MUST ensure that the public key from
-the DPoP proof matches the pubic key to which the access token is bound.
+the DPoP proof matches the public key to which the access token is bound.
 
 ## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
 When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
