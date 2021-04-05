@@ -462,7 +462,7 @@ response.
 ~~~
 HTTP/1.1 200 OK
 Content-Type: application/json
-Cache-Control: no-cache, no-store
+Cache-Control: no-store
 
 {
  "access_token": "Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU",
@@ -647,7 +647,7 @@ Figure: Example Introspection Request {#introspect-req}
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
-Cache-Control: no-cache, no-store
+Cache-Control: no-store
 
 {
   "active": true,
