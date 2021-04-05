@@ -1059,6 +1059,7 @@ established by [@RFC8414].
 We would like to thank 
 Annabelle Backman,
 Dominick Baier,
+Andrii Deinega,
 William Denniss,
 Vladimir Dzhuvinov,
 Mike Engan,
