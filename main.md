@@ -317,7 +317,7 @@ header of a DPoP JWT contains at least the following parameters:
  * `jwk`: representing the public key chosen by the client, in JWK
    format, as defined in [@!RFC7515] (REQUIRED)
    
-The body of a DPoP proof contains at least the following claims:
+The payload of a DPoP proof contains at least the following claims:
 
  * `jti`: Unique identifier for the DPoP proof JWT (REQUIRED).
    The value MUST be assigned such that there is a negligible 
