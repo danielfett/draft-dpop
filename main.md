@@ -315,7 +315,8 @@ header of a DPoP JWT contains at least the following parameters:
    (REQUIRED). MUST NOT be `none` or an identifier for a symmetric
    algorithm (MAC).
  * `jwk`: representing the public key chosen by the client, in JWK
-   format, as defined in [@!RFC7515] (REQUIRED)
+   format, as defined in Section 4.1.3 of [@!RFC7515] (REQUIRED).
+   MUST NOT contain the private key.
    
 The payload of a DPoP proof contains at least the following claims:
 
