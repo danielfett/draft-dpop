@@ -1094,6 +1094,8 @@ workshop (Ralf Kusters, Guido Schmitz).
   -03
 
   * Add an access token hash (`ath`) claim to the DPoP proof when used in conjunction with the presentation of an access token for protected resource access
+  * add Untrusted Code in the Client Context section to security considerations
+  * Editorial updates and fixes
 
   -02
   
