@@ -846,7 +846,8 @@ If an adversary is able to get hold of a DPoP proof JWT, the adversary
 could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
-window after their `iat` time, preferably only for a relatively brief period.
+window after their `iat` time, preferably only for a relatively brief period
+(on the order of a few seconds).
 Servers SHOULD store, in the context of the request URI, the `jti` value of 
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
