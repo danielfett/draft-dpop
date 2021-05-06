@@ -455,7 +455,7 @@ DPoP proof, the authorization server associates the issued access token with the
 public key from the DPoP proof, which can be accomplished as described in (#Confirmation).
 A `token_type` of `DPoP` in the access token
 response signals to the client that the access token was bound to
-its DPoP key and can used as described in (#http-auth-scheme). 
+its DPoP key and can be used as described in (#http-auth-scheme). 
 The example response shown in (#token-response) illustrates such a 
 response. 
 
