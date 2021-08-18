@@ -454,7 +454,7 @@ To sender-constrain the access token, after checking the validity of the
 DPoP proof, the authorization server associates the issued access token with the
 public key from the DPoP proof, which can be accomplished as described in (#Confirmation).
 A `token_type` of `DPoP` MUST be included in the access token
-response to signal the client that the access token was bound to
+response to signal to the client that the access token was bound to
 its DPoP key and can be used as described in (#http-auth-scheme). 
 The example response shown in (#token-response) illustrates such a 
 response. 
