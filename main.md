@@ -453,8 +453,8 @@ value of the `error` parameter.
 To sender-constrain the access token, after checking the validity of the
 DPoP proof, the authorization server associates the issued access token with the
 public key from the DPoP proof, which can be accomplished as described in (#Confirmation).
-A `token_type` of `DPoP` in the access token
-response signals to the client that the access token was bound to
+A `token_type` of `DPoP` MUST be included in the access token
+response to signal to the client that the access token was bound to
 its DPoP key and can be used as described in (#http-auth-scheme). 
 The example response shown in (#token-response) illustrates such a 
 response. 
@@ -627,6 +627,9 @@ does not send a DPoP proof with the introspection request and the authorization
 server does not validate an access token's DPoP binding at the introspection 
 endpoint. Rather the resource server uses the data of the introspection response
 to validate the access token binding itself locally.
+
+If the `token_type` member is included in the introspection response, it MUST contain
+the value `DPoP`.
 
 The example introspection request in (#introspect-req) and corresponding response in 
 (#introspect-resp) illustrate an introspection exchange for the example DPoP-bound 
