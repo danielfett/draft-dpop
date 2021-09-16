@@ -1096,7 +1096,10 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -04
- 
+
+  * Editorial fixes
+  * State that if the introspection response has a `token_type`, it has to be `DPoP`
+
   -03
 
   * Add an access token hash (`ath`) claim to the DPoP proof when used in conjunction with the presentation of an access token for protected resource access
