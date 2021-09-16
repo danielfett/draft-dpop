@@ -339,7 +339,7 @@ The payload of a DPoP proof contains at least the following claims:
  * `iat`: Time at which the JWT was created (REQUIRED).
 
 When the DPoP proof is used in conjunction with the presentation of an access token, see 
-(#protected-resource-access), the DPoP proof also contains the following claim:
+(#protected-resource-access), the DPoP proof MUST also contains the following claim:
 
 * `ath`: hash of the access token (REQUIRED).
    The value MUST be the result of a base64url encoding (with no padding) the SHA-256
