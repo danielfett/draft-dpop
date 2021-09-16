@@ -197,8 +197,9 @@ The main data structure introduced by this specification is a DPoP
 proof JWT, described in detail below, which is sent as a header in an 
 HTTP request. A client uses a DPoP proof JWT to prove
 the possession of a private key corresponding to a certain public key.
-Roughly speaking, a DPoP proof is a signature over a timestamp and some 
-data of the HTTP request to which it is attached.
+Roughly speaking, a DPoP proof is a signature over some
+data of the HTTP request to which it is attached, a timestamp, a unique identifier,
+and a hash of the associated access token when an access token is present with the request.
 
 !---
 ~~~ ascii-art
@@ -242,6 +243,8 @@ The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
     introspection endpoint (not shown). 
     The resource server verifies that the public key to which the
     access token is bound matches the public key of the DPoP proof.
+    It also verifies that the access token hash in the DPoP proof matches the
+    access token presented in the request.
   * (D) The resource server refuses to serve the request if the
     signature check fails or the data in the DPoP proof is wrong,
     e.g., the request URI does not match the URI claim in the DPoP
