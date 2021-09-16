@@ -345,6 +345,8 @@ When the DPoP proof is used in conjunction with the presentation of an access to
    The value MUST be the result of a base64url encoding (with no padding) the SHA-256
    hash of the ASCII encoding of the associated access token's value.
 
+A DPoP proof MAY contain other headers or claims as defined by extension,
+profile, or deployment specific requirements.
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
 proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown
@@ -383,6 +385,8 @@ that it be a minimal subset of the HTTP data so as to avoid the substantial
 difficulties inherent in attempting to normalize HTTP messages. 
 Nonetheless, DPoP proofs can be extended to contain other information of the
 HTTP request (see also (#request_integrity)).
+
+
 
 ## Checking DPoP Proofs {#checking}
 
