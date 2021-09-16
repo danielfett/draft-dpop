@@ -406,14 +406,15 @@ valid DPoP proof, the receiving server MUST ensure that
     within a reasonable consideration of accuracy and resource utilization,
     a proof JWT with the same `jti` value has not previously been received at the same resource
     during that time period (see (#Token_Replay)).
+ 1. when presented to a protected resource in conjunction with an access token, ensure
+    that the value of the `ath` claim equals the hash of the access token that has been
+    presented alongside the DPoP proof.
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 [@!RFC3986] before comparing the `htu` claim.
 
-If presented with an access token to a protected resource, the server MUST ensure
-that the value of the `ath` claim equals the hash of the access token that has been
-presented along side the DPoP proof.
+
 
 # DPoP Access Token Request {#access-token-request}
 
