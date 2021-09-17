@@ -396,9 +396,11 @@ valid DPoP proof, the receiving server MUST ensure that
     header of the JWT,
  1. the `htm` claim matches the HTTP method value of the HTTP
     request in which the JWT was received,
- 1. the `htu` claims matches the HTTPS URI value for the HTTP
+ 1. the `htu` claim matches the HTTPS URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
+ 1. if the server provided a nonce value to the client,
+    the `nonce` claim matches the server-provided nonce value,
  1. the token was issued within an acceptable timeframe and,
     within a reasonable consideration of accuracy and resource utilization,
     a proof JWT with the same `jti` value has not previously been received at the same resource
@@ -793,7 +795,7 @@ authentication:
  WWW-Authenticate: DPoP realm="WallyWorld", algs="ES256 PS256"
 ```
 !---
-Figure: HTTP 401 Response To A Protected Resource Request Without Authentication 
+Figure: HTTP 401 Response to a Protected Resource Request without Authentication 
 
 And in response to a protected resource request that was rejected 
 because the confirmation of the DPoP binding in the access token failed: 
@@ -805,7 +807,7 @@ because the confirmation of the DPoP binding in the access token failed:
    error_description="Invalid DPoP key binding", algs="ES256"
 ```
 !---
-Figure: HTTP 401 Response To A Protected Resource Request With An Invalid Token 
+Figure: HTTP 401 Response to a Protected Resource Request with an Invalid Token 
 
 ## The Bearer Authorization Request Header Scheme
 
@@ -828,7 +830,112 @@ receipt of a `WWW-Authenticate: Bearer` challenge from a protected resource
 resource). The effect of this likely simplifies the logistics of phased 
 upgrades to protected resources in their support DPoP or even 
 prolonged deployments of protected resources with mixed token type support. 
-  
+
+# Authorization Server-Provided Nonce {#ASNonce}
+
+Including a nonce value contributed by the authorization server in the DPoP proof
+MAY used by authorization servers to limit the lifetime of DPoP proofs.
+The server is in control of when to require the use of a new nonce value
+in subsequent DPoP proofs.
+Without employing such a mechanism, a malicious party controlling the client
+(including potentially the end user)
+can create DPoP proofs for use arbitrarily far in the future.
+This section specifies how server-provided nonces are used with DPoP.
+
+An authorization server MAY supply a nonce value to be included by the client
+in DPoP proofs sent to it by responding to requests not including a nonce
+with a WWW-Authenticate response supplying a nonce value to be used
+when sending the subsequent request.
+
+For example, in response to a token request without a nonce when the server requires one,
+the server can respond with a WWW-Authenticate value such as the following to provide
+a nonce value to include in the DPoP proof:
+!---
+```
+ HTTP/1.1 401 Unauthorized
+ WWW-Authenticate: DPoP nonce="eyJ7S_zG.eyJH0-Z.HX4w-7v",
+   error="use_nonce", error_description="AS requires nonce in DPoP proof"
+```
+!---
+Figure: HTTP 401 Response to a Token Request Without a Nonce
+
+Other fields MAY also be included in the WWW-Authenticate response.
+
+Upon receiving the nonce, the client is expected to retry its token request
+using a DPoP proof including the supplied nonce value in a `nonce` claim
+in the DPoP proof.
+An example unencoded JWT Payload of such a DPoP proof including a nonce is:
+!---
+```
+{
+  "jti": "-BwC3ESc6acc2lTc",
+  "htm": "POST",
+  "htu": "https://server.example.com/token",
+  "iat": 1562262616,
+  "nonce": "eyJ7S_zG.eyJH0-Z.HX4w-7v"
+}
+```
+!---
+Figure: DPoP Proof Payload Including a Nonce Value
+
+The nonce syntax in ABNF as used by [@RFC6749]
+(which is the same as the `scope-token` syntax) is:
+
+!---
+```
+  nonce = 1*NQCHAR
+```
+!---
+Figure: Nonce ABNF
+
+The nonce is opaque to the client.
+
+If the `nonce` claim in the DPoP proof of a token request
+does not exactly match the nonce supplied by the authorization server to the client,
+the authorization server MUST reject the request.
+The rejection response MAY include a WWW-Authenticate value
+providing a new nonce value to use for subsequent requests.
+
+## Providing a New Nonce Value
+
+It is up to the authorization server when to supply a new nonce value
+for the client to use.
+The client is expected to use the existing supplied nonce in DPoP proofs
+until the server supplies a new nonce value.
+
+The authorization server MAY supply the new once in the same way that
+the initial one was supplied:
+by using a WWW-Authenticate response as specified above.
+Of course, each time this happens it requires an extra round trip.
+
+A more efficient manner of supplying a new once value is also defined --
+by including the `nextnonce` parameter of the `Authentication-Info` header
+in the `200 OK` response from the previous request,
+as defined in Section 3.5 of [@RFC7616].
+
+The client MUST use the new nonce value supplied for the next token request,
+and for all subsequent token requests until the authorization server
+supplies a new nonce.
+
+An example 200 OK response providing a new nonce value is:
+!---
+```
+ HTTP/1.1 200 OK
+ Authentication-Info: nextnonce="eyJ7S_zG.eyJbYu3.xQmBj-1"
+```
+!---
+Figure: HTTP 200 Response Providing the Next Nonce Value
+
+# Resource Server-Provided Nonce {#RSNonce}
+
+Resource servers can also choose to provide a nonce value to be included
+in DPoP proofs sent to them.
+They do so in exactly the same way that authorization servers do.
+
+Note that the nonces provided by the two kinds of servers are different
+and MUST not be confused with one another.
+In particular, a nonce provided to the client by a particular server
+MUST only be used with that server and no other.
 
 # Security Considerations {#Security}
 
@@ -861,6 +968,37 @@ large `jti` values or store only a hash thereof.
 Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the reasonably near future (e.g., a few
 seconds in the future).
+Because clock skews between servers and clients may be large,
+servers may choose to limit DPoP proof lifetimes by using
+server-provided nonce values rather than clock times,
+yielding intended results even in the face of arbitrarily large clock skews.
+
+Server-provided nonces are an effective means of preventing DPoP proof replay.
+
+## DPoP Proof Pre-Generation (#Pre-Generation)
+
+An attacker in control of the client can pre-generate DPoP proofs for use
+arbitrarily far into the future by choosing the `iat` value in the
+DPoP proof to be signed by the proof-of-possession key.
+Note that one such attacker is the person who is the legitimate user of the client.
+The user may pre-generate DPoP proofs to exfiltrate
+from the machine possessing the proof-of-possession key
+upon which they were generated
+and copy them to another machine that does not possess it.
+For instance, a bank employee might pre-generate DPoP proofs
+on a bank computer and then copy them to another machine
+for use in the future, thereby bypassing bank audit controls.
+When DPoP proofs can be pre-generated and exfiltrated,
+all that is actually being proved in DPoP protocol interactions
+is proof of possesion of a DPoP proof -- not of the proof-of-possession key.
+
+Use of server-provided nonces can prevent this attack.
+By providing new nonce values at times of its choosing,
+the server can limit the lifetime of DPoP proofs,
+preventing pre-generated DPoP proofs from being used.
+When server-provided nonces are used, proof of possesion
+of the proof-of-possession key is being demonstrated --
+not just proof of possesion of a DPoP proof.
 
 ## Untrusted Code in the Client Context
 
@@ -1073,6 +1211,7 @@ Mark Haine,
 Dick Hardt,
 Bjorn Hjelm,
 Jared Jennings,
+Pieter Kasselman,
 Steinar Noem,
 Neil Madden,
 Rob Otto,
@@ -1096,6 +1235,8 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -04
+
+  * Added the option for a server-provided nonce in the DPoP proof.
  
   -03
 
