@@ -1237,6 +1237,8 @@ workshop (Ralf Kusters, Guido Schmitz).
   -04
 
   * Added the option for a server-provided nonce in the DPoP proof.
+  * Editorial fixes.
+  * State that if the introspection response has a `token_type`, it has to be `DPoP`.
  
   -03
 
