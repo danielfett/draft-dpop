@@ -792,7 +792,7 @@ authentication:
 !---
 ```
  HTTP/1.1 401 Unauthorized
- WWW-Authenticate: DPoP realm="WallyWorld", algs="ES256 PS256"
+ WWW-Authenticate: DPoP algs="ES256 PS256"
 ```
 !---
 Figure: HTTP 401 Response to a Protected Resource Request without Authentication 
@@ -803,7 +803,7 @@ because the confirmation of the DPoP binding in the access token failed:
 !---
 ```
  HTTP/1.1 401 Unauthorized
- WWW-Authenticate: DPoP realm="WallyWorld", error="invalid_token",
+ WWW-Authenticate: DPoP error="invalid_token",
    error_description="Invalid DPoP key binding", algs="ES256"
 ```
 !---
@@ -834,7 +834,7 @@ prolonged deployments of protected resources with mixed token type support.
 # Authorization Server-Provided Nonce {#ASNonce}
 
 Including a nonce value contributed by the authorization server in the DPoP proof
-MAY used by authorization servers to limit the lifetime of DPoP proofs.
+MAY be used by authorization servers to limit the lifetime of DPoP proofs.
 The server is in control of when to require the use of a new nonce value
 in subsequent DPoP proofs.
 Without employing such a mechanism, a malicious party controlling the client
@@ -844,36 +844,41 @@ This section specifies how server-provided nonces are used with DPoP.
 
 An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent to it by responding to requests not including a nonce
-with a WWW-Authenticate response supplying a nonce value to be used
+with a `DPoP-Nonce` HTTP header in the response supplying a nonce value to be used
 when sending the subsequent request.
 
-For example, in response to a token request without a nonce when the server requires one,
-the server can respond with a WWW-Authenticate value such as the following to provide
+For example, in response to a token request without a nonce when the authorization server requires one,
+the authorization server can respond with a `DPoP-Nonce` value such as the following to provide
 a nonce value to include in the DPoP proof:
 !---
 ```
- HTTP/1.1 401 Unauthorized
- WWW-Authenticate: DPoP nonce="eyJ7S_zG.eyJH0-Z.HX4w-7v",
-   error="use_nonce", error_description="AS requires nonce in DPoP proof"
+ HTTP/1.1 400 Bad Request
+ DPoP-Nonce: eyJ7S_zG.eyJH0-Z.HX4w-7v
+
+ {
+  "error": "use_dpop_nonce"
+  "error_description":
+    "Authorization server requires nonce in DPoP proof"
+ }
 ```
 !---
-Figure: HTTP 401 Response to a Token Request Without a Nonce
+Figure: HTTP 400 Response to a Token Request without a Nonce
 
-Other fields MAY also be included in the WWW-Authenticate response.
+Other HTTP headers and JSON fields MAY also be included in the error response.
 
 Upon receiving the nonce, the client is expected to retry its token request
-using a DPoP proof including the supplied nonce value in a `nonce` claim
-in the DPoP proof.
+using a DPoP proof including the supplied nonce value in the `nonce` claim
+of the DPoP proof.
 An example unencoded JWT Payload of such a DPoP proof including a nonce is:
 !---
 ```
-{
+ {
   "jti": "-BwC3ESc6acc2lTc",
   "htm": "POST",
   "htu": "https://server.example.com/token",
   "iat": 1562262616,
   "nonce": "eyJ7S_zG.eyJH0-Z.HX4w-7v"
-}
+ }
 ```
 !---
 Figure: DPoP Proof Payload Including a Nonce Value
@@ -893,7 +898,7 @@ The nonce is opaque to the client.
 If the `nonce` claim in the DPoP proof of a token request
 does not exactly match the nonce supplied by the authorization server to the client,
 the authorization server MUST reject the request.
-The rejection response MAY include a WWW-Authenticate value
+The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
 
 ## Providing a New Nonce Value
@@ -905,14 +910,12 @@ until the server supplies a new nonce value.
 
 The authorization server MAY supply the new once in the same way that
 the initial one was supplied:
-by using a WWW-Authenticate response as specified above.
-Of course, each time this happens it requires an extra round trip.
+by using a `DPoP-Nonce` HTTP header in the response.
+Of course, each time this happens it requires an extra protocol round trip.
 
 A more efficient manner of supplying a new once value is also defined --
-by including the `nextnonce` parameter of the `Authentication-Info` header
-in the `200 OK` response from the previous request,
-as defined in Section 3.5 of [@RFC7616].
-
+by including a `DPoP-Nonce` HTTP header
+in the `200 OK` response from the previous request.
 The client MUST use the new nonce value supplied for the next token request,
 and for all subsequent token requests until the authorization server
 supplies a new nonce.
@@ -921,7 +924,7 @@ An example 200 OK response providing a new nonce value is:
 !---
 ```
  HTTP/1.1 200 OK
- Authentication-Info: nextnonce="eyJ7S_zG.eyJbYu3.xQmBj-1"
+ DPoP-Nonce: eyJ7S_zG.eyJbYu3.xQmBj-1
 ```
 !---
 Figure: HTTP 200 Response Providing the Next Nonce Value
@@ -930,12 +933,28 @@ Figure: HTTP 200 Response Providing the Next Nonce Value
 
 Resource servers can also choose to provide a nonce value to be included
 in DPoP proofs sent to them.
-They do so in exactly the same way that authorization servers do.
+They provide the nonce using the `DPoP-Nonce` header in same way that authorization servers do.
+The error signalling is performed as described in (#http-auth-scheme).
+
+For example, in response to a resource request without a nonce when the resource server requires one,
+the resource server can respond with a `DPoP-Nonce` value such as the following to provide
+a nonce value to include in the DPoP proof:
+!---
+```
+ HTTP/1.1 401 Unauthorized
+ WWW-Authenticate: DPoP error="use_dpop_nonce",
+   error_description="Resource server requires nonce in DPoP proof"
+ DPoP-Nonce: eyJ7S_zG.eyJH0-Z.HX4w-7v
+```
+!---
+Figure: HTTP 401 Response to a Resource Request without a Nonce
 
 Note that the nonces provided by the two kinds of servers are different
 and MUST not be confused with one another.
 In particular, a nonce provided to the client by a particular server
 MUST only be used with that server and no other.
+Developers should also take care to not confuse this nonce with the
+OpenID Connect [@OpenID.Core] ID Token nonce, should one also be present.
 
 # Security Considerations {#Security}
 
@@ -975,7 +994,7 @@ yielding intended results even in the face of arbitrarily large clock skews.
 
 Server-provided nonces are an effective means of preventing DPoP proof replay.
 
-## DPoP Proof Pre-Generation (#Pre-Generation)
+## DPoP Proof Pre-Generation {#Pre-Generation}
 
 An attacker in control of the client can pre-generate DPoP proofs for use
 arbitrarily far into the future by choosing the `iat` value in the
@@ -990,15 +1009,15 @@ on a bank computer and then copy them to another machine
 for use in the future, thereby bypassing bank audit controls.
 When DPoP proofs can be pre-generated and exfiltrated,
 all that is actually being proved in DPoP protocol interactions
-is proof of possesion of a DPoP proof -- not of the proof-of-possession key.
+is possesion of a DPoP proof -- not of the proof-of-possession key.
 
-Use of server-provided nonces can prevent this attack.
+Use of server-provided nonce values that are not predictable by attackers can prevent this attack.
 By providing new nonce values at times of its choosing,
 the server can limit the lifetime of DPoP proofs,
 preventing pre-generated DPoP proofs from being used.
-When server-provided nonces are used, proof of possesion
+When server-provided nonces are used, possesion
 of the proof-of-possession key is being demonstrated --
-not just proof of possesion of a DPoP proof.
+not just possesion of a DPoP proof.
 
 ## Untrusted Code in the Client Context
 
@@ -1237,6 +1256,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -04
 
   * Added the option for a server-provided nonce in the DPoP proof.
+  * Removed fictitious uses of `realm` from the examples, as they added no value.
   * Editorial fixes.
   * State that if the introspection response has a `token_type`, it has to be `DPoP`.
  
@@ -1377,4 +1397,26 @@ workshop (Ralf Kusters, Guido Schmitz).
 </front>
 <seriesInfo name="World Wide Web Consortium Working Draft" value="WD-CSP3-20181015"/>
 <format type="HTML" target="https://www.w3.org/TR/2018/WD-CSP3-20181015/"/>
+</reference>
+
+<reference anchor="OpenID.Core" target="http://openid.net/specs/openid-connect-core-1_0.html">
+  <front>
+    <title>OpenID Connect Core 1.0</title>
+    <author initials="N." surname="Sakimura" fullname="Nat Sakimura">
+      <organization></organization>
+    </author>
+    <author initials="J." surname="Bradley" fullname="John Bradley">
+      <organization></organization>
+    </author>
+    <author initials="M.B." surname="Jones" fullname="Michael B. Jones">
+      <organization></organization>
+    </author>
+    <author initials="B.d." surname="Medeiros" fullname="Breno de Medeiros">
+      <organization></organization>
+    </author>
+    <author initials="C." surname="Mortimore" fullname="Chuck Mortimore">
+      <organization></organization>
+    </author>
+    <date year="2014" month="November"/>
+  </front>
 </reference>
