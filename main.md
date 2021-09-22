@@ -197,8 +197,9 @@ The main data structure introduced by this specification is a DPoP
 proof JWT, described in detail below, which is sent as a header in an 
 HTTP request. A client uses a DPoP proof JWT to prove
 the possession of a private key corresponding to a certain public key.
-Roughly speaking, a DPoP proof is a signature over a timestamp and some 
-data of the HTTP request to which it is attached.
+Roughly speaking, a DPoP proof is a signature over some
+data of the HTTP request to which it is attached, a timestamp, a unique identifier,
+and a hash of the associated access token when an access token is present within the request.
 
 !---
 ~~~ ascii-art
@@ -242,6 +243,8 @@ The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
     introspection endpoint (not shown). 
     The resource server verifies that the public key to which the
     access token is bound matches the public key of the DPoP proof.
+    It also verifies that the access token hash in the DPoP proof matches the
+    access token presented in the request.
   * (D) The resource server refuses to serve the request if the
     signature check fails or the data in the DPoP proof is wrong,
     e.g., the request URI does not match the URI claim in the DPoP
@@ -336,12 +339,14 @@ The payload of a DPoP proof contains at least the following claims:
  * `iat`: Time at which the JWT was created (REQUIRED).
 
 When the DPoP proof is used in conjunction with the presentation of an access token, see 
-(#protected-resource-access), the DPoP proof also contains the following claim:
+(#protected-resource-access), the DPoP proof MUST also contains the following claim:
 
 * `ath`: hash of the access token (REQUIRED).
    The value MUST be the result of a base64url encoding (with no padding) the SHA-256
    hash of the ASCII encoding of the associated access token's value.
 
+A DPoP proof MAY contain other headers or claims as defined by extension,
+profile, or deployment specific requirements.
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
 proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown
@@ -381,6 +386,8 @@ difficulties inherent in attempting to normalize HTTP messages.
 Nonetheless, DPoP proofs can be extended to contain other information of the
 HTTP request (see also (#request_integrity)).
 
+
+
 ## Checking DPoP Proofs {#checking}
 
 To check if a string that was received as part of an HTTP Request is a
@@ -403,14 +410,15 @@ valid DPoP proof, the receiving server MUST ensure that
     within a reasonable consideration of accuracy and resource utilization,
     a proof JWT with the same `jti` value has not previously been received at the same resource
     during that time period (see (#Token_Replay)).
+ 1. when presented to a protected resource in conjunction with an access token, ensure
+    that the value of the `ath` claim equals the hash of the access token that has been
+    presented alongside the DPoP proof.
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 [@!RFC3986] before comparing the `htu` claim.
 
-If presented with an access token to a protected resource, the server MUST ensure
-that the value of the `ath` claim equals the hash of the access token that has been
-presented along side the DPoP proof.
+
 
 # DPoP Access Token Request {#access-token-request}
 
@@ -1073,6 +1081,7 @@ Mark Haine,
 Dick Hardt,
 Bjorn Hjelm,
 Jared Jennings,
+Pieter Kasselman,
 Steinar Noem,
 Neil Madden,
 Rob Otto,
