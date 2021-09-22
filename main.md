@@ -199,7 +199,7 @@ HTTP request. A client uses a DPoP proof JWT to prove
 the possession of a private key corresponding to a certain public key.
 Roughly speaking, a DPoP proof is a signature over some
 data of the HTTP request to which it is attached, a timestamp, a unique identifier,
-and a hash of the associated access token when an access token is present with the request.
+and a hash of the associated access token when an access token is present within the request.
 
 !---
 ~~~ ascii-art
