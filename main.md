@@ -908,12 +908,12 @@ for the client to use.
 The client is expected to use the existing supplied nonce in DPoP proofs
 until the server supplies a new nonce value.
 
-The authorization server MAY supply the new once in the same way that
+The authorization server MAY supply the new nonce in the same way that
 the initial one was supplied:
 by using a `DPoP-Nonce` HTTP header in the response.
 Of course, each time this happens it requires an extra protocol round trip.
 
-A more efficient manner of supplying a new once value is also defined --
+A more efficient manner of supplying a new nonce value is also defined --
 by including a `DPoP-Nonce` HTTP header
 in the `200 OK` response from the previous request.
 The client MUST use the new nonce value supplied for the next token request,
@@ -934,7 +934,7 @@ Figure: HTTP 200 Response Providing the Next Nonce Value
 Resource servers can also choose to provide a nonce value to be included
 in DPoP proofs sent to them.
 They provide the nonce using the `DPoP-Nonce` header in same way that authorization servers do.
-The error signalling is performed as described in (#http-auth-scheme).
+The error signaling is performed as described in (#http-auth-scheme).
 
 For example, in response to a resource request without a nonce when the resource server requires one,
 the resource server can respond with a `DPoP-Nonce` value such as the following to provide
@@ -1003,21 +1003,25 @@ Note that one such attacker is the person who is the legitimate user of the clie
 The user may pre-generate DPoP proofs to exfiltrate
 from the machine possessing the proof-of-possession key
 upon which they were generated
-and copy them to another machine that does not possess it.
+and copy them to another machine that does not possess the key.
 For instance, a bank employee might pre-generate DPoP proofs
 on a bank computer and then copy them to another machine
 for use in the future, thereby bypassing bank audit controls.
 When DPoP proofs can be pre-generated and exfiltrated,
 all that is actually being proved in DPoP protocol interactions
-is possesion of a DPoP proof -- not of the proof-of-possession key.
+is possession of a DPoP proof -- not of the proof-of-possession key.
 
 Use of server-provided nonce values that are not predictable by attackers can prevent this attack.
 By providing new nonce values at times of its choosing,
 the server can limit the lifetime of DPoP proofs,
 preventing pre-generated DPoP proofs from being used.
-When server-provided nonces are used, possesion
+When server-provided nonces are used, possession
 of the proof-of-possession key is being demonstrated --
-not just possesion of a DPoP proof.
+not just possession of a DPoP proof.
+
+## DPoP Nonce Downgrade {#Nonce-Downgrade}
+
+A server MUST NOT accept any DPoP proofs without the `nonce` claim when a DPoP nonce has been provided to the client.
 
 ## Untrusted Code in the Client Context
 
@@ -1118,7 +1122,7 @@ claim be defined for that purpose, registered in the respective IANA registry,
  and used in place of the `ath` claim defined herein.
 
 # IANA Considerations {#IANA}
-      
+
 ##  OAuth Access Token Type Registration
 
 This specification requests registration of the following access token
@@ -1129,6 +1133,18 @@ established by [@!RFC6749].
  * Additional Token Endpoint Response Parameters: (none)
  * HTTP Authentication Scheme(s): `DPoP`
  * Change controller: IESG
+ * Specification document(s): [[ this specification ]]
+
+##  OAuth Extensions Error Registration
+
+This specification requests registration of the following error value
+in the "OAuth Extensions Error" registry [@IANA.OAuth.Params]
+established by [@!RFC6749].
+
+ * Name: `use_dpop_nonce`
+ * Usage Location: token error response, resource error response
+ * Protocol Extension: Demonstrating Proof of Possession (DPoP)
+ * Change controller: IETF
  * Specification document(s): [[ this specification ]]
 
 ## HTTP Authentication Scheme Registration
