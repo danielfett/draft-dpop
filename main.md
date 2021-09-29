@@ -80,7 +80,7 @@ tokens.
 DPoP, an abbreviation for Demonstrating Proof-of-Possession at the Application Layer,
 is an application-level mechanism for
 sender-constraining OAuth access and refresh tokens. It enables a client to
-demonstrate proof-of-possession of a public/private key pair by including 
+prove the possession of a public/private key pair by including 
 a `DPoP` header in an HTTP request. The value of the header is a JWT [@!RFC7519] that 
 enables the authorization
 server to bind issued tokens to the public part of a client's 
@@ -99,14 +99,14 @@ are not available or desirable. For example, due to a sub-par user experience
 of TLS client authentication in user agents and a lack of support for HTTP token
 binding, neither mechanism can be used if an OAuth client is a Single Page
 Application (SPA) running in a web browser. Native applications installed
-and run on a user's device, which often have dedicated protected storage
-for cryptographic keys are another example well positioned to benefit
+and run on a user's device are another example well positioned to benefit
 from DPoP-bound tokens to guard against misuse of tokens by a compromised
-or malicious resource.
+or malicious resource. Such applications often have dedicated protected storage
+for cryptographic keys.
 
 DPoP can be used to sender-constrain access tokens regardless of the 
-client authentication method employed. Furthermore, DPoP can
-also be used to sender-constrain refresh tokens issued to public clients 
+client authentication method employed, but DPoP itself cannot be used for client authentication. 
+DPoP can also be used to sender-constrain refresh tokens issued to public clients 
 (those without authentication credentials associated with the `client_id`).
 
 ## Conventions and Terminology
@@ -129,7 +129,7 @@ This specification uses the terms "access token", "refresh token",
 
 The primary aim of DPoP is to prevent unauthorized or illegitimate 
 parties from using leaked or stolen access tokens by binding a token
-to a public key upon issuance and requiring that the client demonstrate
+to a public key upon issuance and requiring that the client proves
 possession of the corresponding private key when using the token. 
 This constrains the legitimate sender of the token to only the party with
 access to the private key and gives the server receiving the token added 
@@ -149,15 +149,14 @@ a substitute for a secure transport and MUST always be used in
 conjunction with HTTPS. 
 
 The very nature of the typical OAuth protocol interaction
-necessitates that the client disclose the access token to the 
+necessitates that the client discloses the access token to the 
 protected resources that it accesses. The attacker model 
 in [@I-D.ietf-oauth-security-topics] describes cases where a 
 protected resource might be counterfeit, malicious or compromised 
-and play received tokens against other protected resources to gain
+and plays received tokens against other protected resources to gain
 unauthorized access. Properly audience restricting access tokens can
 prevent such misuse, however, doing so in practice has proven to be 
-prohibitively cumbersome (even despite extensions such as [@RFC8707])
-for many deployments.
+prohibitively cumbersome for many deployments (even despite extensions such as [@RFC8707]).
 Sender-constraining access tokens is a more robust and straightforward
 mechanism to prevent such token replay at a different endpoint and DPoP 
 is an accessible application layer means of doing so.
@@ -179,15 +178,17 @@ At this application layer there is most likely no feasible defense against
 this threat except generally preventing XSS, therefore it is considered 
 out of scope for DPoP.
 
-Malicious XSS code executed in the context of the browser-based client application
-is also in a position to create DPoP proofs with timestamp values in the future
-and exfiltrate them in conjunction with a token. These stolen artifacts 
-can later be used together independent of the client application to access
-protected resources. The impact of such precomputed DPoP proofs is limited
-somewhat by the proof being bound to an access token on protected resource access.
-Because a proof covering an access token that don't yet exist cannot feasibly be created,
-access tokens obtained with an exfiltrated refresh token and pre-computed proofs will be
-unusable.
+Malicious XSS code executed in the context of the browser-based client
+application is also in a position to create DPoP proofs with timestamp values in
+the future and exfiltrate them in conjunction with a token. These stolen
+artifacts can later be used together independent of the client application to
+access protected resources. To prevent this, servers can optionally require
+clients to include a server-chosen value into the proof that cannot be predicted
+by an attacker (nonce). In the absence of the optional nonce, the impact of
+precomputed DPoP proofs is limited somewhat by the proof being bound to an
+access token on protected resource access. Because a proof covering an access
+token that does not yet exist cannot feasibly be created, access tokens obtained
+with an exfiltrated refresh token and pre-computed proofs will be unusable.
 
 Additional security considerations are discussed in (#Security).
 
@@ -197,8 +198,9 @@ The main data structure introduced by this specification is a DPoP
 proof JWT, described in detail below, which is sent as a header in an 
 HTTP request. A client uses a DPoP proof JWT to prove
 the possession of a private key corresponding to a certain public key.
+
 Roughly speaking, a DPoP proof is a signature over some
-data of the HTTP request to which it is attached, a timestamp, a unique identifier,
+data of the HTTP request to which it is attached, a timestamp, a unique identifier, an optional server-provided nonce,
 and a hash of the associated access token when an access token is present within the request.
 
 !---
@@ -222,7 +224,7 @@ and a hash of the associated access token when an access token is present within
 !---
 Figure: Basic DPoP Flow {#basic-flow}
 
-The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
+The basic steps of an OAuth flow with DPoP (without the optional nonce) are shown in (#basic-flow):
 
   * (A) In the Token Request, the client sends an authorization grant 
     (e.g., an authorization code, refresh token, etc.)  
@@ -234,7 +236,7 @@ The basic steps of an OAuth flow with DPoP are shown in (#basic-flow):
     be used without proving possession of the respective private key.
     If a refresh token is issued to a public client, it too is
     bound to the public key of the DPoP proof. 
-  * (C) To use the access token the client has to prove
+  * (C) To use the access token, the client has to prove
     possession of the private key by, again, adding a header to the
     request that carries a DPoP proof for that request. The resource server needs to
     receive information about the public key to which the access token is bound. This
@@ -265,8 +267,9 @@ layer for that purpose. See (#Security) for details.
 DPoP introduces the concept of a DPoP proof, which is a JWT created by
 the client and sent with an HTTP request using the `DPoP` header field.
 Each HTTP request requires a unique DPoP proof.
+
 A valid DPoP proof demonstrates to the server that the client holds the private
-key that was used to sign the  DPoP proof JWT. This enables authorization servers to bind
+key that was used to sign the DPoP proof JWT. This enables authorization servers to bind
 issued tokens to the corresponding public key (as described in (#access-token-request))
 and for resource servers to verify the key-binding of tokens that
 it receives (see (#http-auth-scheme)), which prevents said tokens from
@@ -339,7 +342,7 @@ The payload of a DPoP proof contains at least the following claims:
  * `iat`: Time at which the JWT was created (REQUIRED).
 
 When the DPoP proof is used in conjunction with the presentation of an access token, see 
-(#protected-resource-access), the DPoP proof MUST also contains the following claim:
+(#protected-resource-access), the DPoP proof MUST also contain the following claim:
 
 * `ath`: hash of the access token (REQUIRED).
    The value MUST be the result of a base64url encoding (with no padding) the SHA-256
@@ -349,7 +352,7 @@ A DPoP proof MAY contain other headers or claims as defined by extension,
 profile, or deployment specific requirements.
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
-proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown
+proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown,
 but the signature part is omitted. As usual, line breaks and extra whitespace 
 are included for formatting and readability.
 
@@ -393,7 +396,8 @@ HTTP request (see also (#request_integrity)).
 To check if a string that was received as part of an HTTP Request is a
 valid DPoP proof, the receiving server MUST ensure that
 
- 1. the string value is a well-formed JWT,
+ 1. that there is not more than one `DPoP` header in the request,
+ 1. the string value of the header field is a well-formed JWT,
  1. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
  1. the `typ` field in the header has the value `dpop+jwt`,
  1. the algorithm in the header of the JWT indicates an asymmetric digital
@@ -485,12 +489,12 @@ Cache-Control: no-store
 !---
 Figure: Access Token Response {#token-response}
 
-The example response in (#token-response) included a refresh token, which the 
+The example response in (#token-response) includes a refresh token which the 
 client can use to obtain a new access token when the previous one expires.
 Refreshing an access token is a token request using the `refresh_token`
 grant type made to the authorization server's token endpoint.  As with 
 all access token requests, the client makes it a DPoP request by including 
-a DPoP proof, which is shown in the (#token-request-rt) example
+a DPoP proof, as shown in the (#token-request-rt) example
 (extra line breaks and whitespace for display purposes only). 
 
 !---
@@ -511,7 +515,7 @@ grant_type=refresh_token
 
 ~~~
 !---
-Figure: Token Request for a DPoP-bound token using a refresh token {#token-request-rt}
+Figure: Token Request for a DPoP-bound Token using a Refresh Token {#token-request-rt}
 
 When an authorization server supporting DPoP issues a
 refresh token to a public client that presents a valid DPoP proof at the
@@ -522,7 +526,7 @@ MUST present a DPoP proof for the same key that was used to obtain the refresh
 token each time that refresh token is used to obtain a new access token. 
 The implementation details of the binding of the refresh token are at the discretion of
 the authorization server. The server both produces and
-validates the refresh tokens that it issues so there's no interoperability
+validates the refresh tokens that it issues so there is no interoperability
 consideration in the specific details of the binding. 
 
 An authorization server MAY elect to issue access tokens which are not DPoP bound,
@@ -532,8 +536,10 @@ also issued a refresh token, this has the effect of DPoP-binding the refresh tok
 alone, which can improve the security posture even when protected resources are not 
 updated to support DPoP. 
 
-A client expecting a DPoP-bound access token MAY discard the response, if
-a `Bearer` token type is received.
+If a client receives a different `token_type` value than `DPoP` in the response, the
+access token protection provided by DPoP is not given. The client MUST discard the response in this
+case if this protection is deemed important for the security of the
+application and MAY continue as in a regular OAuth interaction otherwise.
 
 Refresh tokens issued to confidential clients (those having
 established authentication credentials with the authorization server) 
@@ -686,7 +692,7 @@ the access token as described in (#http-auth-scheme).
 The DPoP proof MUST include the `ath` claim with a valid hash of the
 associated access token.
 
-## The DPoP Authorization Request Header Scheme {#http-auth-scheme}
+## The DPoP Authentication Scheme {#http-auth-scheme}
 
 A DPoP-bound access token is sent using the `Authorization` request
 header field per Section 2 of [@!RFC7235] using an
@@ -695,7 +701,7 @@ header field for the `DPoP` scheme
 uses the `token68` syntax defined in Section 2.1 of [@!RFC7235] 
 (repeated below for ease of reference) for credentials. 
 The Augmented Backus-Naur Form (ABNF) notation [@!RFC5234] syntax 
-for DPoP Authorization scheme credentials is as follows:
+for DPoP authentication scheme credentials is as follows:
 
 !---
 ```
@@ -705,7 +711,7 @@ for DPoP Authorization scheme credentials is as follows:
  credentials = "DPoP" 1*SP token68
 ```
 !---
-Figure: DPoP Authorization Scheme ABNF
+Figure: DPoP Authentication Scheme ABNF
 
 For such an access token, a resource server MUST check that a DPoP proof
 was also received in the `DPoP` header field of the HTTP request, 
@@ -762,10 +768,10 @@ Figure: DPoP Protected Resource Request {#protected-resource-request}
 }
 ```
 !---
-Figure: Decoded Content of the `DPoP` proof JWT in (#protected-resource-request) {#dpop-proof-pr}
+Figure: Decoded Content of the `DPoP` Proof JWT in (#protected-resource-request) {#dpop-proof-pr}
 
 Upon receipt of a request for a URI of a protected resource within 
-the protection space requiring DPoP authorization, if the request does
+the protection space requiring DPoP authentication, if the request does
 not include valid credentials or does not contain an access 
 token sufficient for access to the protected resource, the server
 can reply with a challenge using the 401 (Unauthorized) status code
@@ -782,7 +788,7 @@ scope of protection in the manner described in [@!RFC7235], Section 2.2.
 [@!RFC6750], Section 3.
 *  An `error` parameter ([@!RFC6750], Section 3) SHOULD be included
 to indicate the reason why the request was declined,
-if the request included an access token but failed authorization. 
+if the request included an access token but failed authentication. 
 Parameter values are described in Section 3.1 of [@!RFC6750]. 
 * An `error_description` parameter ([@!RFC6750], Section 3) MAY be included 
 along with the `error` parameter to provide developers a human-readable
@@ -792,7 +798,7 @@ JWS algorithms that are acceptable for the DPoP proof JWT.
 The value of the parameter is a space-delimited list of JWS `alg` (Algorithm)
  header values ([@!RFC7515], Section 4.1.1).
 * Additional authentication parameters MAY be used and unknown parameters 
-MUST be ignored by recipients
+MUST be ignored by recipients.
 
 
 For example, in response to a protected resource request without
@@ -817,7 +823,7 @@ because the confirmation of the DPoP binding in the access token failed:
 !---
 Figure: HTTP 401 Response to a Protected Resource Request with an Invalid Token 
 
-## The Bearer Authorization Request Header Scheme
+## Compatibility with the Bearer Authentication Scheme
 
 Protected resources simultaneously supporting both the `DPoP` and `Bearer` 
 schemes need to update how evaluation of bearer tokens is performed to prevent 
@@ -845,6 +851,7 @@ Including a nonce value contributed by the authorization server in the DPoP proo
 MAY be used by authorization servers to limit the lifetime of DPoP proofs.
 The server is in control of when to require the use of a new nonce value
 in subsequent DPoP proofs.
+
 Without employing such a mechanism, a malicious party controlling the client
 (including potentially the end user)
 can create DPoP proofs for use arbitrarily far in the future.
@@ -872,7 +879,8 @@ a nonce value to include in the DPoP proof:
 !---
 Figure: HTTP 400 Response to a Token Request without a Nonce
 
-Other HTTP headers and JSON fields MAY also be included in the error response.
+Other HTTP headers and JSON fields MAY also be included in the error response, 
+but there MUST NOT be more than one `DPoP-Nonce` header.
 
 Upon receiving the nonce, the client is expected to retry its token request
 using a DPoP proof including the supplied nonce value in the `nonce` claim
@@ -968,7 +976,7 @@ OpenID Connect [@OpenID.Core] ID Token nonce, should one also be present.
 
 In DPoP, the prevention of token replay at a different endpoint (see
 (#objective)) is achieved through the
-binding of the DPoP proof to a certain URI and HTTP method. DPoP, however,
+binding of the DPoP proof to a certain URI and HTTP method plus the optional server-provided nonce. DPoP, however,
 has a somewhat different nature of protection than TLS-based
 methods such as OAuth Mutual TLS [@RFC8705] or OAuth Token
 Binding [@I-D.ietf-oauth-token-binding] (see also (#Token_Replay) and (#request_integrity)). 
@@ -985,6 +993,7 @@ and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
 window after their `iat` time, preferably only for a relatively brief period
 (on the order of a few seconds).
+
 Servers SHOULD store, in the context of the request URI, the `jti` value of 
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
