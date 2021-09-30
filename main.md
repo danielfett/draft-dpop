@@ -1154,9 +1154,19 @@ established by [@!RFC6749].
 
 ##  OAuth Extensions Error Registration
 
-This specification requests registration of the following error value
+This specification requests registration of the following error values
 in the "OAuth Extensions Error" registry [@IANA.OAuth.Params]
 established by [@!RFC6749].
+
+Invalid DPoP proof:
+
+ * Name: `invalid_dpop_proof`
+ * Usage Location: token error response, resource error response
+ * Protocol Extension: Demonstrating Proof of Possession (DPoP)
+ * Change controller: IETF
+ * Specification document(s): [[ this specification ]]
+
+Use DPoP nonce:
 
  * Name: `use_dpop_nonce`
  * Usage Location: token error response, resource error response
@@ -1289,9 +1299,10 @@ workshop (Ralf Kusters, Guido Schmitz).
   -04
 
   * Added the option for a server-provided nonce in the DPoP proof.
+  * Registered the `invalid_dpop_proof` and `use_dpop_nonce` error codes.
   * Removed fictitious uses of `realm` from the examples, as they added no value.
-  * Editorial fixes.
   * State that if the introspection response has a `token_type`, it has to be `DPoP`.
+  * Editorial fixes.
  
   -03
 
