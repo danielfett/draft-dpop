@@ -832,6 +832,10 @@ Specifically, such a protected resource MUST reject an access
 token received as a bearer token per [!@RFC6750], if that token is 
 determined to be DPoP-bound. 
 
+Section 4.1 of [@!RFC7235] allows a protected resource to indicate support for
+multiple authentication schemes (i.e., `Bearer` and `DPoP`) with the
+`WWW-Authenticate` header field of a 401 (Unauthorized) response.
+
 A protected resource that supports only [@RFC6750] and is unaware of DPoP 
 would most presumably accept a DPoP-bound access token as a bearer token
 (JWT [@RFC7519] says to ignore unrecognized claims, Introspection [@RFC7662] 
@@ -1273,6 +1277,7 @@ Mark Haine,
 Dick Hardt,
 Bjorn Hjelm,
 Jared Jennings,
+Benjamin Kaduk,
 Pieter Kasselman,
 Steinar Noem,
 Neil Madden,
@@ -1282,6 +1287,7 @@ Michael Peck,
 Paul Querna,
 Justin Richer,
 Filip Skokan,
+Dmitry Telegin,
 Dave Tonge,
 Jim Willeke,
 Philippe De Ryck,
@@ -1302,6 +1308,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Registered the `invalid_dpop_proof` and `use_dpop_nonce` error codes.
   * Removed fictitious uses of `realm` from the examples, as they added no value.
   * State that if the introspection response has a `token_type`, it has to be `DPoP`.
+  * Mention that RFC7235 allows multiple authentication schemes in `WWW-Authenticate` with a 401.
   * Editorial fixes.
  
   -03
