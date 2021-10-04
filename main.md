@@ -105,7 +105,7 @@ or malicious resource. Such applications often have dedicated protected storage
 for cryptographic keys.
 
 DPoP can be used to sender-constrain access tokens regardless of the 
-client authentication method employed, but DPoP itself cannot be used for client authentication. 
+client authentication method employed, but DPoP itself is not used for client authentication.
 DPoP can also be used to sender-constrain refresh tokens issued to public clients 
 (those without authentication credentials associated with the `client_id`).
 
@@ -164,7 +164,7 @@ is an accessible application layer means of doing so.
 Due to the potential for cross-site scripting (XSS), browser-based 
 OAuth clients bring to bear added considerations with respect to protecting 
 tokens. The most straightforward XSS-based attack is for an attacker to
-exfiltrate a token and use it themselves completely independent from the 
+exfiltrate a token and use it themselves completely independent of the
 legitimate client. A stolen access token is used for protected
 resource access and a stolen refresh token for obtaining new access tokens. 
 If the private key is non-extractable (as is possible with [@W3C.WebCryptoAPI]),
@@ -461,7 +461,7 @@ Figure: Token Request for a DPoP sender-constrained token using an authorization
 
 The `DPoP` HTTP header MUST contain a valid DPoP proof JWT.
 If the DPoP proof is invalid, the authorization server issues an error 
-response per Section 5.2 of [@RFC6749] with `invalid_dpop_proof` as the 
+response per Section 5.2 of [@!RFC6749] with `invalid_dpop_proof` as the
 value of the `error` parameter. 
 
 To sender-constrain the access token, after checking the validity of the
@@ -545,7 +545,7 @@ Refresh tokens issued to confidential clients (those having
 established authentication credentials with the authorization server) 
 are not bound to the DPoP proof public key because they are already 
 sender-constrained with a different existing mechanism. The OAuth 2.0 Authorization 
-Framework [RFC6749] already requires that an authorization server bind 
+Framework [@!RFC6749] already requires that an authorization server bind
 refresh tokens to the client to which they were issued and that 
 confidential clients authenticate to the authorization server when 
 presenting a refresh token.  As a result, such refresh tokens
@@ -781,15 +781,19 @@ can reply with a challenge using the 401 (Unauthorized) status code
 
 In such challenges:
 
-*  The scheme name is `DPoP`.
-*  The authentication parameter `realm` MAY be included to indicate the 
+* The scheme name is `DPoP`.
+* The authentication parameter `realm` MAY be included to indicate the
 scope of protection in the manner described in [@!RFC7235], Section 2.2.
-*  A `scope` authentication parameter MAY be included as defined in 
+* A `scope` authentication parameter MAY be included as defined in
 [@!RFC6750], Section 3.
-*  An `error` parameter ([@!RFC6750], Section 3) SHOULD be included
+* An `error` parameter ([@!RFC6750], Section 3) SHOULD be included
 to indicate the reason why the request was declined,
 if the request included an access token but failed authentication. 
-Parameter values are described in Section 3.1 of [@!RFC6750]. 
+The error parameter values described in Section 3.1 of [@!RFC6750] are suitable
+as are any appropriate values defined by extension. The value `use_dpop_nonce` can be
+used as described in (#RSNonce) to signal that a nonce is needed in the DPoP proof of
+subsequent request(s). And `invalid_dpop_proof` is used to indicate that the DPoP proof
+itself was deemed invalid based on the criteria of (#checking).
 * An `error_description` parameter ([@!RFC6750], Section 3) MAY be included 
 along with the `error` parameter to provide developers a human-readable
 explanation that is not meant to be displayed to end-users.
@@ -832,6 +836,10 @@ Specifically, such a protected resource MUST reject an access
 token received as a bearer token per [!@RFC6750], if that token is 
 determined to be DPoP-bound. 
 
+Section 4.1 of [@!RFC7235] allows a protected resource to indicate support for
+multiple authentication schemes (i.e., `Bearer` and `DPoP`) with the
+`WWW-Authenticate` header field of a 401 (Unauthorized) response.
+
 A protected resource that supports only [@RFC6750] and is unaware of DPoP 
 would most presumably accept a DPoP-bound access token as a bearer token
 (JWT [@RFC7519] says to ignore unrecognized claims, Introspection [@RFC7662] 
@@ -859,8 +867,9 @@ This section specifies how server-provided nonces are used with DPoP.
 
 An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent to it by responding to requests not including a nonce
-with a `DPoP-Nonce` HTTP header in the response supplying a nonce value to be used
-when sending the subsequent request.
+with an error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
+error code value and including a `DPoP-Nonce` HTTP header in the response supplying
+a nonce value to be used when sending the subsequent request.
 
 For example, in response to a token request without a nonce when the authorization server requires one,
 the authorization server can respond with a `DPoP-Nonce` value such as the following to provide
@@ -899,7 +908,7 @@ An example unencoded JWT Payload of such a DPoP proof including a nonce is:
 !---
 Figure: DPoP Proof Payload Including a Nonce Value
 
-The nonce syntax in ABNF as used by [@RFC6749]
+The nonce syntax in ABNF as used by [@!RFC6749]
 (which is the same as the `scope-token` syntax) is:
 
 !---
@@ -1273,6 +1282,7 @@ Mark Haine,
 Dick Hardt,
 Bjorn Hjelm,
 Jared Jennings,
+Benjamin Kaduk,
 Pieter Kasselman,
 Steinar Noem,
 Neil Madden,
@@ -1282,6 +1292,7 @@ Michael Peck,
 Paul Querna,
 Justin Richer,
 Filip Skokan,
+Dmitry Telegin,
 Dave Tonge,
 Jim Willeke,
 Philippe De Ryck,
@@ -1302,6 +1313,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Registered the `invalid_dpop_proof` and `use_dpop_nonce` error codes.
   * Removed fictitious uses of `realm` from the examples, as they added no value.
   * State that if the introspection response has a `token_type`, it has to be `DPoP`.
+  * Mention that RFC7235 allows multiple authentication schemes in `WWW-Authenticate` with a 401.
   * Editorial fixes.
  
   -03
