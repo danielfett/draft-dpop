@@ -105,7 +105,7 @@ or malicious resource. Such applications often have dedicated protected storage
 for cryptographic keys.
 
 DPoP can be used to sender-constrain access tokens regardless of the 
-client authentication method employed, but DPoP itself cannot be used for client authentication. 
+client authentication method employed, but DPoP itself is not used for client authentication.
 DPoP can also be used to sender-constrain refresh tokens issued to public clients 
 (those without authentication credentials associated with the `client_id`).
 
@@ -164,7 +164,7 @@ is an accessible application layer means of doing so.
 Due to the potential for cross-site scripting (XSS), browser-based 
 OAuth clients bring to bear added considerations with respect to protecting 
 tokens. The most straightforward XSS-based attack is for an attacker to
-exfiltrate a token and use it themselves completely independent from the 
+exfiltrate a token and use it themselves completely independent of the
 legitimate client. A stolen access token is used for protected
 resource access and a stolen refresh token for obtaining new access tokens. 
 If the private key is non-extractable (as is possible with [@W3C.WebCryptoAPI]),
