@@ -926,7 +926,7 @@ the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
 
-## Providing a New Nonce Value
+## Providing a New Nonce Value {#NewNonce}
 
 It is up to the authorization server when to supply a new nonce value
 for the client to use.
@@ -980,6 +980,35 @@ In particular, a nonce provided to the client by a particular server
 MUST only be used with that server and no other.
 Developers should also take care to not confuse this nonce with the
 OpenID Connect [@OpenID.Core] ID Token nonce, should one also be present.
+
+# DPoP PKCE Method {#PKCE}
+
+Proof Key for Code Exchange (PKCE) [@!RFC7636] MAY be used to bind the authorization code
+issued to the client's proof-of-possession key.
+This specification defines the `DPoP` PKCE `code_challenge_method` for this purpose.
+
+The `code_challenge` value for this method is the
+JSON Web Key (JWK) Thumbprint [@!RFC7638] of the proof-of-possession public key.
+Logically, the code verifier value is the proof-of-possession public key.
+However, the `code_verifier` parameter is not used with this PKCE method because the
+proof-of-possession public key is already being sent in the DPoP proof.
+
+When a token request is received, the authorization server computes the
+JWK thumbprint of the proof-of-possession public key in the DPoP proof
+and verifies that it matches the code challenge.
+If they do not match, it MUST reject the request.
+
+An example authorization request using this PKCE method is:
+!---
+```
+ GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz
+     &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+     &code_challenge_method=DPoP
+     &code_challenge=NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs HTTP/1.1
+ Host: server.example.com
+```
+!---
+Figure: Authorization Request using the DPoP PKCE Method
 
 # Security Considerations {#Security}
 
@@ -1121,7 +1150,7 @@ Note: While signatures covering other parts of requests are out of the scope of
 this specification, additional information to be signed can be
 added into DPoP proofs.
 
-##  Access Token and Public Key Binding
+## Access Token and Public Key Binding
 
 The binding of the access token to the DPoP public key, which is
 specified in (#Confirmation), uses a cryptographic hash of the JWK
@@ -1147,9 +1176,25 @@ other than SHA-256, it is suggested that an additional related JWT
 claim be defined for that purpose, registered in the respective IANA registry,
  and used in place of the `ath` claim defined herein.
 
+## Authorization Code and Public Key Binding
+
+Cryptographic binding of the authorization code to the DPoP public key,
+is specified in (#PKCE).
+This binding prevents attacks in which the attacker captures the authorization code
+and creates a DPoP proof using a proof-of-possession key
+other than that held by the client
+and redeems the authorization code using that DPoP proof.
+By ensuring end-to-end that only the client's DPoP key can be used,
+this prevents captured authorization codes from being exfiltrated and used
+at locations other than the one to which the authorization code was issued.
+
+The binding of the authorization code to the DPoP public key
+uses a JWK thumbprint of the public key, just as the access token binding does.
+The same JWK thumbprint considerations apply.
+
 # IANA Considerations {#IANA}
 
-##  OAuth Access Token Type Registration
+## OAuth Access Token Type Registration
 
 This specification requests registration of the following access token
 type in the "OAuth Access Token Types" registry [@IANA.OAuth.Params]
@@ -1182,6 +1227,16 @@ Use DPoP nonce:
  * Protocol Extension: Demonstrating Proof of Possession (DPoP)
  * Change controller: IETF
  * Specification document(s): [[ this specification ]]
+
+## PKCE Code Challenge Method Registration
+
+This specification requests registration of the following code challenge method
+in the IANA "PKCE Code Challenge Methods" registry [@IANA.OAuth.Params]
+established by [@!RFC7636].
+
+ * Code Challenge Method Parameter Name: `DPoP`
+ * Change Controller: IESG
+ * Reference: [[ {#PKCE} of this specification ]]
 
 ## HTTP Authentication Scheme Registration
 
@@ -1307,6 +1362,10 @@ workshop (Ralf Kusters, Guido Schmitz).
 
    [[ To be removed from the final specification ]]
 
+  -05
+
+  * Added DPoP PKCE method.
+
   -04
 
   * Added the option for a server-provided nonce in the DPoP proof.
@@ -1315,7 +1374,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * State that if the introspection response has a `token_type`, it has to be `DPoP`.
   * Mention that RFC7235 allows multiple authentication schemes in `WWW-Authenticate` with a 401.
   * Editorial fixes.
- 
+
   -03
 
   * Add an access token hash (`ath`) claim to the DPoP proof when used in conjunction with the presentation of an access token for protected resource access
@@ -1323,7 +1382,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Editorial updates and fixes
 
   -02
-  
+
    * Lots of editorial updates and additions including expanding on the objectives, 
      better defining the key confirmation representations, example updates and additions, 
      better describing mixed bearer/dpop token type deployments, clarify RT binding only being
@@ -1333,8 +1392,7 @@ workshop (Ralf Kusters, Guido Schmitz).
      must reject an access token received as bearer, if that token is DPoP-bound
    * Remove the case-insensitive qualification on the `htm` claim check
    * Relax the jti tracking requirements a bit and qualify it by URI
-  
-   
+
   -01
   
    * Editorial updates
@@ -1344,7 +1402,7 @@ workshop (Ralf Kusters, Guido Schmitz).
    * Fixed up and added to the IANA section
    * Added `dpop_signing_alg_values_supported` authorization server metadata
    * Moved the Acknowledgements into an Appendix and added a bunch of names (best effort)
-   
+
    -00 [[ Working Group Draft ]]
 
    * Working group draft
@@ -1355,7 +1413,7 @@ workshop (Ralf Kusters, Guido Schmitz).
    * Use the newish RFC v3 XML and HTML format
 
    -03 
-   
+
    * rework the text around uniqueness requirements on the jti claim in the DPoP proof JWT
    * make tokens a bit smaller by using `htm`, `htu`, and `jkt` rather than `http_method`, `http_uri`, and `jkt#S256` respectively
    * more explicit recommendation to use mTLS if that is available
@@ -1363,7 +1421,7 @@ workshop (Ralf Kusters, Guido Schmitz).
    * editorial updates 
 
    -02
-   
+
    * added normalization rules for URIs
    * removed distinction between proof and binding
    * "jwk" header again used instead of "cnf" claim in DPoP proof
@@ -1375,19 +1433,16 @@ workshop (Ralf Kusters, Guido Schmitz).
    * iat instead of exp in DPoP proof JWTs
    * updated guidance on token_type evaluation
 
-
    -01
-   
+
    * fixed inconsistencies
    * moved binding and proof messages to headers instead of parameters
    * extracted and unified definition of DPoP JWTs
    * improved description
 
-
    -00 
 
    *  first draft
-   
 
 <reference anchor="IANA.OAuth.Params" target="https://www.iana.org/assignments/oauth-parameters">
  <front>
