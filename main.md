@@ -990,8 +990,9 @@ This specification defines the `DPoP` PKCE `code_challenge_method` for this purp
 The `code_challenge` value for this method is the
 JSON Web Key (JWK) Thumbprint [@!RFC7638] of the proof-of-possession public key.
 Logically, the code verifier value is the proof-of-possession public key.
-However, the `code_verifier` parameter is not used with this PKCE method because the
-proof-of-possession public key is already being sent in the DPoP proof.
+However, the proof-of-possession public key is already being sent in the DPoP proof.
+Therefore instead, the `code_verifier` parameter used with this PKCE method
+is simply the constant string `DPoP`.
 
 When a token request is received, the authorization server computes the
 JWK thumbprint of the proof-of-possession public key in the DPoP proof
