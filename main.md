@@ -1202,7 +1202,10 @@ The `dpop+jwt` is used in the JWS/JWT `typ` header for explicit typing of the JW
 Section 3.11 of [@RFC8725] but it is not used anywhere else (such as the `Content-Type` of HTTP messages). 
 
 Note that there does seem to be some precedence for [@IANA.MediaTypes] registration with 
- [@I-D.ietf-oauth-access-token-jwt], [@I-D.ietf-oauth-jwsreq], [@RFC8417], and of course [@RFC7519].
+`application/at+jwt` in [@RFC9068],
+`application/oauth-authz-req+jwt` in [@RFC9101],
+`application/secevent+jwt` in [@RFC8417],
+and regular old `application/jwt` in [@RFC7519].
 But precedence isn't always right. 
 ]]
 
@@ -1306,6 +1309,9 @@ workshop (Ralf Kusters, Guido Schmitz).
 # Document History
 
    [[ To be removed from the final specification ]]
+  -05
+
+  * update references for drafts that are now RFCs
 
   -04
 
