@@ -262,6 +262,82 @@ other client authentication methods.
 DPoP does not directly ensure message integrity but relies on the TLS
 layer for that purpose. See (#Security) for details.
 
+# Public-Key PKCE
+
+PKCE allows a client to prove that the sender of a token request was also the
+sender of a prior authorization request {{!RFC7636}}.  Existing PKCE methods are
+based on symmetric cryptography.  In this section, we specify a new PKCE method
+"ECVR" based on asymmetric cryptography. 
+
+The "ES256" PKCE method presumes that a client holds an ECDSA key pair with
+private key `pkce_key_priv` and public key `pkce_key_pub`.  The client also
+generates a fresh 32-byte random value `pkce_random` for each PKCE challenge.
+The PKCE code challenge commits to these values by sending the JWK thumbprint of
+`pkce_key_pub` {{!RFC7638}} and the SHA-256 hash of `pkce_random`.
+
+```
+code_challenge = JWK-THUMBPRINT-SHA256(pkce_key_pub) + "."
+                 BASE64URL(SHA-256(pkce_random))
+```
+
+The PKCE code verifier is a compact-format JWS object containing a signature
+over the committed nonce by the committed key pair.  The Authorization Server
+verifies the code verifier by performing the following checks:
+
+* The code verifier MUST be a compact format JWS object
+* The protected header of the JWS MUST contain only "alg", "typ", and "jwk"
+  fields
+  * The "alg" field MUST be set to "ES256"
+  * The "typ" field MUST be set to "PKCE"
+  * The "jwk" field MUST be set to a JWK with a JWK Thumbprint that matches the
+    one in the code challenge (i.e., the JWK must represent `pkce_key_pub`)
+* The payload of the JWS MUST represent `pkce_random`, i.e., its SHA-256 hash
+  MUST match the value in the code challenge
+* The JWS signature MUST verify using the public key in the "jwk" field of the
+  protected header
+
+The following figure illustrates all of the computations involved in a PKCE
+exchange of this type (with line breaks added for clarity):
+
+```
+BASE64URL(pkce_random) = QGQB3wRUlGQ6GFNIocbXlKnvyYg2tUgRdJcMGLODG14
+BASE64URL(SHA-256(pkce_random)) = ryEGZ3_UCutuKC1M-gtWYKKCRh3MebJWVU5cxP4_ajU
+
+pkce_key_priv (JWK) = {
+  kty: 'EC',
+  x: 's9_0hcdbBKc_d-9khiuoDP_SEqxwk0Am-DU2Snq9U_A',
+  y: 'lAIcGtrn-Noq3_Tq9GCFv5mBeHPMM5yeWj-Jg05tHBA',
+  crv: 'P-256',
+  d: 'dT2kXWSvUeX9MvoaGtZVguTDY2IDbag1DZRSaVeTe-w'
+}
+
+pkce_key_pub (JWK) = {
+  kty: 'EC',
+  x: 's9_0hcdbBKc_d-9khiuoDP_SEqxwk0Am-DU2Snq9U_A',
+  y: 'lAIcGtrn-Noq3_Tq9GCFv5mBeHPMM5yeWj-Jg05tHBA',
+  crv: 'P-256'
+}
+
+pkce_key_pub (JKT): wexUyVn8hroyKV7DkoJgeOEmEVe4h_o640b00xGGoRs
+
+code_challenge = wexUyVn8hroyKV7DkoJgeOEmEVe4h_o640b00xGGoRs.
+                 ryEGZ3_UCutuKC1M-gtWYKKCRh3MebJWVU5cxP4_ajU
+
+code_verifier = eyJhbGciOiJFUzI1NiIsInR5cCI6IlBLQ0UiLCJq
+                d2siOnsia3R5IjoiRUMiLCJ4IjoiczlfMGhjZGJC
+                S2NfZC05a2hpdW9EUF9TRXF4d2swQW0tRFUyU25x
+                OVVfQSIsInkiOiJsQUljR3Rybi1Ob3EzX1RxOUdD
+                RnY1bUJlSFBNTTV5ZVdqLUpnMDV0SEJBIiwiY3J2
+                IjoiUC0yNTYifX0
+                .
+                QGQB3wRUlGQ6GFNIocbXlKnvyYg2tUgRdJcMGLOD
+                G14
+                .
+                oiw2YBpROf1Jaw8UbmE72OfkvqMccShPKvHsi5wr
+                YAmVETZW1E_jDK4Eeeq2YXzuEmA7bOkUTiHA_QtR
+                P5ir9w
+```
+
 # DPoP Proof JWTs {#the-proof}
 
 DPoP introduces the concept of a DPoP proof, which is a JWT created by
@@ -463,6 +539,10 @@ The `DPoP` HTTP header MUST contain a valid DPoP proof JWT.
 If the DPoP proof is invalid, the authorization server issues an error 
 response per Section 5.2 of [@!RFC6749] with `invalid_dpop_proof` as the
 value of the `error` parameter. 
+
+If the access token request contains a PKCE verifier of type "ES256", then the
+public key in the `jwk` header of the DPoP proof MUST represent the same public
+key as the in the `jwk` header of the PKCE verifier JWS object.
 
 To sender-constrain the access token, after checking the validity of the
 DPoP proof, the authorization server associates the issued access token with the
