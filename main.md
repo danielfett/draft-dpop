@@ -821,11 +821,11 @@ because the confirmation of the DPoP binding in the access token failed:
 !---
 ```
  HTTP/1.1 401 Unauthorized
- WWW-Authenticate: DPoP error="invalid_token",
+ WWW-Authenticate: DPoP error="invalid_dpop_proof",
    error_description="Invalid DPoP key binding", algs="ES256"
 ```
 !---
-Figure: HTTP 401 Response to a Protected Resource Request with an Invalid Token 
+Figure: HTTP 401 Response to a Protected Resource Request with an Invalid DPoP Proof 
 
 ## Compatibility with the Bearer Authentication Scheme
 
