@@ -987,7 +987,9 @@ Binding the authorization code issued to the client's proof-of-possession key
 can enable end-to-end binding of the entire authorization flow.
 This specification defines the `dpop_jkt` authorization request parameter for this purpose.
 The value of the `dpop_jkt` authorization request parameter is the
-JSON Web Key (JWK) Thumbprint [@!RFC7638] of the proof-of-possession public key.
+JSON Web Key (JWK) Thumbprint [@!RFC7638] of the proof-of-possession public key
+using the SHA-256 hash function -
+the same value as used for the `jkt` confirmation method defined in (#jwk-thumb-jwt).
 
 When a token request is received, the authorization server computes the
 JWK thumbprint of the proof-of-possession public key in the DPoP proof
@@ -999,6 +1001,8 @@ An example authorization request using the `dpop_jkt` authorization request para
 ```
  GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz
      &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+     &code_verifier=
+      3641a2d12d66101249cdf7a79c000c1f8c05d2aafcf14bf146497bed
      &dpop_jkt=NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs HTTP/1.1
  Host: server.example.com
 ```
@@ -1185,6 +1189,14 @@ and redeems the authorization code using that DPoP proof.
 By ensuring end-to-end that only the client's DPoP key can be used,
 this prevents captured authorization codes from being exfiltrated and used
 at locations other than the one to which the authorization code was issued.
+
+Authorization codes can, for instance, be harvested by attackers
+from places that the HTTP messages containing them are logged.
+Even when efforts are made to make authorization codes one-time-use,
+in practice, there is often a time window during which attackers can replay them.
+For instance, when authorization servers are implemented as scalable replicated services,
+some replicas may temporarily not yet have the information needed to prevent replay.
+DPoP binding of the authorization code solves these problems.
 
 The binding of the authorization code to the DPoP public key
 uses a JWK Thumbprint of the public key, just as the access token binding does.
