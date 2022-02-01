@@ -993,7 +993,7 @@ the same value as used for the `jkt` confirmation method defined in (#jwk-thumb-
 
 When a token request is received, the authorization server computes the
 JWK thumbprint of the proof-of-possession public key in the DPoP proof
-and verifies that it matches the code challenge.
+and verifies that it matches the `dpop_jkt` parameter value in the authorization request.
 If they do not match, it MUST reject the request.
 
 An example authorization request using the `dpop_jkt` authorization request parameter is:
@@ -1001,14 +1001,15 @@ An example authorization request using the `dpop_jkt` authorization request para
 ```
  GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz
      &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-     &code_verifier=
-      3641a2d12d66101249cdf7a79c000c1f8c05d2aafcf14bf146497bed
+     &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+     &code_challenge_method=S256
      &dpop_jkt=NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs HTTP/1.1
  Host: server.example.com
 ```
 !---
 Figure: Authorization Request using the `dpop_jkt` Parameter
 
+Use of the `dpop_jkt` authorization request parameter is OPTIONAL.
 Note that the `dpop_jkt` authorization request parameter MAY also be used
 in combination with PKCE [@RFC7636].
 
@@ -1376,7 +1377,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -05
 
-  * Added Authorization Code binding via `dpop_jkt` parameter.
+  * Added Authorization Code binding via the `dpop_jkt` parameter.
 
   -04
 
