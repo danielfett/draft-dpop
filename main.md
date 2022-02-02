@@ -598,7 +598,7 @@ of the JWK SHA-256 Thumbprint (according to [@!RFC7638]) of the DPoP public key
 (in JWK format) to which the access token is bound. 
 
 The following example JWT in (#cnf-claim-jwt) with decoded JWT payload shown in 
-(#cnf-claim) contains a `cnf` claim with the `jkt` JWK thumbprint confirmation 
+(#cnf-claim) contains a `cnf` claim with the `jkt` JWK Thumbprint confirmation
 method member.  The `jkt` value in these examples is the hash of the public key 
 from the DPoP proofs in the examples in (#access-token-request).
 
@@ -636,7 +636,7 @@ about the token.
 For a DPoP-bound access token, the hash of the public key to which the token 
 is bound is conveyed to the protected resource as metainformation in a token
 introspection response. The hash is conveyed using the same `cnf` content with 
-`jkt` member structure as the JWK thumbprint confirmation method, described in 
+`jkt` member structure as the JWK Thumbprint confirmation method, described in
 (#jwk-thumb-jwt), as a top-level member of the
 introspection response JSON. Note that the resource server
 does not send a DPoP proof with the introspection request and the authorization 
@@ -926,7 +926,7 @@ the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
 
-## Providing a New Nonce Value
+## Providing a New Nonce Value {#NewNonce}
 
 It is up to the authorization server when to supply a new nonce value
 for the client to use.
@@ -980,6 +980,38 @@ In particular, a nonce provided to the client by a particular server
 MUST only be used with that server and no other.
 Developers should also take care to not confuse this nonce with the
 OpenID Connect [@OpenID.Core] ID Token nonce, should one also be present.
+
+# Authorization Code Binding to DPoP Key {#dpop_jkt}
+
+Binding the authorization code issued to the client's proof-of-possession key
+can enable end-to-end binding of the entire authorization flow.
+This specification defines the `dpop_jkt` authorization request parameter for this purpose.
+The value of the `dpop_jkt` authorization request parameter is the
+JSON Web Key (JWK) Thumbprint [@!RFC7638] of the proof-of-possession public key
+using the SHA-256 hash function -
+the same value as used for the `jkt` confirmation method defined in (#jwk-thumb-jwt).
+
+When a token request is received, the authorization server computes the
+JWK thumbprint of the proof-of-possession public key in the DPoP proof
+and verifies that it matches the `dpop_jkt` parameter value in the authorization request.
+If they do not match, it MUST reject the request.
+
+An example authorization request using the `dpop_jkt` authorization request parameter is:
+!---
+```
+ GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz
+     &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+     &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+     &code_challenge_method=S256
+     &dpop_jkt=NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs HTTP/1.1
+ Host: server.example.com
+```
+!---
+Figure: Authorization Request using the `dpop_jkt` Parameter
+
+Use of the `dpop_jkt` authorization request parameter is OPTIONAL.
+Note that the `dpop_jkt` authorization request parameter MAY also be used
+in combination with PKCE [@RFC7636].
 
 # Security Considerations {#Security}
 
@@ -1131,7 +1163,7 @@ as to make it computationally infeasible to find or create another
 key that produces to the same hash output value. The SHA-256
 hash function was used because it meets the aforementioned
 requirement while being widely available.  If, in the future,
-JWK thumbprints need to be computed using hash function(s)
+JWK Thumbprints need to be computed using hash function(s)
 other than SHA-256, it is suggested that an additional related JWT
 confirmation method member be defined for that purpose,
 registered in the respective IANA registry, and used in place of the
@@ -1146,6 +1178,30 @@ If, in the future, access token digests need be computed using hash function(s)
 other than SHA-256, it is suggested that an additional related JWT
 claim be defined for that purpose, registered in the respective IANA registry,
  and used in place of the `ath` claim defined herein.
+
+## Authorization Code and Public Key Binding
+
+Cryptographic binding of the authorization code to the DPoP public key,
+is specified in (#dpop_jkt).
+This binding prevents attacks in which the attacker captures the authorization code
+and creates a DPoP proof using a proof-of-possession key
+other than that held by the client
+and redeems the authorization code using that DPoP proof.
+By ensuring end-to-end that only the client's DPoP key can be used,
+this prevents captured authorization codes from being exfiltrated and used
+at locations other than the one to which the authorization code was issued.
+
+Authorization codes can, for instance, be harvested by attackers
+from places that the HTTP messages containing them are logged.
+Even when efforts are made to make authorization codes one-time-use,
+in practice, there is often a time window during which attackers can replay them.
+For instance, when authorization servers are implemented as scalable replicated services,
+some replicas may temporarily not yet have the information needed to prevent replay.
+DPoP binding of the authorization code solves these problems.
+
+The binding of the authorization code to the DPoP public key
+uses a JWK Thumbprint of the public key, just as the access token binding does.
+The same JWK Thumbprint considerations apply.
 
 # IANA Considerations {#IANA}
 
@@ -1182,6 +1238,18 @@ Use DPoP nonce:
  * Protocol Extension: Demonstrating Proof of Possession (DPoP)
  * Change controller: IETF
  * Specification document(s): [[ this specification ]]
+
+## OAuth Parameters Registration
+
+This specification requests registration of the following
+authorization request parameter
+in the "OAuth Parameters" registry [@IANA.OAuth.Params]
+established by [@!RFC6749].
+
+ * Name: `dpop_jkt`
+ * Parameter Usage Locaion: authorization request
+ * Change Controller: IESG
+ * Reference: [[ {#dpop_jkt} of this specification ]]
 
 ## HTTP Authentication Scheme Registration
 
@@ -1312,6 +1380,10 @@ workshop (Ralf Kusters, Guido Schmitz).
   -05
 
   * update references for drafts that are now RFCs
+
+  -05
+
+  * Added Authorization Code binding via the `dpop_jkt` parameter.
 
   -04
 
