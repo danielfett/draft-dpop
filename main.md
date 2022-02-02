@@ -1377,13 +1377,11 @@ workshop (Ralf Kusters, Guido Schmitz).
 # Document History
 
    [[ To be removed from the final specification ]]
-  -05
-
-  * update references for drafts that are now RFCs
 
   -05
 
   * Added Authorization Code binding via the `dpop_jkt` parameter.
+  * Updated references for drafts that are now RFCs
 
   -04
 
