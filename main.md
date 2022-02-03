@@ -945,10 +945,16 @@ The client MUST use the new nonce value supplied for the next token request,
 and for all subsequent token requests until the authorization server
 supplies a new nonce.
 
+Responses that include the `DPoP-Nonce` HTTP header should be uncacheable
+(e.g., using `Cache-Control: no-store` in response to a `GET` request) to
+prevent the response being used to serve a subsequent request and a stale
+nonce value being used as a result.
+
 An example 200 OK response providing a new nonce value is:
 !---
 ```
  HTTP/1.1 200 OK
+ Cache-Control: no-store
  DPoP-Nonce: eyJ7S_zG.eyJbYu3.xQmBj-1
 ```
 !---
