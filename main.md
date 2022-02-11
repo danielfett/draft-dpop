@@ -929,10 +929,10 @@ the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
 
-The intent is that both clients and servers need keep only one nonce value for one another.
+The intent is that both clients and servers need to keep only one nonce value for one another.
 That said, transient circumstances may arise in which the server's and client's
 stored nonce values differ.
-The good new is that this situation is self-correcting.
+The good news is that this situation is self-correcting.
 With any rejection message,
 the server can send the client the nonce value that the server wants it to use
 and the client can store that nonce value and retry the request with it.
