@@ -1038,8 +1038,7 @@ If an adversary is able to get hold of a DPoP proof JWT, the adversary
 could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
-window after their `iat` time, preferably only for a relatively brief period
-(on the order of a few seconds).
+window after their `iat` time, preferably only for a relatively brief period.
 
 Servers SHOULD store, in the context of the request URI, the `jti` value of 
 each DPoP proof for the time window in which the respective DPoP proof JWT
@@ -1049,11 +1048,11 @@ memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessar
 large `jti` values or store only a hash thereof.    
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
-proofs that carry an `iat` time in the reasonably near future (e.g., a few
-seconds in the future).
+proofs that carry an `iat` time in the reasonably near future.
 Because clock skews between servers and clients may be large,
 servers may choose to limit DPoP proof lifetimes by using
-server-provided nonce values rather than clock times,
+server-provided nonce values containing the time at the server
+rather than comparing the `iat` time to the time at the server,
 yielding intended results even in the face of arbitrarily large clock skews.
 
 Server-provided nonces are an effective means of preventing DPoP proof replay.
@@ -1387,6 +1386,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -05
 
   * Added Authorization Code binding via the `dpop_jkt` parameter.
+  * Enhanced description of DPoP proof expiration checking.
   * Updated references for drafts that are now RFCs
 
   -04
