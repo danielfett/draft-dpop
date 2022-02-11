@@ -870,6 +870,9 @@ in DPoP proofs sent to it by responding to requests not including a nonce
 with an error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
 error code value and including a `DPoP-Nonce` HTTP header in the response supplying
 a nonce value to be used when sending the subsequent request.
+This same error code is used when supplying a new nonce value when there was a nonce mismatch.
+The client will typically retry the request with the new nonce value supplied
+upon receiving a `use_dpop_nonce` error with an accompanying nonce value.
 
 For example, in response to a token request without a nonce when the authorization server requires one,
 the authorization server can respond with a `DPoP-Nonce` value such as the following to provide
@@ -921,10 +924,21 @@ Figure: Nonce ABNF
 The nonce is opaque to the client.
 
 If the `nonce` claim in the DPoP proof of a token request
-does not exactly match the nonce supplied by the authorization server to the client,
+does not exactly match a nonce recently supplied by the authorization server to the client,
 the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
+
+The intent is that both clients and servers need to keep only one nonce value for one another.
+That said, transient circumstances may arise in which the server's and client's
+stored nonce values differ.
+However, this situation is self-correcting;
+with any rejection message,
+the server can send the client the nonce value that the server wants it to use
+and the client can store that nonce value and retry the request with it.
+Even if the client and/or server discard their stored nonce values,
+that situation is also self-correcting because new nonce values can be communicated
+when responding to or retrying failed requests.
 
 ## Providing a New Nonce Value {#NewNonce}
 
@@ -1386,8 +1400,10 @@ workshop (Ralf Kusters, Guido Schmitz).
   -05
 
   * Added Authorization Code binding via the `dpop_jkt` parameter.
+  * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
+  * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
   * Enhanced description of DPoP proof expiration checking.
-  * Updated references for drafts that are now RFCs
+  * Updated references for drafts that are now RFCs.
 
   -04
 
