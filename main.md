@@ -1205,11 +1205,10 @@ For instance, when authorization servers are implemented as scalable replicated 
 some replicas may temporarily not yet have the information needed to prevent replay.
 DPoP binding of the authorization code solves these problems.
 
-If there can be more than one successful token request with an authorization code,
-even if PKCE is used, all it takes is the `code_challenge` and the authorization code
-sitting around somewhere in accessible memory
-and an XSS attacker can exfiltrate them and use them on his own device,
-binding the resulting token to an attacker-controlled key.
+If an authorization server does not (or cannot) strictly enforce the single-use limitation for authorization codes
+and an attacker can access the authorization code (and if PKCE is used, the `code_verifier`),
+the attacker can create a forged token request, binding the resulting token to an attacker-controlled key.
+For example, using cross-site scripting, attackers might obtain access to the authorization code and PKCE parameters.
 Use of the `dpop_jkt` parameter prevents this attack.
 
 The binding of the authorization code to the DPoP public key
