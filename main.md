@@ -1205,6 +1205,13 @@ For instance, when authorization servers are implemented as scalable replicated 
 some replicas may temporarily not yet have the information needed to prevent replay.
 DPoP binding of the authorization code solves these problems.
 
+If there can be more than one successful token request with an authorization code,
+even if PKCE is used, all it takes is the `code_challenge` and the authorization code
+sitting around somewhere in accessible memory
+and an XSS attacker can exfiltrate them and use them on his own device,
+binding the resulting token to an attacker-controlled key.
+Use of the `dpop_jkt` parameter prevents this attack.
+
 The binding of the authorization code to the DPoP public key
 uses a JWK Thumbprint of the public key, just as the access token binding does.
 The same JWK Thumbprint considerations apply.
@@ -1388,6 +1395,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   * Added Authorization Code binding via the `dpop_jkt` parameter.
   * Updated references for drafts that are now RFCs
+  * Described the double authorization code usage attack and how `dpop_jkt` mitigates it.
 
   -04
 
