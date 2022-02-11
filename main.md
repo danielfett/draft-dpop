@@ -1052,7 +1052,7 @@ proofs that carry an `iat` time in the reasonably near future.
 Because clock skews between servers and clients may be large,
 servers may choose to limit DPoP proof lifetimes by using
 server-provided nonce values containing the time at the server
-rather than comparing the `iat` time to the time at the server,
+rather than comparing the client-supplied `iat` time to the time at the server,
 yielding intended results even in the face of arbitrarily large clock skews.
 
 Server-provided nonces are an effective means of preventing DPoP proof replay.
