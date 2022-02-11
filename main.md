@@ -867,7 +867,7 @@ This section specifies how server-provided nonces are used with DPoP.
 
 An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent to it by responding to requests not including a nonce
-with an error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
+with an HTTP `400 (Bad Request)` error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
 error code value and including a `DPoP-Nonce` HTTP header in the response supplying
 a nonce value to be used when sending the subsequent request.
 
@@ -940,7 +940,7 @@ Of course, each time this happens it requires an extra protocol round trip.
 
 A more efficient manner of supplying a new nonce value is also defined --
 by including a `DPoP-Nonce` HTTP header
-in the `200 OK` response from the previous request.
+in the HTTP `200 (OK)` response from the previous request.
 The client MUST use the new nonce value supplied for the next token request,
 and for all subsequent token requests until the authorization server
 supplies a new nonce.
@@ -966,6 +966,9 @@ Resource servers can also choose to provide a nonce value to be included
 in DPoP proofs sent to them.
 They provide the nonce using the `DPoP-Nonce` header in same way that authorization servers do.
 The error signaling is performed as described in (#http-auth-scheme).
+Resource servers use an HTTP `401 (Unauthorized)` error code
+with an accompanying `WWW-Authenticate: PoP` value
+and `DPoP-Nonce` value to accomplish this.
 
 For example, in response to a resource request without a nonce when the resource server requires one,
 the resource server can respond with a `DPoP-Nonce` value such as the following to provide
@@ -1388,6 +1391,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   * Added Authorization Code binding via the `dpop_jkt` parameter.
   * Updated references for drafts that are now RFCs
+  * Specified that authorization servers use `400 (Bad Request)` errors to supply nonces and resource servers use `401 (Unauthorized)` errors to do so.
 
   -04
 
