@@ -870,6 +870,9 @@ in DPoP proofs sent. In this case, the authorization server responds to requests
 with an HTTP `400` (Bad Request) error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
 error code value. The authorization server includes a `DPoP-Nonce` HTTP header in the response supplying
 a nonce value to be used when sending the subsequent request.
+This same error code is used when supplying a new nonce value when there was a nonce mismatch.
+The client will typically retry the request with the new nonce value supplied
+upon receiving a `use_dpop_nonce` error with an accompanying nonce value.
 
 For example, in response to a token request without a nonce when the authorization server requires one,
 the authorization server can respond with a `DPoP-Nonce` value such as the following to provide
@@ -921,10 +924,21 @@ Figure: Nonce ABNF
 The nonce is opaque to the client.
 
 If the `nonce` claim in the DPoP proof of a token request
-does not exactly match the nonce supplied by the authorization server to the client,
+does not exactly match a nonce recently supplied by the authorization server to the client,
 the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
+
+The intent is that both clients and servers need to keep only one nonce value for one another.
+That said, transient circumstances may arise in which the server's and client's
+stored nonce values differ.
+However, this situation is self-correcting;
+with any rejection message,
+the server can send the client the nonce value that the server wants it to use
+and the client can store that nonce value and retry the request with it.
+Even if the client and/or server discard their stored nonce values,
+that situation is also self-correcting because new nonce values can be communicated
+when responding to or retrying failed requests.
 
 ## Providing a New Nonce Value {#NewNonce}
 
@@ -1041,8 +1055,7 @@ If an adversary is able to get hold of a DPoP proof JWT, the adversary
 could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
-window after their `iat` time, preferably only for a relatively brief period
-(on the order of a few seconds).
+window after their `iat` time, preferably only for a relatively brief period.
 
 Servers SHOULD store, in the context of the request URI, the `jti` value of 
 each DPoP proof for the time window in which the respective DPoP proof JWT
@@ -1052,11 +1065,11 @@ memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessar
 large `jti` values or store only a hash thereof.    
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
-proofs that carry an `iat` time in the reasonably near future (e.g., a few
-seconds in the future).
+proofs that carry an `iat` time in the reasonably near future.
 Because clock skews between servers and clients may be large,
 servers may choose to limit DPoP proof lifetimes by using
-server-provided nonce values rather than clock times,
+server-provided nonce values containing the time at the server
+rather than comparing the client-supplied `iat` time to the time at the server,
 yielding intended results even in the face of arbitrarily large clock skews.
 
 Server-provided nonces are an effective means of preventing DPoP proof replay.
@@ -1207,6 +1220,12 @@ in practice, there is often a time window during which attackers can replay them
 For instance, when authorization servers are implemented as scalable replicated services,
 some replicas may temporarily not yet have the information needed to prevent replay.
 DPoP binding of the authorization code solves these problems.
+
+If an authorization server does not (or cannot) strictly enforce the single-use limitation for authorization codes
+and an attacker can access the authorization code (and if PKCE is used, the `code_verifier`),
+the attacker can create a forged token request, binding the resulting token to an attacker-controlled key.
+For example, using cross-site scripting, attackers might obtain access to the authorization code and PKCE parameters.
+Use of the `dpop_jkt` parameter prevents this attack.
 
 The binding of the authorization code to the DPoP public key
 uses a JWK Thumbprint of the public key, just as the access token binding does.
@@ -1390,8 +1409,12 @@ workshop (Ralf Kusters, Guido Schmitz).
   -05
 
   * Added Authorization Code binding via the `dpop_jkt` parameter.
-  * Updated references for drafts that are now RFCs
+  * Described the authorization code reuse attack and how `dpop_jkt` mitigates it.
+  * Enhanced description of DPoP proof expiration checking.
+  * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
+  * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
   * Specified that authorization servers use `400 (Bad Request)` errors to supply nonces and resource servers use `401 (Unauthorized)` errors to do so.
+  * Updated references for drafts that are now RFCs.
 
   -04
 
