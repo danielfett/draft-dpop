@@ -870,6 +870,9 @@ in DPoP proofs sent to it by responding to requests not including a nonce
 with an error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
 error code value and including a `DPoP-Nonce` HTTP header in the response supplying
 a nonce value to be used when sending the subsequent request.
+This same error code is used when supplying a new nonce value when there was a nonce mismatch.
+The client will typically retry the request with the new nonce value supplied
+upon receiving a `use_dpop_nonce` error with an accompanying nonce value.
 
 For example, in response to a token request without a nonce when the authorization server requires one,
 the authorization server can respond with a `DPoP-Nonce` value such as the following to provide
@@ -1397,9 +1400,10 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -05
 
-  * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
   * Added Authorization Code binding via the `dpop_jkt` parameter.
-  * Updated references for drafts that are now RFCs
+  * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
+  * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
+  * Updated references for drafts that are now RFCs.
 
   -04
 
