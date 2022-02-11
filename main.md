@@ -1218,6 +1218,12 @@ For instance, when authorization servers are implemented as scalable replicated 
 some replicas may temporarily not yet have the information needed to prevent replay.
 DPoP binding of the authorization code solves these problems.
 
+If an authorization server does not (or cannot) strictly enforce the single-use limitation for authorization codes
+and an attacker can access the authorization code (and if PKCE is used, the `code_verifier`),
+the attacker can create a forged token request, binding the resulting token to an attacker-controlled key.
+For example, using cross-site scripting, attackers might obtain access to the authorization code and PKCE parameters.
+Use of the `dpop_jkt` parameter prevents this attack.
+
 The binding of the authorization code to the DPoP public key
 uses a JWK Thumbprint of the public key, just as the access token binding does.
 The same JWK Thumbprint considerations apply.
@@ -1400,6 +1406,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -05
 
   * Added Authorization Code binding via the `dpop_jkt` parameter.
+  * Described the double authorization code usage attack and how `dpop_jkt` mitigates it.
   * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
   * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
   * Enhanced description of DPoP proof expiration checking.
