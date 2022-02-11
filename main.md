@@ -924,10 +924,21 @@ Figure: Nonce ABNF
 The nonce is opaque to the client.
 
 If the `nonce` claim in the DPoP proof of a token request
-does not exactly match the nonce supplied by the authorization server to the client,
+does not exactly match a nonce recently supplied by the authorization server to the client,
 the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
+
+The intent is that both clients and servers need to keep only one nonce value for one another.
+That said, transient circumstances may arise in which the server's and client's
+stored nonce values differ.
+However, this situation is self-correcting;
+with any rejection message,
+the server can send the client the nonce value that the server wants it to use
+and the client can store that nonce value and retry the request with it.
+Even if the client and/or server discard their stored nonce values,
+that situation is also self-correcting because new nonce values can be communicated
+when responding to or retrying failed requests.
 
 ## Providing a New Nonce Value {#NewNonce}
 
@@ -1389,9 +1400,10 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -05
 
-  * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
   * Added Authorization Code binding via the `dpop_jkt` parameter.
-  * Updated references for drafts that are now RFCs
+  * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
+  * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
+  * Updated references for drafts that are now RFCs.
 
   -04
 
