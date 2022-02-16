@@ -568,12 +568,12 @@ by the authorization server for DPoP proof JWTs.
 
 This document introduces the following new client registration metadata
 [@RFC7591] parameter to indicate that the client always uses
-DPoP when communicating with authorization servers.
+DPoP when requesting tokens from the authorization server.
 
 `always_uses_dpop`
-:   Boolean value specifying whether the client always uses DPoP.  If omitted, the default value is `false`.
+:   Boolean value specifying whether the client always uses DPoP for token requests.  If omitted, the default value is `false`.
 
-If `true`, the authorization server MUST reject requests from this client that do not contain the DPoP header.
+If `true`, the authorization server MUST reject token requests from this client that do not contain the DPoP header.
 
 # Public Key Confirmation {#Confirmation}
 
@@ -1383,7 +1383,7 @@ in the IANA "OAuth Dynamic Client Registration Metadata" registry [IANA.OAuth.Pa
 established by [@RFC7591].
 
  *  Metadata Name:  `always_uses_dpop`
- *  Metadata Description:  Boolean value specifying whether the client always uses DPoP
+ *  Metadata Description:  Boolean value specifying whether the client always uses DPoP for token requests
  *  Change Controller:  IESG
  *  Specification Document(s):  [[ (#client-meta) of this specification ]]
 
