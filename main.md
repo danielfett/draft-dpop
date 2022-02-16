@@ -185,7 +185,7 @@ artifacts can later be used together independent of the client application to
 access protected resources. To prevent this, servers can optionally require
 clients to include a server-chosen value into the proof that cannot be predicted
 by an attacker (nonce). In the absence of the optional nonce, the impact of
-precomputed DPoP proofs is limited somewhat by the proof being bound to an
+pre-computed DPoP proofs is limited somewhat by the proof being bound to an
 access token on protected resource access. Because a proof covering an access
 token that does not yet exist cannot feasibly be created, access tokens obtained
 with an exfiltrated refresh token and pre-computed proofs will be unusable.
@@ -1099,6 +1099,14 @@ When server-provided nonces are used, possession
 of the proof-of-possession key is being demonstrated --
 not just possession of a DPoP proof.
 
+The `ath` claim limits the use of pre-generated DPoP proofs to the lifetime
+of the access token. Deployments that do not utilize the nonce mechanism
+SHOULD NOT issue long-lived DPoP constrained access tokens,
+preferring instead to use short-lived access tokens and refresh tokens.
+Whilst an attacker could pre-generate DPoP proofs to use the refresh token
+to obtain a new access token, they would be unable to realistically
+pre-generate DPoP proofs to use a newly issued access token.
+
 ## DPoP Nonce Downgrade {#Nonce-Downgrade}
 
 A server MUST NOT accept any DPoP proofs without the `nonce` claim when a DPoP nonce has been provided to the client.
@@ -1415,6 +1423,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
   * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
   * Specified that authorization servers use `400 (Bad Request)` errors to supply nonces and resource servers use `401 (Unauthorized)` errors to do so.
+  * Added a bit more about `ath` and pre-generated proofs to the security considerations.
   * Mentioned confirming the DPoP binding of the access token in the list in (#checking).
   * Updated references for drafts that are now RFCs.
 
