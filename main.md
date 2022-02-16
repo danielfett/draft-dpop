@@ -415,10 +415,10 @@ valid DPoP proof, the receiving server MUST ensure that
  1. the token was issued within an acceptable timeframe and,
     within a reasonable consideration of accuracy and resource utilization,
     a proof JWT with the same `jti` value has not previously been received at the same resource
-    during that time period (see (#Token_Replay)).
+    during that time period (see (#Token_Replay)),
  1. when presented to a protected resource in conjunction with an access token, ensure
-    that the value of the `ath` claim equals the hash of the access token that has been
-    presented alongside the DPoP proof.
+    that the value of the `ath` claim equals the hash of that access token and confirm that
+    the public key to which the access token is bound matches the public key from the DPoP proof.
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
@@ -1379,6 +1379,7 @@ Mike Engan,
 Nikos Fotiou,
 Mark Haine,
 Dick Hardt,
+Joseph Heenan,
 Bjorn Hjelm,
 Jared Jennings,
 Benjamin Kaduk,
@@ -1398,7 +1399,7 @@ Philippe De Ryck,
 and others (please let us know, if you've been mistakenly omitted)
 for their valuable input, feedback and general support of this work.
 
-This document resulted from discussions at the 4th OAuth Security
+This document originated from discussions at the 4th OAuth Security
 Workshop in Stuttgart, Germany. We thank the organizers of this
 workshop (Ralf Kusters, Guido Schmitz).
 
@@ -1414,6 +1415,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Described nonce storage requirements and how nonce mismatches and missing nonces are self-correcting.
   * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
   * Specified that authorization servers use `400 (Bad Request)` errors to supply nonces and resource servers use `401 (Unauthorized)` errors to do so.
+  * Mentioned confirming the DPoP binding of the access token in the list in (#checking).
   * Updated references for drafts that are now RFCs.
 
   -04
