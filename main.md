@@ -564,6 +564,17 @@ JWS `alg` values the authorization server supports for DPoP proof JWTs.
 :   A JSON array containing a list of the JWS `alg` values supported
 by the authorization server for DPoP proof JWTs. 
 
+## Client Registration Metadata {#client-meta}
+
+This document introduces the following new client registration metadata
+[@RFC7591] parameter to indicate that the client always uses
+DPoP when communicating with authorization servers.
+
+`always_uses_dpop`
+:   Boolean value specifying whether the client always uses DPoP.  If omitted, the default value is `false`.
+
+If `true`, the authorization server MUST reject requests from this client that do not contain the DPoP header.
+
 # Public Key Confirmation {#Confirmation}
 
 Resource servers MUST be able to reliably identify whether
@@ -1354,9 +1365,9 @@ Field Names" registry [@IANA.Headers] defined in [@RFC3864].
  *  Author/change Controller: IETF
  *  Specification Document(s): [[ this specification ]]
 
-## Authorization Server Metadata Registration
+## OAuth Authorization Server Metadata Registration
    
-This specification requests registration of the following values
+This specification requests registration of the following value
 in the IANA "OAuth Authorization Server Metadata" registry [IANA.OAuth.Parameters]
 established by [@RFC8414].
 
@@ -1364,6 +1375,17 @@ established by [@RFC8414].
  *  Metadata Description:  JSON array containing a list of the JWS algorithms supported for DPoP proof JWTs
  *  Change Controller:  IESG
  *  Specification Document(s):  [[ (#as-meta) of this specification ]]
+
+## OAuth Dynamic Client Registration Metadata
+
+This specification requests registration of the following value
+in the IANA "OAuth Dynamic Client Registration Metadata" registry [IANA.OAuth.Parameters]
+established by [@RFC7591].
+
+ *  Metadata Name:  `always_uses_dpop`
+ *  Metadata Description:  Boolean value specifying whether the client always uses DPoP
+ *  Change Controller:  IESG
+ *  Specification Document(s):  [[ (#client-meta) of this specification ]]
 
 {backmatter}
 
@@ -1416,6 +1438,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Specified the use of the `use_dpop_nonce` error for missing and mismatched nonce values.
   * Specified that authorization servers use `400 (Bad Request)` errors to supply nonces and resource servers use `401 (Unauthorized)` errors to do so.
   * Mentioned confirming the DPoP binding of the access token in the list in (#checking).
+  * Added the `always_uses_dpop` client registration metadata parameter.
   * Updated references for drafts that are now RFCs.
 
   -04
