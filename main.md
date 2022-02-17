@@ -556,13 +556,31 @@ without invalidating refresh tokens) than binding directly to a particular publi
 
 ## Authorization Server Metadata {#as-meta}
 
-This document introduces the following new authorization server metadata
+This document introduces the following authorization server metadata
 [@RFC8414] parameter to signal support for DPoP in general and the specific 
 JWS `alg` values the authorization server supports for DPoP proof JWTs.
 
 `dpop_signing_alg_values_supported`
 :   A JSON array containing a list of the JWS `alg` values supported
 by the authorization server for DPoP proof JWTs. 
+
+## Client Registration Metadata {#client-meta}
+
+The Dynamic Client Registration Protocol [@RFC7591] defines an API
+for dynamically registering OAuth 2.0 client metadata with authorization servers.
+The metadata defined by [@RFC7591], and registered extensions to it,
+also imply a general data model for clients that is useful for authorization server implementations
+even when the Dynamic Client Registration Protocol isn't in play.
+Such implementations will typically have some sort of user interface available for managing client configuration.
+
+This document introduces the following client registration metadata
+[@RFC7591] parameter to indicate that the client always uses
+DPoP when requesting tokens from the authorization server.
+
+`always_uses_dpop`
+:   Boolean value specifying whether the client always uses DPoP for token requests.  If omitted, the default value is `false`.
+
+If `true`, the authorization server MUST reject token requests from this client that do not contain the DPoP header.
 
 # Public Key Confirmation {#Confirmation}
 
@@ -588,7 +606,7 @@ When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
 the public key information SHOULD be represented
 using the `jkt` confirmation method member defined herein. 
 To convey the hash of a public key in a JWT, this specification
-introduces the following new JWT Confirmation Method [@!RFC7800] member for
+introduces the following JWT Confirmation Method [@!RFC7800] member for
 use under the `cnf` claim.
 
 `jkt`
@@ -1352,7 +1370,7 @@ HTTP URI:
 
 ## HTTP Message Header Field Names Registration
  
-This document specifies the following new HTTP header fields,
+This document specifies the following HTTP header fields,
 registration of which is requested in the "Permanent Message Header
 Field Names" registry [@IANA.Headers] defined in [@RFC3864].
  
@@ -1362,9 +1380,9 @@ Field Names" registry [@IANA.Headers] defined in [@RFC3864].
  *  Author/change Controller: IETF
  *  Specification Document(s): [[ this specification ]]
 
-## Authorization Server Metadata Registration
-   
-This specification requests registration of the following values
+## OAuth Authorization Server Metadata Registration
+
+This specification requests registration of the following value
 in the IANA "OAuth Authorization Server Metadata" registry [IANA.OAuth.Parameters]
 established by [@RFC8414].
 
@@ -1372,6 +1390,17 @@ established by [@RFC8414].
  *  Metadata Description:  JSON array containing a list of the JWS algorithms supported for DPoP proof JWTs
  *  Change Controller:  IESG
  *  Specification Document(s):  [[ (#as-meta) of this specification ]]
+
+## OAuth Dynamic Client Registration Metadata
+
+This specification requests registration of the following value
+in the IANA "OAuth Dynamic Client Registration Metadata" registry [IANA.OAuth.Parameters]
+established by [@RFC7591].
+
+ *  Metadata Name:  `always_uses_dpop`
+ *  Metadata Description:  Boolean value specifying whether the client always uses DPoP for token requests
+ *  Change Controller:  IESG
+ *  Specification Document(s):  [[ (#client-meta) of this specification ]]
 
 {backmatter}
 
@@ -1425,6 +1454,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Specified that authorization servers use `400 (Bad Request)` errors to supply nonces and resource servers use `401 (Unauthorized)` errors to do so.
   * Added a bit more about `ath` and pre-generated proofs to the security considerations.
   * Mentioned confirming the DPoP binding of the access token in the list in (#checking).
+  * Added the `always_uses_dpop` client registration metadata parameter.
   * Updated references for drafts that are now RFCs.
 
   -04
