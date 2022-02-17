@@ -556,7 +556,7 @@ without invalidating refresh tokens) than binding directly to a particular publi
 
 ## Authorization Server Metadata {#as-meta}
 
-This document introduces the following new authorization server metadata
+This document introduces the following authorization server metadata
 [@RFC8414] parameter to signal support for DPoP in general and the specific 
 JWS `alg` values the authorization server supports for DPoP proof JWTs.
 
@@ -566,7 +566,14 @@ by the authorization server for DPoP proof JWTs.
 
 ## Client Registration Metadata {#client-meta}
 
-This document introduces the following new client registration metadata
+The Dynamic Client Registration Protocol [@RFC7591] defines an API
+for dynamically registering OAuth 2.0 client metadata with authorization servers.
+The metadata defined by [@RFC7591], and registered extensions to it,
+also imply a general data model for clients that is useful for authorization server implementations
+even when the Dynamic Client Registration Protocol isn't in play.
+Such implementations will typically have some sort of user interface available for managing client configuration.
+
+This document introduces the following client registration metadata
 [@RFC7591] parameter to indicate that the client always uses
 DPoP when requesting tokens from the authorization server.
 
@@ -599,7 +606,7 @@ When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
 the public key information SHOULD be represented
 using the `jkt` confirmation method member defined herein. 
 To convey the hash of a public key in a JWT, this specification
-introduces the following new JWT Confirmation Method [@!RFC7800] member for
+introduces the following JWT Confirmation Method [@!RFC7800] member for
 use under the `cnf` claim.
 
 `jkt`
@@ -1355,7 +1362,7 @@ HTTP URI:
 
 ## HTTP Message Header Field Names Registration
  
-This document specifies the following new HTTP header fields,
+This document specifies the following HTTP header fields,
 registration of which is requested in the "Permanent Message Header
 Field Names" registry [@IANA.Headers] defined in [@RFC3864].
  
@@ -1366,7 +1373,7 @@ Field Names" registry [@IANA.Headers] defined in [@RFC3864].
  *  Specification Document(s): [[ this specification ]]
 
 ## OAuth Authorization Server Metadata Registration
-   
+
 This specification requests registration of the following value
 in the IANA "OAuth Authorization Server Metadata" registry [IANA.OAuth.Parameters]
 established by [@RFC8414].
