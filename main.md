@@ -77,7 +77,7 @@ tokens.
 
 # Introduction {#Introduction}
 
-DPoP, an abbreviation for Demonstrating Proof-of-Possession at the Application Layer,
+DPoP (for Demonstrating Proof-of-Possession at the Application Layer)
 is an application-level mechanism for
 sender-constraining OAuth access and refresh tokens. It enables a client to
 prove the possession of a public/private key pair by including 
@@ -1053,6 +1053,25 @@ Figure: Authorization Request using the `dpop_jkt` Parameter
 Use of the `dpop_jkt` authorization request parameter is OPTIONAL.
 Note that the `dpop_jkt` authorization request parameter MAY also be used
 in combination with PKCE [@RFC7636].
+
+# DPoP with Pushed Authorization Requests
+
+When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction with DPoP, there are two ways in which the DPoP key can be communicated in the PAR request: 
+
+ * The `dpop_jkt` parameter can be used as described above to bind the issued
+   authorization code to a specific key. In this case, `dpop_jkt` MUST be included alongside other authorization request parameters in the POST body of the PAR request. 
+ * Alternatively, the `DPoP` header can be added to the PAR request. In this
+   case, the authorization server MUST check the provided DPoP proof JWT as
+   defined in (#checking). It MUST further behave as if the contained public key's
+   thumbprint was provided using `dpop_jkt`, i.e., reject the subsequent token
+   request unless a DPoP proof for the same key is provided. This can help to
+   simplify the implementation of the client, as it can "blindly" attach the
+   `DPoP` header to all requests to the authorization server regardless of the
+   type of request. Additionally, it provides a stronger binding, as the `DPoP`
+   header contains a proof of possession of the private key.
+
+Both mechanisms MUST be supported by an authorization server that supports PAR and DPoP. If both mechanisms are used at the same time, the authorization server MUST reject the request if the JWK Thumbprint in `dpop_jkt` does not match the public key in the `DPoP` header. 
+
 
 # Security Considerations {#Security}
 
