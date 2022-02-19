@@ -1052,7 +1052,7 @@ When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction wi
    type of request. Additionally, it provides a stronger binding, as the `DPoP`
    header contains a proof of possession of the private key.
 
-Both mechanisms MUST be supported by an authorization server that supports PAR and DPoP. If both mechanisms are used at the same time, the authorization server MUST reject the request if the JWK Thumbprint in `dpop_jkt` does not match the public key in the `DPoP` header. The authorization server MUST NOT enforce the usage of a nonce using the provisions of (#ASNonce) if no `DPoP` header was supplied by the client in the PAR request.
+Both mechanisms MUST be supported by an authorization server that supports PAR and DPoP. If both mechanisms are used at the same time, the authorization server MUST reject the request if the JWK Thumbprint in `dpop_jkt` does not match the public key in the `DPoP` header. 
 
 
 # Security Considerations {#Security}
