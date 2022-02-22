@@ -1320,7 +1320,7 @@ in the "OAuth Parameters" registry [@IANA.OAuth.Params]
 established by [@!RFC6749].
 
  * Name: `dpop_jkt`
- * Parameter Usage Locaion: authorization request
+ * Parameter Usage Location: authorization request
  * Change Controller: IESG
  * Reference: [[ {#dpop_jkt} of this specification ]]
 
@@ -1442,6 +1442,7 @@ Benjamin Kaduk,
 Pieter Kasselman,
 Steinar Noem,
 Neil Madden,
+Karsten Meyer zu Selhausen,
 Rob Otto,
 Aaron Parecki,
 Michael Peck,
@@ -1462,6 +1463,10 @@ workshop (Ralf Kusters, Guido Schmitz).
 # Document History
 
    [[ To be removed from the final specification ]]
+
+  -06
+
+  * Editorial updates and fixes
 
   -05
 
