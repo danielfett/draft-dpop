@@ -851,7 +851,7 @@ Protected resources simultaneously supporting both the `DPoP` and `Bearer`
 schemes need to update how evaluation of bearer tokens is performed to prevent 
 downgraded usage of a DPoP-bound access tokens. 
 Specifically, such a protected resource MUST reject an access
-token received as a bearer token per [!@RFC6750], if that token is 
+token received as a bearer token per [@!RFC6750], if that token is
 determined to be DPoP-bound. 
 
 Section 4.1 of [@!RFC7235] allows a protected resource to indicate support for
