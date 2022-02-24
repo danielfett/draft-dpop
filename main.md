@@ -577,7 +577,7 @@ This document introduces the following client registration metadata
 [@RFC7591] parameter to indicate that the client always uses
 DPoP when requesting tokens from the authorization server.
 
-`always_uses_dpop`
+`dpop_bound_access_tokens`
 :   Boolean value specifying whether the client always uses DPoP for token requests.  If omitted, the default value is `false`.
 
 If `true`, the authorization server MUST reject token requests from this client that do not contain the DPoP header.
@@ -1416,7 +1416,7 @@ This specification requests registration of the following value
 in the IANA "OAuth Dynamic Client Registration Metadata" registry [IANA.OAuth.Parameters]
 established by [@RFC7591].
 
- *  Metadata Name:  `always_uses_dpop`
+ *  Metadata Name:  `dpop_bound_access_tokens`
  *  Metadata Description:  Boolean value specifying whether the client always uses DPoP for token requests
  *  Change Controller:  IESG
  *  Specification Document(s):  [[ (#client-meta) of this specification ]]
@@ -1467,6 +1467,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -06
 
   * Editorial updates and fixes
+  * Changed name of client metadata parameter to `dpop_bound_access_tokens`
 
   -05
 
