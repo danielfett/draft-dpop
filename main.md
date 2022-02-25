@@ -1479,6 +1479,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Added a bit more about `ath` and pre-generated proofs to the security considerations.
   * Mentioned confirming the DPoP binding of the access token in the list in (#checking).
   * Added the `always_uses_dpop` client registration metadata parameter.
+  * Described the relatioship between DPoP and Pushed Authorization Requests (PAR).
   * Updated references for drafts that are now RFCs.
 
   -04
