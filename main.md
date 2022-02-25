@@ -1015,12 +1015,13 @@ a nonce value to include in the DPoP proof:
 !---
 Figure: HTTP 401 Response to a Resource Request without a Nonce
 
-Note that the nonces provided by the two kinds of servers are different
-and MUST not be confused with one another.
-In particular, a nonce provided to the client by a particular server
-MUST only be used with that server and no other.
-Developers should also take care to not confuse this nonce with the
-OpenID Connect [@OpenID.Core] ID Token nonce, should one also be present.
+Note that the nonces provided by an authorization server and a resource server are different
+and should not be confused with one another,
+since nonces will be only accepted by the server that issued them.
+Likewise, should a client use multiple authorization servers and/or resource servers,
+a nonce issued by any of them should be used only at the issuing server.
+Developers should also take care to not confuse DPoP nonces with the
+OpenID Connect [@OpenID.Core] ID Token nonce.
 
 # Authorization Code Binding to DPoP Key {#dpop_jkt}
 
