@@ -788,11 +788,12 @@ Figure: DPoP Protected Resource Request {#protected-resource-request}
 !---
 Figure: Decoded Content of the `DPoP` Proof JWT in (#protected-resource-request) {#dpop-proof-pr}
 
-Upon receipt of a request for a URI of a protected resource within 
+Upon receipt of a request to a protected resource within 
 the protection space requiring DPoP authentication, if the request does
 not include valid credentials or does not contain an access 
-token sufficient for access to the protected resource, the server
-replies with a challenge using the 401 (Unauthorized) status code
+token sufficient for access, the server
+can respond with a challenge to the client to provide DPoP authentication information.
+Such a challenge is made using the 401 (Unauthorized) response status code
 ([@!RFC7235], Section 3.1) and the `WWW-Authenticate` header field
 ([@!RFC7235], Section 4.1). The server MAY include the 
 `WWW-Authenticate` header in response to other conditions as well.
