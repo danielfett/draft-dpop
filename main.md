@@ -1055,7 +1055,7 @@ Use of the `dpop_jkt` authorization request parameter is OPTIONAL.
 Note that the `dpop_jkt` authorization request parameter MAY also be used
 in combination with PKCE [@RFC7636].
 
-# DPoP with Pushed Authorization Requests
+## DPoP with Pushed Authorization Requests
 
 When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction with DPoP, there are two ways in which the DPoP key can be communicated in the PAR request: 
 
