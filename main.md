@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-dpop-06"
+value = "draft-ietf-oauth-dpop-07"
 stream = "IETF"
 status = "standard"
     
