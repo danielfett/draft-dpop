@@ -1335,22 +1335,30 @@ This specification requests registration of the following scheme in the
  * Reference: [[ (#http-auth-scheme) of this specification ]]
 
 ## Media Type Registration
-    
-[[
-Is a media type registration at [@IANA.MediaTypes] necessary for `application/dpop+jwt`? 
-There is a `+jwt` structured syntax suffix registered already at [@IANA.MediaType.StructuredSuffix]
-by Section 7.2 of [@RFC8417], which is maybe sufficient? A full-blown registration
-of `application/dpop+jwt` seems like it'd be overkill. 
-The `dpop+jwt` is used in the JWS/JWT `typ` header for explicit typing of the JWT per 
-Section 3.11 of [@RFC8725] but it is not used anywhere else (such as the `Content-Type` of HTTP messages). 
 
-Note that there does seem to be some precedence for [@IANA.MediaTypes] registration with 
-`application/at+jwt` in [@RFC9068],
-`application/oauth-authz-req+jwt` in [@RFC9101],
-`application/secevent+jwt` in [@RFC8417],
-and regular old `application/jwt` in [@RFC7519].
-But precedence isn't always right. 
-]]
+This section registers the `application/dpop+jwt` media type [@RFC2046]
+in the IANA "Media Types" registry [@IANA.MediaTypes] in the manner described in [@RFC6838],
+which is used to indicate that the content is a DPoP JWT.
+
+  * Type name: application
+  * Subtype name: dpop+jwt
+  * Required parameters: n/a
+  * Optional parameters: n/a
+  * Encoding considerations: binary; A DPoP JWT is a JWT; JWT values are encoded as a series of base64url-encoded values (some of which may be the empty string) separated by period ('.') characters.
+  * Security considerations: See (#Security) of [[ this specification ]]
+  * Interoperability considerations: n/a
+  * Published specification: [[ this specification ]]
+  * Applications that use this media type: Applications using [[ this specification ]] for application-level proof of possession
+  * Fragment identifier considerations: n/a
+  * Additional information:
+    * File extension(s): n/a
+    * Macintosh file type code(s): n/a
+  * Person &amp; email address to contact for further information: Michael B. Jones, mbj@microsoft.com
+  * Intended usage: COMMON
+  * Restrictions on usage: none
+  * Author: Michael B. Jones, mbj@microsoft.com
+  * Change controller: IETF
+  * Provisional registration? No
 
 ## JWT Confirmation Methods Registration
 
@@ -1466,6 +1474,10 @@ workshop (Ralf Kusters, Guido Schmitz).
 
    [[ To be removed from the final specification ]]
 
+  -07
+
+   * Registered the `application/dpop+jwt` media type.
+
   -06
 
   * Editorial updates and fixes
@@ -1482,7 +1494,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   * Added a bit more about `ath` and pre-generated proofs to the security considerations.
   * Mentioned confirming the DPoP binding of the access token in the list in (#checking).
   * Added the `always_uses_dpop` client registration metadata parameter.
-  * Described the relatioship between DPoP and Pushed Authorization Requests (PAR).
+  * Described the relationship between DPoP and Pushed Authorization Requests (PAR).
   * Updated references for drafts that are now RFCs.
 
   -04
