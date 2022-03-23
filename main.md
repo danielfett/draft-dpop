@@ -405,6 +405,7 @@ valid DPoP proof, the receiving server MUST ensure that
     application, and is deemed secure,
  1. the JWT signature verifies with the public key contained in the `jwk`
     header of the JWT,
+ 1. the `jwk` header of the JWT does not contain a private key,
  1. the `htm` claim matches the HTTP method value of the HTTP
     request in which the JWT was received,
  1. the `htu` claim matches the HTTPS URI value for the HTTP
@@ -1477,6 +1478,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -07
 
    * Registered the `application/dpop+jwt` media type.
+   * Added a step to (#checking) to reiterate that the jwk header cannot have a private key
 
   -06
 
