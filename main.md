@@ -1478,6 +1478,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -07
 
    * Registered the `application/dpop+jwt` media type.
+   * Added a step to (#checking) to reiterate that the jwk header cannot have a private key
 
   -06
 
