@@ -417,8 +417,8 @@ valid DPoP proof, the receiving server MUST ensure that
     a proof JWT with the same `jti` value has not previously been received at the same resource
     during that time period (see (#Token_Replay)),
  1. if presented to a protected resource in conjunction with an access token,
-  1. ensure that the value of the `ath` claim equals the hash of that access token
-  1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof
+  1. ensure that the value of the `ath` claim equals the hash of that access token,
+  1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
