@@ -1479,6 +1479,9 @@ workshop (Ralf Kusters, Guido Schmitz).
   -07
 
    * Registered the `application/dpop+jwt` media type.
+   * Editorial updates/clarifications based on review feedback.
+   * Added "(on the order of seconds or minutes)" to somewhat qualify "relatively brief period" and "reasonably near future" and give a general idea of expected timeframe without being overly prescriptive.
+   * Added a step to (#checking) to reiterate that the jwk header cannot have a private key.
 
   -06
 
