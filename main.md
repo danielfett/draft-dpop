@@ -413,7 +413,7 @@ valid DPoP proof, the receiving server MUST ensure that
     fragment parts,
  1. if the server provided a nonce value to the client,
     the `nonce` claim matches the server-provided nonce value,
- 1. the token was issued within an acceptable timeframe and,
+ 1. the `iat` claim value is within an acceptable timeframe and,
     within a reasonable consideration of accuracy and resource utilization,
     a proof JWT with the same `jti` value has not previously been received at the same resource
     during that time period (see (#Token_Replay)),
