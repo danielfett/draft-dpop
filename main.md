@@ -81,8 +81,8 @@ DPoP (for Demonstrating Proof-of-Possession at the Application Layer)
 is an application-level mechanism for
 sender-constraining OAuth access and refresh tokens. It enables a client to
 prove the possession of a public/private key pair by including 
-a `DPoP` header in an HTTP request. The value of the header is a JWT [@!RFC7519] that 
-enables the authorization
+a `DPoP` header in an HTTP request. The value of the header is a JSON Web Token
+(JWT) [@!RFC7519] that enables the authorization
 server to bind issued tokens to the public part of a client's 
 key pair. Recipients of such tokens are then able to verify the binding of the
 token to the key pair that the client has demonstrated that it holds via
@@ -128,7 +128,7 @@ This specification uses the terms "access token", "refresh token",
 # Objectives {#objective}
 
 The primary aim of DPoP is to prevent unauthorized or illegitimate 
-parties from using leaked or stolen access tokens by binding a token
+parties from using leaked or stolen access tokens, by binding a token
 to a public key upon issuance and requiring that the client proves
 possession of the corresponding private key when using the token. 
 This constrains the legitimate sender of the token to only the party with
@@ -170,7 +170,7 @@ resource access and a stolen refresh token for obtaining new access tokens.
 If the private key is non-extractable (as is possible with [@W3C.WebCryptoAPI]),
 DPoP renders exfiltrated tokens alone unusable. 
 
-XXS vulnerabilities also allow an attacker to execute code in the context of
+XSS vulnerabilities also allow an attacker to execute code in the context of
 the browser-based client application and maliciously use a token indirectly 
 through the client. That execution context has access to utilize the signing 
 key and thus can produce DPoP proofs to use in conjunction with the token. 
@@ -312,7 +312,7 @@ field names. Case is significant in the header field value, however.
 
 ## DPoP Proof JWT Syntax {#DPoP-Proof-Syntax}
 
-A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JWS,
+A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JSON Web Signature (JWS)
 [@!RFC7515]) with a private key chosen by the client (see below). The
 header of a DPoP JWT contains at least the following parameters:
 
@@ -320,7 +320,7 @@ header of a DPoP JWT contains at least the following parameters:
  * `alg`: a digital signature algorithm identifier as per [@!RFC7518]
    (REQUIRED). MUST NOT be `none` or an identifier for a symmetric
    algorithm (MAC).
- * `jwk`: representing the public key chosen by the client, in JWK
+ * `jwk`: representing the public key chosen by the client, in JSON Web Key (JWK) [@!RFC7517]
    format, as defined in Section 4.1.3 of [@!RFC7515] (REQUIRED).
    MUST NOT contain the private key.
    
@@ -352,7 +352,7 @@ A DPoP proof MAY contain other headers or claims as defined by extension,
 profile, or deployment specific requirements.
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
-proof in (#dpop-proof-jwt). The JSON of the JOSE header and payload are shown,
+proof in (#dpop-proof-jwt). The JSON of the JWT header and payload are shown,
 but the signature part is omitted. As usual, line breaks and extra whitespace 
 are included for formatting and readability.
 
@@ -413,13 +413,13 @@ valid DPoP proof, the receiving server MUST ensure that
     fragment parts,
  1. if the server provided a nonce value to the client,
     the `nonce` claim matches the server-provided nonce value,
- 1. the token was issued within an acceptable timeframe and,
+ 1. the `iat` claim value is within an acceptable timeframe and,
     within a reasonable consideration of accuracy and resource utilization,
     a proof JWT with the same `jti` value has not previously been received at the same resource
     during that time period (see (#Token_Replay)),
- 1. when presented to a protected resource in conjunction with an access token, ensure
-    that the value of the `ath` claim equals the hash of that access token and confirm that
-    the public key to which the access token is bound matches the public key from the DPoP proof.
+ 1. if presented to a protected resource in conjunction with an access token,
+  1. ensure that the value of the `ath` claim equals the hash of that access token,
+  1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
@@ -745,7 +745,7 @@ checks are successful.
 resource with a DPoP-bound access token in the `Authorization` header 
 and the DPoP proof in the `DPoP` header.
 Following that is (#dpop-proof-pr), which shows the decoded content of that DPoP
-proof. The JSON of the JOSE header and payload are shown
+proof. The JSON of the JWT header and payload are shown
 but the signature part is omitted. As usual, line breaks and extra whitespace
 are included for formatting and readability in both examples.
 !---
@@ -1095,7 +1095,7 @@ If an adversary is able to get hold of a DPoP proof JWT, the adversary
 could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
 prevent this, servers MUST only accept DPoP proofs for a limited time
-window after their `iat` time, preferably only for a relatively brief period.
+window after their `iat` time, preferably only for a relatively brief period (on the order of seconds or minutes).
 
 Servers SHOULD store, in the context of the request URI, the `jti` value of 
 each DPoP proof for the time window in which the respective DPoP proof JWT
@@ -1105,7 +1105,7 @@ memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessar
 large `jti` values or store only a hash thereof.    
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
-proofs that carry an `iat` time in the reasonably near future.
+proofs that carry an `iat` time in the reasonably near future (on the order of seconds or minutes).
 Because clock skews between servers and clients may be large,
 servers may choose to limit DPoP proof lifetimes by using
 server-provided nonce values containing the time at the server
@@ -1453,7 +1453,9 @@ Benjamin Kaduk,
 Pieter Kasselman,
 Steinar Noem,
 Neil Madden,
+Rohan Mahy,
 Karsten Meyer zu Selhausen,
+Nicolas Mora,
 Rob Otto,
 Aaron Parecki,
 Michael Peck,
@@ -1478,7 +1480,9 @@ workshop (Ralf Kusters, Guido Schmitz).
   -07
 
    * Registered the `application/dpop+jwt` media type.
-   * Added a step to (#checking) to reiterate that the jwk header cannot have a private key
+   * Editorial updates/clarifications based on review feedback.
+   * Added "(on the order of seconds or minutes)" to somewhat qualify "relatively brief period" and "reasonably near future" and give a general idea of expected timeframe without being overly prescriptive.
+   * Added a step to (#checking) to reiterate that the jwk header cannot have a private key.
 
   -06
 
