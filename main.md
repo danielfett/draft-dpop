@@ -875,24 +875,29 @@ prolonged deployments of protected resources with mixed token type support.
 
 # Authorization Server-Provided Nonce {#ASNonce}
 
-Including a nonce value contributed by the authorization server in the DPoP proof
-MAY be used by authorization servers to limit the lifetime of DPoP proofs.
-The server is in control of when to require the use of a new nonce value
-in subsequent DPoP proofs.
-
-Without employing such a mechanism, a malicious party controlling the client
+A malicious party controlling the client
 (including potentially the end user)
 can create DPoP proofs for use arbitrarily far in the future.
-This section specifies how server-provided nonces are used with DPoP.
+This section specifies a mechanism based on opaque nonces provided by the authorization server
+that can be used to limit the lifetime of DPoP proofs.
 
-An authorization server MAY supply a nonce value to be included by the client
-in DPoP proofs sent. In this case, the authorization server responds to requests not including a nonce
-with an HTTP `400` (Bad Request) error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
-error code value. The authorization server includes a `DPoP-Nonce` HTTP header in the response supplying
-a nonce value to be used when sending the subsequent request.
+The authorization server decides when to require the use of a new nonce value
+in subsequent DPoP proofs.
+
+When an authorization server wants the client to include a nonce in the DPoP proof,
+it replies to requests without a nonce with a specific error response conveying the nonce.
+The response:
+
+* MUST convey the nonce in the `DPoP-Nonce` HTTP header field;
+* MUST NOT convey more than one `DPoP-Nonce` HTTP header field;
+* have HTTP status `400` (Bad Request) per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
+error code value.
+
 This same error code is used when supplying a new nonce value when there was a nonce mismatch.
-The client will typically retry the request with the new nonce value supplied
-upon receiving a `use_dpop_nonce` error with an accompanying nonce value.
+
+A compliant client receiving such a response,
+MUST retry the request supplying the nonce encoding its value in the `nonce` claim
+of the DPoP proof.
 
 For example, in response to a token request without a nonce when the authorization server requires one,
 the authorization server can respond with a `DPoP-Nonce` value such as the following to provide
@@ -911,12 +916,6 @@ a nonce value to include in the DPoP proof:
 !---
 Figure: HTTP 400 Response to a Token Request without a Nonce
 
-Other HTTP headers and JSON fields MAY also be included in the error response, 
-but there MUST NOT be more than one `DPoP-Nonce` header.
-
-Upon receiving the nonce, the client is expected to retry its token request
-using a DPoP proof including the supplied nonce value in the `nonce` claim
-of the DPoP proof.
 An example unencoded JWT Payload of such a DPoP proof including a nonce is:
 !---
 ```
@@ -931,8 +930,7 @@ An example unencoded JWT Payload of such a DPoP proof including a nonce is:
 !---
 Figure: DPoP Proof Payload Including a Nonce Value
 
-The nonce syntax in ABNF as used by [@!RFC6749]
-(which is the same as the `scope-token` syntax) is:
+The nonce syntax is the same as the `scope-token`:
 
 !---
 ```
@@ -943,7 +941,7 @@ Figure: Nonce ABNF
 
 The nonce is opaque to the client.
 
-If the `nonce` claim in the DPoP proof of a token request
+If the `nonce` claim in the DPoP proof
 does not exactly match a nonce recently supplied by the authorization server to the client,
 the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
