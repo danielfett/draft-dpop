@@ -117,6 +117,9 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 described in BCP 14 [@!RFC2119] [@!RFC8174] when, and only when, they
 appear in all capitals, as shown here.
 
+This specification uses the Augmented Backus-Naur Form (ABNF) notation
+of [@!RFC5234], extended with the notation for case-sensitivity
+in strings defined in [RFC7405].
 
 This specification uses the terms "access token", "refresh token",
 "authorization server", "resource server", "authorization endpoint",
@@ -282,7 +285,7 @@ the DPoP proof provides additional assurance about the legitimacy of the client
 to present the access token. However, a valid DPoP proof JWT is not sufficient alone
 to make access control decisions.
 
-## The DPoP HTTP Header
+## The DPoP HTTP Header {#dpop-field}
 
 A DPoP proof is included in an HTTP request using the following message header field.
 
@@ -429,15 +432,15 @@ Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
 
 # DPoP Access Token Request {#access-token-request}
 
-To request an access token that is bound to a public key using DPoP, the client MUST 
-provide a valid DPoP proof JWT in a `DPoP` header when making an access token
-request to the authorization server's token endpoint. This is applicable for all
-access token requests regardless of grant type (including, for example,
+A DPoP-bound Access Token is an access token that is bound to a public key using DPoP.
+In a DPoP-bound access token request, the client MUST provide a valid `DPoP` header field
+(see {{#checking}});
+this is applicable to all grant types (including, for example,
 the common `authorization_code` and `refresh_token` grant types but also extension grants
 such as the JWT authorization grant [@RFC7523]). The HTTPS request shown in
 (#token-request-code) illustrates such an access 
-token request using an authorization code grant with a DPoP proof JWT
-in the `DPoP` header (extra line breaks and whitespace for display purposes only).
+token request using an authorization code grant with a DPoP proof
+(extra line breaks and whitespace for display purposes only).
 
 !---
 ~~~
@@ -460,17 +463,18 @@ grant_type=authorization_code
 !---
 Figure: Token Request for a DPoP sender-constrained token using an authorization code {#token-request-code}
 
-The `DPoP` HTTP header MUST contain a valid DPoP proof JWT.
 If the DPoP proof is invalid, the authorization server issues an error 
 response per Section 5.2 of [@!RFC6749] with `invalid_dpop_proof` as the
 value of the `error` parameter. 
 
-To sender-constrain the access token, after checking the validity of the
-DPoP proof, the authorization server associates the issued access token with the
-public key from the DPoP proof, which can be accomplished as described in (#Confirmation).
-A `token_type` of `DPoP` MUST be included in the access token
-response to signal to the client that the access token was bound to
-its DPoP key and can be used as described in (#http-auth-scheme). 
+If the DPoP proof is valid, the access token response
+MUST contain:
+
+* an `access_token` conveying the public key
+  from the DPoP proof according to the instructions in (#Confirmation);
+* a `token_type` of `DPoP`, to signal that the access token is bound to
+  a DPoP key and can be used as described in (#http-auth-scheme).
+
 The example response shown in (#token-response) illustrates such a 
 response. 
 
@@ -518,16 +522,17 @@ grant_type=refresh_token
 !---
 Figure: Token Request for a DPoP-bound Token using a Refresh Token {#token-request-rt}
 
-When an authorization server supporting DPoP issues a
-refresh token to a public client that presents a valid DPoP proof at the
-token endpoint, the refresh token MUST be bound
-to the respective public key. The binding MUST be validated when the refresh
+When an authorization server issues a
+DPoP refresh token to a public client according to the above flow,
+the refresh token MUST be bound to the respective public key.
+The binding MUST be validated when the refresh
 token is later presented to get new access tokens. As a result, such a client 
 MUST present a DPoP proof for the same key that was used to obtain the refresh
 token each time that refresh token is used to obtain a new access token. 
+
 The implementation details of the binding of the refresh token are at the discretion of
-the authorization server. The server both produces and
-validates the refresh tokens that it issues so there is no interoperability
+the authorization server. Since the authorization server both produces and
+validates its refresh tokens, there is no interoperability
 consideration in the specific details of the binding. 
 
 An authorization server MAY elect to issue access tokens which are not DPoP bound,
@@ -537,22 +542,21 @@ also issued a refresh token, this has the effect of DPoP-binding the refresh tok
 alone, which can improve the security posture even when protected resources are not 
 updated to support DPoP. 
 
-If a client receives a different `token_type` value than `DPoP` in the response, the
-access token protection provided by DPoP is not given. The client MUST discard the response in this
-case if this protection is deemed important for the security of the
-application and MAY continue as in a regular OAuth interaction otherwise.
+If the access token response contains a different `token_type` value than `DPoP` in the response, the
+access token protection provided by DPoP is not given.
+In this case, if this protection is deemed important for the security of the
+application, the client MUST discard the response and MAY continue as in a regular OAuth interaction otherwise.
 
-Refresh tokens issued to confidential clients (those having
-established authentication credentials with the authorization server) 
+Refresh tokens issued to confidential clients (see Section 2.3 of [@RFC6749]) 
 are not bound to the DPoP proof public key because they are already 
 sender-constrained with a different existing mechanism. The OAuth 2.0 Authorization 
 Framework [@!RFC6749] already requires that an authorization server bind
 refresh tokens to the client to which they were issued and that 
 confidential clients authenticate to the authorization server when 
 presenting a refresh token.  As a result, such refresh tokens
-are sender-constrained by way of the client ID and the associated 
+are sender-constrained by way of the `client_id` and the associated 
 authentication requirement. This existing sender-constraining mechanism
-is more flexible (e.g., it allows credential rotation for the client
+is more flexible (e.g. it allows credential rotation for the client
 without invalidating refresh tokens) than binding directly to a particular public key.
 
 ## Authorization Server Metadata {#as-meta}
@@ -579,30 +583,33 @@ This document introduces the following client registration metadata
 DPoP when requesting tokens from the authorization server.
 
 `dpop_bound_access_tokens`
-:   Boolean value specifying whether the client always uses DPoP for token requests.  If omitted, the default value is `false`.
+:   Boolean value specifying whether the client is required to issue DPoP token requests.  If omitted, the default value is `false`.
 
-If `true`, the authorization server MUST reject token requests from this client that do not contain the DPoP header.
+If `true`, the authorization server MUST reject non-DPoP token requests from this client.
+
 
 # Public Key Confirmation {#Confirmation}
 
 Resource servers MUST be able to reliably identify whether
-an access token is bound using DPoP and ascertain sufficient information
-about the public key to which the token is bound in order to verify the
-binding with respect to the presented DPoP proof (see (#http-auth-scheme)). 
+an access token is DPoP-bound and ascertain sufficient information
+to verify the binding of the public key to the DPoP proof (see (#http-auth-scheme)). 
 Such a binding is accomplished by associating the public key 
 with the token in a way that can be
 accessed by the protected resource, such as embedding the JWK
 hash in the issued access token directly, using the syntax described
 in (#jwk-thumb-jwt), or through token introspection as described in
-(#jwk-thumb-intro). Other methods of associating a
-public key with an access token are possible, per agreement by the
+(#jwk-thumb-intro).
+Other methods of associating a
+public key with an access token can be agreed by the
 authorization server and the protected resource, but are beyond the
 scope of this specification.
 
 Resource servers supporting DPoP MUST ensure that the public key from
-the DPoP proof matches the public key to which the access token is bound.
+the DPoP proof matches the one bound to the access token.
+
 
 ## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
+
 When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
 the public key information SHOULD be represented
 using the `jkt` confirmation method member defined herein. 
@@ -702,11 +709,8 @@ Figure: Example Introspection Response for a DPoP-Bound Access Token {#introspec
 
 # Protected Resource Access {#protected-resource-access}
 
-To make use of an access token that is bound to a public key
-using DPoP, a client MUST prove possession of the corresponding
-private key by providing a DPoP proof in the `DPoP` request header.
-As such, protected resource requests with a DPoP-bound access token 
-necessarily must include both a DPoP proof as per (#the-proof) and 
+Protected resource requests with a DPoP-bound access token 
+MUST include both a DPoP proof as per (#the-proof) and 
 the access token as described in (#http-auth-scheme).
 The DPoP proof MUST include the `ath` claim with a valid hash of the
 associated access token.
@@ -719,8 +723,7 @@ authentication scheme of `DPoP`. The syntax of the `Authorization`
 header field for the `DPoP` scheme
 uses the `token68` syntax defined in Section 2.1 of [@!RFC7235] 
 (repeated below for ease of reference) for credentials. 
-The Augmented Backus-Naur Form (ABNF) notation [@!RFC5234] syntax 
-for DPoP authentication scheme credentials is as follows:
+The syntax for DPoP authentication scheme credentials is as follows:
 
 !---
 ```
@@ -852,9 +855,8 @@ Figure: HTTP 401 Response to a Protected Resource Request with an Invalid Token
 Protected resources simultaneously supporting both the `DPoP` and `Bearer` 
 schemes need to update how evaluation of bearer tokens is performed to prevent 
 downgraded usage of a DPoP-bound access tokens. 
-Specifically, such a protected resource MUST reject an access
-token received as a bearer token per [@!RFC6750], if that token is
-determined to be DPoP-bound. 
+Specifically, such a protected resource MUST reject a DPoP-bound access
+token received as a bearer token per [@!RFC6750].
 
 Section 4.1 of [@!RFC7235] allows a protected resource to indicate support for
 multiple authentication schemes (i.e., `Bearer` and `DPoP`) with the
