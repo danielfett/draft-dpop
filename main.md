@@ -124,6 +124,10 @@ This specification uses the terms "access token", "refresh token",
 "grant type", "access token request", "access token response", and
 "client" defined by The OAuth 2.0 Authorization Framework [@!RFC6749].
 
+The terms "request", "response", "header field", "request URI"
+are imported from [@!RFC7231].
+
+The terms "JOSE" and "JOSE header" are imported from [@!RFC7515].
 
 # Objectives {#objective}
 
@@ -434,7 +438,7 @@ provide a valid DPoP proof JWT in a `DPoP` header when making an access token
 request to the authorization server's token endpoint. This is applicable for all
 access token requests regardless of grant type (including, for example,
 the common `authorization_code` and `refresh_token` grant types but also extension grants
-such as the JWT authorization grant [@RFC7523]). The HTTPS request shown in
+such as the JWT authorization grant [@RFC7523]). The HTTP request shown in
 (#token-request-code) illustrates such an access 
 token request using an authorization code grant with a DPoP proof JWT
 in the `DPoP` header (extra line breaks and whitespace for display purposes only).
