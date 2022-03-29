@@ -282,9 +282,9 @@ the DPoP proof provides additional assurance about the legitimacy of the client
 to present the access token. However, a valid DPoP proof JWT is not sufficient alone
 to make access control decisions.
 
-## The DPoP HTTP Header
+## The DPoP HTTP Header Field {#dpop-field}
 
-A DPoP proof is included in an HTTP request using the following message header field.
+A DPoP proof is included in an HTTP request using the following request header field.
 
 `DPoP`
 :   A JWT that adheres to the structure and syntax of (#DPoP-Proof-Syntax). 
@@ -314,15 +314,15 @@ field names. Case is significant in the header field value, however.
 
 A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JSON Web Signature (JWS)
 [@!RFC7515]) with a private key chosen by the client (see below). The
-header of a DPoP JWT contains at least the following parameters:
+JOSE header of a DPoP JWT contains at least the following parameters:
 
- * `typ`: type header, value `dpop+jwt` (REQUIRED).
+ * `typ`: with value `dpop+jwt` (REQUIRED).
  * `alg`: a digital signature algorithm identifier as per [@!RFC7518]
    (REQUIRED). MUST NOT be `none` or an identifier for a symmetric
    algorithm (MAC).
  * `jwk`: representing the public key chosen by the client, in JSON Web Key (JWK) [@!RFC7517]
    format, as defined in Section 4.1.3 of [@!RFC7515] (REQUIRED).
-   MUST NOT contain the private key.
+   MUST NOT contain a private key.
    
 The payload of a DPoP proof contains at least the following claims:
 
@@ -335,11 +335,11 @@ The payload of a DPoP proof contains at least the following claims:
    pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
    The `jti` can be used by the server for replay
    detection and prevention, see (#Token_Replay).
- * `htm`: The HTTP method for the request to which the JWT is
+ * `htm`: The HTTP method of the request to which the JWT is
    attached, as defined in [@!RFC7231] (REQUIRED).
- * `htu`: The HTTP URI used for the request, without query and
+ * `htu`: The request URI {{Section 5.5 of RFC7230}}, without query and
    fragment parts (REQUIRED).
- * `iat`: Time at which the JWT was created (REQUIRED).
+ * `iat`: Creation timestamp of the JWT (REQUIRED).
 
 When the DPoP proof is used in conjunction with the presentation of an access token, see 
 (#protected-resource-access), the DPoP proof MUST also contain the following claim:
@@ -348,7 +348,7 @@ When the DPoP proof is used in conjunction with the presentation of an access to
    The value MUST be the result of a base64url encoding (with no padding) the SHA-256
    hash of the ASCII encoding of the associated access token's value.
 
-A DPoP proof MAY contain other headers or claims as defined by extension,
+A DPoP proof MAY contain other JOSE header parameters or claims as defined by extension,
 profile, or deployment specific requirements.
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
@@ -379,38 +379,32 @@ are included for formatting and readability.
 !---
 Figure: Example JWT content of a `DPoP` proof {#dpop-proof}
 
-Of the HTTP content in the request, only the HTTP method and URI are
-included in the DPoP JWT, and therefore only these 2 headers of the request
-are covered by the DPoP proof and its signature.
-The idea is sign just enough of the HTTP data to
-provide reasonable proof-of-possession with respect to the HTTP request. But 
-that it be a minimal subset of the HTTP data so as to avoid the substantial 
-difficulties inherent in attempting to normalize HTTP messages. 
-Nonetheless, DPoP proofs can be extended to contain other information of the
-HTTP request (see also (#request_integrity)).
+DPOP JWT conveys only the HTTP method and the request target.
+This is to provide a reasonable correlation with the HTTP request. 
+Nonetheless, DPoP proofs can be extended to contain other information
+related to the HTTP request (see also (#request_integrity)).
 
 
 
 ## Checking DPoP Proofs {#checking}
 
-To check if a string that was received as part of an HTTP Request is a
-valid DPoP proof, the receiving server MUST ensure that
+To validate a DPoP proof, the receiving server MUST ensure that
 
- 1. that there is not more than one `DPoP` header in the request,
- 1. the string value of the header field is a well-formed JWT,
+ 1. that there is not more than one `DPoP` HTTP request header field,
+ 1. the field value is a well-formed JWT,
  1. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
- 1. the `typ` field in the header has the value `dpop+jwt`,
- 1. the algorithm in the header of the JWT indicates an asymmetric digital
+ 1. the `typ` JOSE header parameter has the value `dpop+jwt`,
+ 1. the `alg` JOSE header parameter indicates an asymmetric digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
  1. the JWT signature verifies with the public key contained in the `jwk`
-    header of the JWT,
- 1. the `jwk` header of the JWT does not contain a private key,
- 1. the `htm` claim matches the HTTP method value of the HTTP
-    request in which the JWT was received,
- 1. the `htu` claim matches the HTTPS URI value for the HTTP
-    request in which the JWT was received, ignoring any query and
-    fragment parts,
+    JOSE header parameter,
+ 1. the `jwk` JOSE header parameter does not contain a private key,
+ 1. the `htm` claim matches the HTTP method of the
+    current request,
+ 1. the `htu` claim matches the current request target,
+    ignoring any query and
+    fragment parts, and that the URI scheme is `https://`
  1. if the server provided a nonce value to the client,
     the `nonce` claim matches the server-provided nonce value,
  1. the `iat` claim value is within an acceptable timeframe and,
@@ -434,7 +428,7 @@ provide a valid DPoP proof JWT in a `DPoP` header when making an access token
 request to the authorization server's token endpoint. This is applicable for all
 access token requests regardless of grant type (including, for example,
 the common `authorization_code` and `refresh_token` grant types but also extension grants
-such as the JWT authorization grant [@RFC7523]). The HTTPS request shown in
+such as the JWT authorization grant [@RFC7523]). The request shown in
 (#token-request-code) illustrates such an access 
 token request using an authorization code grant with a DPoP proof JWT
 in the `DPoP` header (extra line breaks and whitespace for display purposes only).
@@ -443,7 +437,7 @@ in the `DPoP` header (extra line breaks and whitespace for display purposes only
 ~~~
 POST /token HTTP/1.1
 Host: server.example.com
-Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+Content-Type: application/x-www-form-urlencoded
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
@@ -460,7 +454,7 @@ grant_type=authorization_code
 !---
 Figure: Token Request for a DPoP sender-constrained token using an authorization code {#token-request-code}
 
-The `DPoP` HTTP header MUST contain a valid DPoP proof JWT.
+The `DPoP` HTTP header field MUST contain a valid DPoP proof JWT.
 If the DPoP proof is invalid, the authorization server issues an error 
 response per Section 5.2 of [@!RFC6749] with `invalid_dpop_proof` as the
 value of the `error` parameter. 
