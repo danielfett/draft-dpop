@@ -447,7 +447,7 @@ in the `DPoP` header (extra line breaks and whitespace for display purposes only
 ~~~
 POST /token HTTP/1.1
 Host: server.example.com
-Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+Content-Type: application/x-www-form-urlencoded
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
@@ -506,7 +506,7 @@ a DPoP proof, as shown in the (#token-request-rt) example
 ~~~
 POST /token HTTP/1.1
 Host: server.example.com
-Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+Content-Type: application/x-www-form-urlencoded
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
  nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
