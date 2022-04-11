@@ -1463,6 +1463,7 @@ Nicolas Mora,
 Rob Otto,
 Aaron Parecki,
 Michael Peck,
+Roberto Polli,
 Paul Querna,
 Justin Richer,
 Filip Skokan,
@@ -1482,6 +1483,8 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -08
+
+* Editorial updates from WGLC feedback
 
   -07
 
