@@ -643,7 +643,10 @@ Figure: JWT containing a JWK SHA-256 Thumbprint Confirmation {#cnf-claim-jwt}
   "iss":"https://server.example.com",
   "nbf":1562262611,
   "exp":1562266216,
-  "cnf":{"jkt":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"}
+  "cnf":
+  {
+    "jkt":"0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
+  }
 }
 ```
 !---
@@ -698,7 +701,10 @@ Cache-Control: no-store
   "iss": "https://server.example.com",
   "nbf": 1562262611,
   "exp": 1562266216,
-  "cnf": {"jkt": "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"}
+  "cnf":
+  {
+    "jkt": "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
+  }
 }
 ```
 !---
