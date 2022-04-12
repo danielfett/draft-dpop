@@ -870,7 +870,7 @@ would most presumably accept a DPoP-bound access token as a bearer token
 says that other parameters might be present while placing no functional 
 requirements on their presence, and [@RFC6750] is effectively silent on
 the content of the access token as it relates to validity).  As such, a 
-client MAY send a DPoP-bound access token using the `Bearer` scheme upon 
+client can send a DPoP-bound access token using the `Bearer` scheme upon
 receipt of a `WWW-Authenticate: Bearer` challenge from a protected resource
 (or if it has prior such knowledge about the capabilities of the protected
 resource). The effect of this likely simplifies the logistics of phased 
