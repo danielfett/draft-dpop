@@ -542,9 +542,9 @@ alone, which can improve the security posture even when protected resources are 
 updated to support DPoP. 
 
 If a client receives a different `token_type` value than `DPoP` in the response, the
-access token protection provided by DPoP is not given. The client MUST discard the response in this
-case if this protection is deemed important for the security of the
-application and MAY continue as in a regular OAuth interaction otherwise.
+access token protection provided by DPoP is not given. The client must discard the response in this
+case, if this protection is deemed important for the security of the
+application; otherwise, it may continue as in a regular OAuth interaction.
 
 Refresh tokens issued to confidential clients (those having
 established authentication credentials with the authorization server) 
