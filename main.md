@@ -121,8 +121,8 @@ appear in all capitals, as shown here.
 This specification uses the terms "access token", "refresh token",
 "authorization server", "resource server", "authorization endpoint",
 "authorization request", "authorization response", "token endpoint",
-"grant type", "access token request", "access token response", and
-"client" defined by The OAuth 2.0 Authorization Framework [@!RFC6749].
+"grant type", "access token request", "access token response",
+"client", "public client", and "confidential client" defined by The OAuth 2.0 Authorization Framework [@!RFC6749].
 
 The terms "request", "response", "header field", "request URI"
 are imported from [@!RFC7231].
