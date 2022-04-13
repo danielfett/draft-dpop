@@ -118,8 +118,7 @@ described in BCP 14 [@!RFC2119] [@!RFC8174] when, and only when, they
 appear in all capitals, as shown here.
 
 This specification uses the Augmented Backus-Naur Form (ABNF) notation
-of [@!RFC5234], extended with the notation for case-sensitivity
-in strings defined in [RFC7405].
+of [@!RFC5234].
 
 This specification uses the terms "access token", "refresh token",
 "authorization server", "resource server", "authorization endpoint",
