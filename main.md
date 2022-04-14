@@ -879,15 +879,16 @@ prolonged deployments of protected resources with mixed token type support.
 
 # Authorization Server-Provided Nonce {#ASNonce}
 
+This section specifies a mechanism using opaque nonces provided by the server
+that can be used to limit the lifetime of DPoP proofs.
+Without employing such a mechanism, a malicious party controlling the client
+(including potentially the end user)
+can create DPoP proofs for use arbitrarily far in the future.
+
 Including a nonce value contributed by the authorization server in the DPoP proof
 MAY be used by authorization servers to limit the lifetime of DPoP proofs.
 The server is in control of when to require the use of a new nonce value
 in subsequent DPoP proofs.
-
-Without employing such a mechanism, a malicious party controlling the client
-(including potentially the end user)
-can create DPoP proofs for use arbitrarily far in the future.
-This section specifies how server-provided nonces are used with DPoP.
 
 An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent. In this case, the authorization server responds to requests not including a nonce
@@ -947,7 +948,7 @@ Figure: Nonce ABNF
 
 The nonce is opaque to the client.
 
-If the `nonce` claim in the DPoP proof of a token request
+If the `nonce` claim in the DPoP proof
 does not exactly match a nonce recently supplied by the authorization server to the client,
 the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
