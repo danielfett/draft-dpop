@@ -417,10 +417,7 @@ valid DPoP proof, the receiving server MUST ensure that
     fragment parts,
  1. if the server provided a nonce value to the client,
     the `nonce` claim matches the server-provided nonce value,
- 1. the `iat` claim value is within an acceptable timeframe and,
-    within a reasonable consideration of accuracy and resource utilization,
-    a proof JWT with the same `jti` value has not previously been received at the same resource
-    during that time period (see (#Token_Replay)),
+ 1. the creation time of the JWT, as determined by either the `iat` claim or a server managed timestamp via the `nonce` claim, is within an acceptable window (see (#Token_Replay)),
  1. if presented to a protected resource in conjunction with an access token,
   1. ensure that the value of the `ath` claim equals the hash of that access token,
   1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
@@ -1089,8 +1086,8 @@ Both mechanisms MUST be supported by an authorization server that supports PAR a
 # Security Considerations {#Security}
 
 In DPoP, the prevention of token replay at a different endpoint (see
-(#objective)) is achieved through the
-binding of the DPoP proof to a certain URI and HTTP method plus the optional server-provided nonce. DPoP, however,
+(#objective)) is achieved through authentication of the server per [@!RFC6125] and
+binding of the DPoP proof to a certain URI and HTTP method. DPoP, however,
 has a somewhat different nature of protection than TLS-based
 methods such as OAuth Mutual TLS [@RFC8705] or OAuth Token
 Binding [@I-D.ietf-oauth-token-binding] (see also (#Token_Replay) and (#request_integrity)). 
@@ -1104,15 +1101,17 @@ and replay protection in general.
 If an adversary is able to get hold of a DPoP proof JWT, the adversary
 could replay that token at the same endpoint (the HTTP endpoint
 and method are enforced via the respective claims in the JWTs). To
-prevent this, servers MUST only accept DPoP proofs for a limited time
-window after their `iat` time, preferably only for a relatively brief period (on the order of seconds or minutes).
+limit this, servers MUST only accept DPoP proofs for a limited time
+after their creation (preferably only for a relatively brief period
+on the order of seconds or minutes).
 
-Servers SHOULD store, in the context of the request URI, the `jti` value of 
+To prevent multiple uses of the same DPoP proof servers can store,
+in the context of the request URI, the `jti` value of
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
 for which the `jti` value has been seen before. In order to guard against 
-memory exhaustion attacks a server SHOULD reject DPoP proof JWTs with unnecessarily
-large `jti` values or store only a hash thereof.    
+memory exhaustion attacks a server that is tracking `jti` values should reject
+DPoP proof JWTs with unnecessarily large `jti` values or store only a hash thereof.
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the reasonably near future (on the order of seconds or minutes).
