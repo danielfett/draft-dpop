@@ -856,7 +856,7 @@ Figure: HTTP 401 Response to a Protected Resource Request with an Invalid Token
 
 Protected resources simultaneously supporting both the `DPoP` and `Bearer` 
 schemes need to update how evaluation of bearer tokens is performed to prevent 
-downgraded usage of a DPoP-bound access tokens.
+downgraded usage of a DPoP-bound access token.
 Specifically, such a protected resource MUST reject a DPoP-bound access
 token received as a bearer token per [@!RFC6750].
 
@@ -882,7 +882,7 @@ prolonged deployments of protected resources with mixed token type support.
 This section specifies a mechanism using opaque nonces provided by the server
 that can be used to limit the lifetime of DPoP proofs.
 Without employing such a mechanism, a malicious party controlling the client
-(including potentially the end user)
+(including potentially the end-user)
 can create DPoP proofs for use arbitrarily far in the future.
 
 Including a nonce value contributed by the authorization server in the DPoP proof
