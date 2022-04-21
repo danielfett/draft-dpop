@@ -857,6 +857,16 @@ because the confirmation of the DPoP binding in the access token failed:
 !---
 Figure: HTTP 401 Response to a Protected Resource Request with an Invalid Token 
 
+This authentication scheme is for origin-server authentication only.
+Therefore, this authentication scheme MUST NOT be used with the
+`Proxy-Authenticate` or `Proxy-Authorization` header fields.
+
+Note that the syntax of the `Authorization` header field for this authentication scheme
+follows the usage of the `Bearer` scheme defined in Section 2.1 of [@RFC6750].
+While not the preferred credential syntax of [@!RFC7235], it is compatible
+with the general authentication framework therein and was used for consistency
+and familiarity with the `Bearer` scheme.
+
 ## Compatibility with the Bearer Authentication Scheme
 
 Protected resources simultaneously supporting both the `DPoP` and `Bearer` 
