@@ -1070,7 +1070,10 @@ Figure: Authorization Request using the `dpop_jkt` Parameter
 
 Use of the `dpop_jkt` authorization request parameter is OPTIONAL.
 Note that the `dpop_jkt` authorization request parameter MAY also be used
-in combination with PKCE [@RFC7636].
+in combination with PKCE [@RFC7636], which is recommended by [@I-D.ietf-oauth-security-topics]
+as a countermeasure to authorization code injection. The `dpop_jkt` authorization
+request parameter only provides similar protections when a unique DPoP key is
+used for each authorization request.
 
 ## DPoP with Pushed Authorization Requests
 
@@ -1454,6 +1457,8 @@ established by [@RFC7591].
 We would like to thank 
 Annabelle Backman,
 Dominick Baier,
+Vittorio Bertocci,
+Jeff Corrigan,
 Andrii Deinega,
 William Denniss,
 Vladimir Dzhuvinov,
