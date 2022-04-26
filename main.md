@@ -384,9 +384,9 @@ are included for formatting and readability.
 !---
 Figure: Example JWT content of a `DPoP` proof {#dpop-proof}
 
-Of the HTTP content in the request, only the HTTP method and URI are
-included in the DPoP JWT, and therefore only these two headers of the request
-are covered by the DPoP proof and its signature.
+Of the HTTP request, only the HTTP method and URI are
+included in the DPoP JWT, and therefore only these two message parts
+are covered by the DPoP proof.
 The idea is sign just enough of the HTTP data to
 provide reasonable proof-of-possession with respect to the HTTP request. But 
 that it be a minimal subset of the HTTP data so as to avoid the substantial 
