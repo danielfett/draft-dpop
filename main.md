@@ -350,7 +350,7 @@ When the DPoP proof is used in conjunction with the presentation of an access to
 (#protected-resource-access), the DPoP proof MUST also contain the following claim:
 
 * `ath`: hash of the access token.
-   The value MUST be the result of a base64url encoding (with no padding) the SHA-256
+   The value MUST be the result of a base64url encoding (as defined in [@!RFC7515, section 2]) the SHA-256 [@!SHS]
    hash of the ASCII encoding of the associated access token's value.
 
 A DPoP proof MAY contain other JOSE header parameters or claims as defined by extension,
@@ -1681,4 +1681,16 @@ workshop (Ralf Kusters, Guido Schmitz).
     </author>
     <date year="2014" month="November"/>
   </front>
+</reference>
+
+<reference anchor="SHS" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">
+    <front>
+      <title>Secure Hash Standard (SHS)</title>
+      <author>
+        <organization>National Institute of Standards and Technology</organization>
+      </author>
+      <date month="August" year="2015" />
+    </front>
+    <seriesInfo name="FIPS" value="PUB 180-4" />
+    <format target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf" type="PDF" />
 </reference>
