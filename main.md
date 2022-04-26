@@ -117,6 +117,8 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 described in BCP 14 [@!RFC2119] [@!RFC8174] when, and only when, they
 appear in all capitals, as shown here.
 
+This specification uses the Augmented Backus-Naur Form (ABNF) notation
+of [@!RFC5234].
 
 This specification uses the terms "access token", "refresh token",
 "authorization server", "resource server", "authorization endpoint",
@@ -288,7 +290,7 @@ to make access control decisions.
 
 ## The DPoP HTTP Header
 
-A DPoP proof is included in an HTTP request using the following message header field.
+A DPoP proof is included in an HTTP request using the following request header field.
 
 `DPoP`
 :   A JWT that adheres to the structure and syntax of (#DPoP-Proof-Syntax). 
@@ -318,19 +320,18 @@ field names. Case is significant in the header field value, however.
 
 A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JSON Web Signature (JWS)
 [@!RFC7515]) with a private key chosen by the client (see below). The
-header of a DPoP JWT contains at least the following parameters:
+JOSE header of a DPoP JWT MUST contain at least the following parameters:
 
- * `typ`: type header, value `dpop+jwt` (REQUIRED).
- * `alg`: a digital signature algorithm identifier as per [@!RFC7518]
-   (REQUIRED). MUST NOT be `none` or an identifier for a symmetric
-   algorithm (MAC).
+ * `typ`: with value `dpop+jwt.
+ * `alg`: a digital signature algorithm identifier as per [@!RFC7518].
+   MUST NOT be `none` or an identifier for a symmetric algorithm (MAC).
  * `jwk`: representing the public key chosen by the client, in JSON Web Key (JWK) [@!RFC7517]
-   format, as defined in Section 4.1.3 of [@!RFC7515] (REQUIRED).
-   MUST NOT contain the private key.
+   format, as defined in Section 4.1.3 of [@!RFC7515].
+   MUST NOT contain a private key.
    
-The payload of a DPoP proof contains at least the following claims:
+The payload of a DPoP proof MUST contain at least the following claims:
 
- * `jti`: Unique identifier for the DPoP proof JWT (REQUIRED).
+ * `jti`: Unique identifier for the DPoP proof JWT.
    The value MUST be assigned such that there is a negligible 
    probability that the same value will be assigned to any 
    other DPoP proof used in the same context during the time window of validity.
@@ -339,20 +340,20 @@ The payload of a DPoP proof contains at least the following claims:
    pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
    The `jti` can be used by the server for replay
    detection and prevention, see (#Token_Replay).
- * `htm`: The HTTP method for the request to which the JWT is
-   attached, as defined in [@!RFC7231] (REQUIRED).
- * `htu`: The HTTP URI used for the request, without query and
-   fragment parts (REQUIRED).
- * `iat`: Time at which the JWT was created (REQUIRED).
+ * `htm`: The HTTP method of the request to which the JWT is
+   attached, as defined in [@!RFC7231].
+ * `htu`: The HTTP request URI ([@RFC7230, section 5.5]), without query and
+   fragment parts.
+ * `iat`: Creation timestamp of the JWT ([@RFC7519, section 4.1.6]).
 
 When the DPoP proof is used in conjunction with the presentation of an access token, see 
 (#protected-resource-access), the DPoP proof MUST also contain the following claim:
 
-* `ath`: hash of the access token (REQUIRED).
-   The value MUST be the result of a base64url encoding (with no padding) the SHA-256
+* `ath`: hash of the access token.
+   The value MUST be the result of a base64url encoding (as defined in [@!RFC7515, section 2]) the SHA-256 [@!SHS]
    hash of the ASCII encoding of the associated access token's value.
 
-A DPoP proof MAY contain other headers or claims as defined by extension,
+A DPoP proof MAY contain other JOSE header parameters or claims as defined by extension,
 profile, or deployment specific requirements.
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
@@ -383,9 +384,9 @@ are included for formatting and readability.
 !---
 Figure: Example JWT content of a `DPoP` proof {#dpop-proof}
 
-Of the HTTP content in the request, only the HTTP method and URI are
-included in the DPoP JWT, and therefore only these 2 headers of the request
-are covered by the DPoP proof and its signature.
+Of the HTTP request, only the HTTP method and URI are
+included in the DPoP JWT, and therefore only these two message parts
+are covered by the DPoP proof.
 The idea is sign just enough of the HTTP data to
 provide reasonable proof-of-possession with respect to the HTTP request. But 
 that it be a minimal subset of the HTTP data so as to avoid the substantial 
@@ -397,21 +398,19 @@ HTTP request (see also (#request_integrity)).
 
 ## Checking DPoP Proofs {#checking}
 
-To check if a string that was received as part of an HTTP Request is a
-valid DPoP proof, the receiving server MUST ensure that
+To validate a DPoP proof, the receiving server MUST ensure that
 
- 1. that there is not more than one `DPoP` header in the request,
- 1. the string value of the header field is a well-formed JWT,
+ 1. that there is not more than one `DPoP` HTTP request header field,
+ 1. the header field value is a well-formed JWT,
  1. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
- 1. the `typ` field in the header has the value `dpop+jwt`,
- 1. the algorithm in the header of the JWT indicates an asymmetric digital
+ 1. the `typ` JOSE header parameter has the value `dpop+jwt`,
+ 1. the `alg` JOSE header parameter indicates an asymmetric digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
  1. the JWT signature verifies with the public key contained in the `jwk`
-    header of the JWT,
- 1. the `jwk` header of the JWT does not contain a private key,
- 1. the `htm` claim matches the HTTP method value of the HTTP
-    request in which the JWT was received,
+    JOSE header parameter,
+ 1. the `jwk` JOSE header parameter does not contain a private key,
+ 1. the `htm` claim matches the HTTP method of the current request,
  1. the `htu` claim matches the HTTPS URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
@@ -464,7 +463,7 @@ grant_type=authorization_code
 !---
 Figure: Token Request for a DPoP sender-constrained token using an authorization code {#token-request-code}
 
-The `DPoP` HTTP header MUST contain a valid DPoP proof JWT.
+The `DPoP` HTTP header field MUST contain a valid DPoP proof JWT.
 If the DPoP proof is invalid, the authorization server issues an error 
 response per Section 5.2 of [@!RFC6749] with `invalid_dpop_proof` as the
 value of the `error` parameter. 
@@ -530,8 +529,8 @@ token is later presented to get new access tokens. As a result, such a client
 MUST present a DPoP proof for the same key that was used to obtain the refresh
 token each time that refresh token is used to obtain a new access token. 
 The implementation details of the binding of the refresh token are at the discretion of
-the authorization server. The server both produces and
-validates the refresh tokens that it issues so there is no interoperability
+the authorization server. Since the authorization server both produces and
+validates its refresh tokens, there is no interoperability
 consideration in the specific details of the binding. 
 
 An authorization server MAY elect to issue access tokens which are not DPoP bound,
@@ -541,7 +540,7 @@ also issued a refresh token, this has the effect of DPoP-binding the refresh tok
 alone, which can improve the security posture even when protected resources are not 
 updated to support DPoP. 
 
-If a client receives a different `token_type` value than `DPoP` in the response, the
+If the access token response contains a different `token_type` value than `DPoP`, the
 access token protection provided by DPoP is not given. The client must discard the response in this
 case, if this protection is deemed important for the security of the
 application; otherwise, it may continue as in a regular OAuth interaction.
@@ -554,7 +553,7 @@ Framework [@!RFC6749] already requires that an authorization server bind
 refresh tokens to the client to which they were issued and that 
 confidential clients authenticate to the authorization server when 
 presenting a refresh token.  As a result, such refresh tokens
-are sender-constrained by way of the client ID and the associated 
+are sender-constrained by way of the client identifier and the associated
 authentication requirement. This existing sender-constraining mechanism
 is more flexible (e.g., it allows credential rotation for the client
 without invalidating refresh tokens) than binding directly to a particular public key.
@@ -590,9 +589,8 @@ If `true`, the authorization server MUST reject token requests from this client 
 # Public Key Confirmation {#Confirmation}
 
 Resource servers MUST be able to reliably identify whether
-an access token is bound using DPoP and ascertain sufficient information
-about the public key to which the token is bound in order to verify the
-binding with respect to the presented DPoP proof (see (#http-auth-scheme)). 
+an access token is DPoP-bound and ascertain sufficient information
+to verify the binding to the public key of the DPoP proof (see (#http-auth-scheme)).
 Such a binding is accomplished by associating the public key 
 with the token in a way that can be
 accessed by the protected resource, such as embedding the JWK
@@ -604,9 +602,10 @@ authorization server and the protected resource, but are beyond the
 scope of this specification.
 
 Resource servers supporting DPoP MUST ensure that the public key from
-the DPoP proof matches the public key to which the access token is bound.
+the DPoP proof matches the one bound to the access token.
 
 ## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
+
 When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
 the public key information SHOULD be represented
 using the `jkt` confirmation method member defined herein. 
@@ -712,11 +711,8 @@ Figure: Example Introspection Response for a DPoP-Bound Access Token {#introspec
 
 # Protected Resource Access {#protected-resource-access}
 
-To make use of an access token that is bound to a public key
-using DPoP, a client MUST prove possession of the corresponding
-private key by providing a DPoP proof in the `DPoP` request header.
-As such, protected resource requests with a DPoP-bound access token 
-necessarily must include both a DPoP proof as per (#the-proof) and 
+Protected resource requests with a DPoP-bound access token
+MUST include both a DPoP proof as per (#the-proof) and
 the access token as described in (#http-auth-scheme).
 The DPoP proof MUST include the `ath` claim with a valid hash of the
 associated access token.
@@ -729,8 +725,7 @@ authentication scheme of `DPoP`. The syntax of the `Authorization`
 header field for the `DPoP` scheme
 uses the `token68` syntax defined in Section 2.1 of [@!RFC7235] 
 (repeated below for ease of reference) for credentials. 
-The Augmented Backus-Naur Form (ABNF) notation [@!RFC5234] syntax 
-for DPoP authentication scheme credentials is as follows:
+The ABNF notation syntax for DPoP authentication scheme credentials is as follows:
 
 !---
 ```
@@ -871,10 +866,9 @@ and familiarity with the `Bearer` scheme.
 
 Protected resources simultaneously supporting both the `DPoP` and `Bearer` 
 schemes need to update how evaluation of bearer tokens is performed to prevent 
-downgraded usage of a DPoP-bound access tokens. 
-Specifically, such a protected resource MUST reject an access
-token received as a bearer token per [@!RFC6750], if that token is
-determined to be DPoP-bound. 
+downgraded usage of a DPoP-bound access token.
+Specifically, such a protected resource MUST reject a DPoP-bound access
+token received as a bearer token per [@!RFC6750].
 
 Section 4.1 of [@!RFC7235] allows a protected resource to indicate support for
 multiple authentication schemes (i.e., `Bearer` and `DPoP`) with the
@@ -895,15 +889,16 @@ prolonged deployments of protected resources with mixed token type support.
 
 # Authorization Server-Provided Nonce {#ASNonce}
 
+This section specifies a mechanism using opaque nonces provided by the server
+that can be used to limit the lifetime of DPoP proofs.
+Without employing such a mechanism, a malicious party controlling the client
+(including potentially the end-user)
+can create DPoP proofs for use arbitrarily far in the future.
+
 Including a nonce value contributed by the authorization server in the DPoP proof
 MAY be used by authorization servers to limit the lifetime of DPoP proofs.
 The server is in control of when to require the use of a new nonce value
 in subsequent DPoP proofs.
-
-Without employing such a mechanism, a malicious party controlling the client
-(including potentially the end user)
-can create DPoP proofs for use arbitrarily far in the future.
-This section specifies how server-provided nonces are used with DPoP.
 
 An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent. In this case, the authorization server responds to requests not including a nonce
@@ -963,7 +958,7 @@ Figure: Nonce ABNF
 
 The nonce is opaque to the client.
 
-If the `nonce` claim in the DPoP proof of a token request
+If the `nonce` claim in the DPoP proof
 does not exactly match a nonce recently supplied by the authorization server to the client,
 the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
@@ -1696,4 +1691,16 @@ workshop (Ralf Kusters, Guido Schmitz).
     </author>
     <date year="2014" month="November"/>
   </front>
+</reference>
+
+<reference anchor="SHS" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">
+    <front>
+      <title>Secure Hash Standard (SHS)</title>
+      <author>
+        <organization>National Institute of Standards and Technology</organization>
+      </author>
+      <date month="August" year="2015" />
+    </front>
+    <seriesInfo name="FIPS" value="PUB 180-4" />
+    <format target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf" type="PDF" />
 </reference>
