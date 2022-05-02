@@ -1467,6 +1467,7 @@ Mark Haine,
 Dick Hardt,
 Joseph Heenan,
 Bjorn Hjelm,
+Jacob Ideskog,
 Jared Jennings,
 Benjamin Kaduk,
 Pieter Kasselman,
@@ -1499,7 +1500,8 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -08
 
-* Editorial updates from WGLC feedback
+* Lots of editorial updates from WGLC feedback
+* Further clarify that either iat or nonce can be used alone in validating the timeliness of the proof and somewhat de-emphasize jti tracking
 
   -07
 
