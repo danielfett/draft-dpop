@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-dpop-09"
+value = "draft-ietf-oauth-dpop-10"
 stream = "IETF"
 status = "standard"
     
@@ -1509,6 +1509,8 @@ workshop (Ralf Kusters, Guido Schmitz).
 # Document History
 
    [[ To be removed from the final specification ]]
+
+  -10
 
   -09
 
