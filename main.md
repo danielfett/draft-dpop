@@ -849,6 +849,12 @@ because the confirmation of the DPoP binding in the access token failed:
 !---
 Figure: HTTP 401 Response to a Protected Resource Request with an Invalid Token 
 
+Note that browser-based client applications using CORS [@WHATWG.Fetch] only have access
+to CORS-safelisted response HTTP headers by default.
+In order for the application to obtain and use the `WWW-Authenticate` HTTP response header
+value, the server needs to make it available to the application by including
+`WWW-Authenticate` in the `Access-Control-Expose-Headers` response header list value.
+
 This authentication scheme is for origin-server authentication only.
 Therefore, this authentication scheme MUST NOT be used with the
 `Proxy-Authenticate` or `Proxy-Authorization` header fields.
@@ -971,6 +977,12 @@ and the client can store that nonce value and retry the request with it.
 Even if the client and/or server discard their stored nonce values,
 that situation is also self-correcting because new nonce values can be communicated
 when responding to or retrying failed requests.
+
+Note that browser-based client applications using CORS [@WHATWG.Fetch] only have access
+to CORS-safelisted response HTTP headers by default.
+In order for the application to obtain and use the `DPoP-Nonce` HTTP response header
+value, the server needs to make it available to the application by including
+`DPoP-Nonce` in the `Access-Control-Expose-Headers` response header list value.
 
 ## Providing a New Nonce Value {#NewNonce}
 
@@ -1498,6 +1510,11 @@ workshop (Ralf Kusters, Guido Schmitz).
 
    [[ To be removed from the final specification ]]
 
+  -09
+
+* Add note/reminder about browser-based client applications using CORS needing access to response headers.
+* Fixed typo
+
   -08
 
 * Lots of editorial updates from WGLC feedback
@@ -1709,4 +1726,14 @@ workshop (Ralf Kusters, Guido Schmitz).
     </front>
     <seriesInfo name="FIPS" value="PUB 180-4" />
     <format target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf" type="PDF" />
+</reference>
+
+<reference anchor="WHATWG.Fetch" target="https://fetch.spec.whatwg.org/">
+    <front>
+      <title>Fetch Living Standard</title>
+          <author surname="WHATWG" fullname="WHATWG">
+      <organization>WHATWG</organization>
+    </author>
+    <date month="May" year="2022" />
+    </front>
 </reference>
