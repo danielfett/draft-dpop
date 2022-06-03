@@ -1022,7 +1022,8 @@ Figure: HTTP 200 Response Providing the Next Nonce Value
 
 Resource servers can also choose to provide a nonce value to be included
 in DPoP proofs sent to them.
-They provide the nonce using the `DPoP-Nonce` header in same way that authorization servers do.
+They provide the nonce using the `DPoP-Nonce` header in the same way that authorization servers do
+as described in (#ASNonce) and (#NewNonce).
 The error signaling is performed as described in (#http-auth-scheme).
 Resource servers use an HTTP `401` (Unauthorized) error code
 with an accompanying `WWW-Authenticate: DPoP` value
@@ -1511,6 +1512,8 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -10
+
+* Editorial fixes
 
   -09
 
