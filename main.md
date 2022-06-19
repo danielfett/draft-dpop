@@ -352,6 +352,12 @@ When the DPoP proof is used in conjunction with the presentation of an access to
 * `ath`: hash of the access token.
    The value MUST be the result of a base64url encoding (as defined in [@!RFC7515, section 2]) the SHA-256 [@!SHS]
    hash of the ASCII encoding of the associated access token's value.
+  
+When the authentication server or resource provides a `DPoP-Nonce` HTTP header
+in a response (see (#ASNonce), (#RSNonce)), the DPoP proof MUST also contain 
+the following claim:
+
+* `nonce`:  A recent nonce provided via the `DPoP-Nonce` HTTP header.
 
 A DPoP proof MAY contain other JOSE header parameters or claims as defined by extension,
 profile, or deployment specific requirements.
@@ -967,7 +973,8 @@ the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
 
-The intent is that both clients and servers need to keep only one nonce value for one another.
+The intent is that clients need to keep only one nonce value and servers keep a
+window of recent nonces.
 That said, transient circumstances may arise in which the server's and client's
 stored nonce values differ.
 However, this situation is self-correcting;
@@ -1143,6 +1150,10 @@ rather than comparing the client-supplied `iat` time to the time at the server,
 yielding intended results even in the face of arbitrarily large clock skews.
 
 Server-provided nonces are an effective means of preventing DPoP proof replay.
+Unlike cryptographic nonces, it is acceptable for clients to use the same 
+`nonce` multiple times, and for the server to accept the same nonce multiple
+times. If `jti` is enforced unique for the lifetime of the `nonce`, there is no
+additional risk of token replay.
 
 ## DPoP Proof Pre-Generation {#Pre-Generation}
 
