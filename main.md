@@ -437,7 +437,43 @@ the common `authorization_code` and `refresh_token` grant types but also extensi
 such as the JWT authorization grant [@RFC7523]). The HTTP request shown in
 (#token-request-code) illustrates such an access 
 token request using an authorization code grant with a DPoP proof JWT
-in the `DPoP` header (extra line breaks and whitespace for display purposes only).
+in the `DPoP` header.
+
+In this example the authorization server returned the following HTTP Header on
+a recent request:
+
+!---
+~~~
+ HTTP/1.1 400 Bad Request
+ DPoP-Nonce: eyJ7S_zG.eyJH0-Z.HX4w-7v
+
+ {
+  "error": "use_dpop_nonce"
+  "error_description":
+    "Authorization server requires nonce in DPoP proof"
+ }
+~~~
+!---
+Figure: Server Header provided `DPoP-Nonce` used in (#token-request-code)
+
+The example is signed with the following key (notice the private `d` parameter is
+redacted in the DPoP proof's `jwk` header).
+
+!---
+~~~
+{
+  "kty": "EC",
+  "x": "Wp2Z1C0ouLp3UTlSV2Vb53fxRZoM6RemDNpvC5Z_oNc",
+  "y": "CcSg-PStx4ZYdax-yedKEkUeEbWjS4750bV-mjkhXsM",
+  "crv": "P-256",
+  "d": "LTUaF91BtW1WoILwP6eUcA8hGbG0i4J9AfPiDgXUNY0",
+}
+~~~
+!---
+Figure: JWK representation of private key used to sign the DPoP-Nonce used in (#token-request-code)
+
+HTTP authorization code grant token request (extra line breaks and whitespace for display
+purposes only).
 
 !---
 ~~~
@@ -445,13 +481,14 @@ POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
- VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
- nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
- oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
- WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg
- 4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
- 
+ VDIiwieCI6IldwMloxQzBvdUxwM1VUbFNWMlZiNTNmeFJab002UmVtRE5wdkM1Wl9vT
+ mMiLCJ5IjoiQ2NTZy1QU3R4NFpZZGF4LXllZEtFa1VlRWJXalM0NzUwYlYtbWpraFhz
+ TSIsImNydiI6IlAtMjU2In19.eyJodG0iOiJQT1NUIiwiaHR1IjoiaHR0cHM6Ly9zZX
+ J2ZXIuZXhhbXBsZS5jb20vdG9rZW4iLCJpYXQiOjE1NjIyNjI2MTYsImp0aSI6Ii1Cd
+ 0MzRVNjNmFjYzJsVGMiLCJub25jZSI6ImV5SjdTX3pHLmV5SkgwLVouSFg0dy03diJ9
+ .ur3MEAJT1QyOn6JNQHlAZ2CbNdvb5HlH0qh25Ysl71pcdS9IHx3jUJRnhgY5Z5rVRY
+ l5tgi40WEW5qObChW5AQ
+
 grant_type=authorization_code
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
@@ -459,6 +496,36 @@ grant_type=authorization_code
 ~~~
 !---
 Figure: Token Request for a DPoP sender-constrained token using an authorization code {#token-request-code}
+
+Here is the decoded contents of the preceding DPoP proof. The signature is just a binary blob,
+so it is being represented with `<Signature>` (extra line breaks and whitespace for display
+purposes only).
+
+!---
+~~~
+{
+  "typ": "dpop+jwt",
+  "alg": "ES256"
+  "jwk": {
+    "kty": "EC",
+    "x": "Wp2Z1C0ouLp3UTlSV2Vb53fxRZoM6RemDNpvC5Z_oNc",
+    "y": "CcSg-PStx4ZYdax-yedKEkUeEbWjS4750bV-mjkhXsM",
+    "crv": "P-256",
+  }
+}
+.
+{
+  "htm": "POST",
+  "htu": "https://server.example.com/token",
+  "iat": 1562262616,
+  "jti": "-BwC3ESc6acc2lTc",
+  "nonce": "eyJ7S_zG.eyJH0-Z.HX4w-7v"
+}
+.
+<Signature>
+~~~
+!---
+Figure: Decoded Content of the `DPoP` Proof JWT in (#token-request-code)
 
 The `DPoP` HTTP header field MUST contain a valid DPoP proof JWT.
 If the DPoP proof is invalid, the authorization server issues an error 
@@ -495,8 +562,43 @@ client can use to obtain a new access token when the previous one expires.
 Refreshing an access token is a token request using the `refresh_token`
 grant type made to the authorization server's token endpoint.  As with 
 all access token requests, the client makes it a DPoP request by including 
-a DPoP proof, as shown in the (#token-request-rt) example
-(extra line breaks and whitespace for display purposes only). 
+a DPoP proof, as shown in the (#token-request-rt) example.
+
+In this example the authorization server returned the following HTTP Header on
+a recent request:
+
+!---
+~~~
+ HTTP/1.1 400 Bad Request
+ DPoP-Nonce: d94a592f-8689-4148-832f-8fe57b629b82
+
+ {
+  "error": "use_dpop_nonce"
+  "error_description":
+    "Authorization server requires nonce in DPoP proof"
+ }
+~~~
+!---
+Figure: Server Header provided `DPoP-Nonce` used in (#token-request-rt)
+
+The example is signed with the following key (notice the private `d` parameter is
+redacted in the DPoP proof's `jwk` header).
+
+!---
+~~~
+{
+  "kty": "EC",
+  "x": "Wp2Z1C0ouLp3UTlSV2Vb53fxRZoM6RemDNpvC5Z_oNc",
+  "y": "CcSg-PStx4ZYdax-yedKEkUeEbWjS4750bV-mjkhXsM",
+  "crv": "P-256",
+  "d": "LTUaF91BtW1WoILwP6eUcA8hGbG0i4J9AfPiDgXUNY0",
+}
+~~~
+!---
+Figure: JWK representation of private key used to sign the DPoP-Nonce used in (#token-request-rt)
+
+HTTP refresh token request (extra line breaks and whitespace for display
+purposes only).
 
 !---
 ~~~
@@ -504,12 +606,13 @@ POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
- VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
- nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
- oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
- WF0IjoxNTYyMjY1Mjk2fQ.pAqut2IRDm_De6PR93SYmGBPXpwrAk90e8cP2hjiaG5Qs
- GSuKDYW7_X620BxqhvYC8ynrrvZLTk41mSRroapUA
+ VDIiwieCI6IldwMloxQzBvdUxwM1VUbFNWMlZiNTNmeFJab002UmVtRE5wdkM1Wl9vT
+ mMiLCJ5IjoiQ2NTZy1QU3R4NFpZZGF4LXllZEtFa1VlRWJXalM0NzUwYlYtbWpraFhz
+ TSIsImNydiI6IlAtMjU2In19.eyJodG0iOiJQT1NUIiwiaHR1IjoiaHR0cHM6Ly9zZX
+ J2ZXIuZXhhbXBsZS5jb20vdG9rZW4iLCJpYXQiOjE1NjIyNjUyOTYsImp0aSI6ImViM
+ TYzMTkxLTRmMWItNGU1My05Y2VkLWI4YWJkZmRiYzg3NCIsIm5vbmNlIjoiZDk0YTU5
+ MmYtODY4OS00MTQ4LTgzMmYtOGZlNTdiNjI5YjgyIn0.dObf8fie3bXBHpF2DLNdv9J
+ RmQArxxAQUVajO20xHqAkwtfQ2Czn5OnaB7eNgWLQIRYtUbB0FEyeMDF2tBUfcw
 
 grant_type=refresh_token
 &refresh_token=Q..Zkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g
@@ -517,6 +620,36 @@ grant_type=refresh_token
 ~~~
 !---
 Figure: Token Request for a DPoP-bound Token using a Refresh Token {#token-request-rt}
+
+Here is the decoded contents of the preceding DPoP proof. The signature is just a binary blob,
+so it is being represented with `<Signature>` (extra line breaks and whitespace for display
+purposes only).
+
+!---
+~~~
+{
+  "typ": "dpop+jwt",
+  "alg": "ES256"
+  "jwk": {
+    "kty": "EC",
+    "x": "Wp2Z1C0ouLp3UTlSV2Vb53fxRZoM6RemDNpvC5Z_oNc",
+    "y": "CcSg-PStx4ZYdax-yedKEkUeEbWjS4750bV-mjkhXsM",
+    "crv": "P-256",
+  }
+}
+.
+{
+  "htm": "POST",
+  "htu": "https://server.example.com/token",
+  "iat": 1562265296,
+  "jti": "eb163191-4f1b-4e53-9ced-b8abdfdbc874",
+  "nonce": "d94a592f-8689-4148-832f-8fe57b629b82"
+}
+.
+<Signature>
+~~~
+!---
+Figure: Decoded Content of the `DPoP` Proof JWT in (#token-request-rt)
 
 When an authorization server supporting DPoP issues a
 refresh token to a public client that presents a valid DPoP proof at the
@@ -746,47 +879,85 @@ checks are successful.
 (#protected-resource-request) shows an example request to a protected
 resource with a DPoP-bound access token in the `Authorization` header 
 and the DPoP proof in the `DPoP` header.
-Following that is (#dpop-proof-pr), which shows the decoded content of that DPoP
-proof. The JSON of the JWT header and payload are shown
-but the signature part is omitted. As usual, line breaks and extra whitespace
-are included for formatting and readability in both examples.
+
+In this example the authorization server returned the following HTTP Header on
+a recent request:
+
+!---
+~~~
+ HTTP/1.1 401 Unauthorized
+ WWW-Authenticate: DPoP error="use_dpop_nonce",
+   error_description="Resource server requires nonce in DPoP proof"
+ DPoP-Nonce: 07c6685b-3be4-4565-9a18-248b90b98d67
+~~~
+!---
+Figure: Server Header provided DPoP-Nonce used in (#protected-resource-request)
+
+The example is signed with the following key (notice the private `d` parameter is
+redacted in the DPoP proof's `jwk` header).
+
+!---
+~~~
+{
+  "kty": "EC",
+  "x": "Wp2Z1C0ouLp3UTlSV2Vb53fxRZoM6RemDNpvC5Z_oNc",
+  "y": "CcSg-PStx4ZYdax-yedKEkUeEbWjS4750bV-mjkhXsM",
+  "crv": "P-256",
+  "d": "LTUaF91BtW1WoILwP6eUcA8hGbG0i4J9AfPiDgXUNY0",
+}
+~~~
+!---
+Figure: JWK representation of private key used to sign the DPoP-Nonce used in (#protected-resource-request)
+
+HTTP refresh token request (extra line breaks and whitespace for display
+purposes only).
+
 !---
 ~~~
 GET /protectedresource HTTP/1.1
 Host: resource.example.org
 Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
- VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
- nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJlMWozVl9iS2ljOC1MQUVCIiwiaHRtIj
- oiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wcm90ZWN0Z
- WRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOCwiYXRoIjoiZlVIeU8ycjJaM0RaNTNF
- c05yV0JiMHhXWG9hTnk1OUlpS0NBcWtzbVFFbyJ9.2oW9RP35yRqzhrtNP86L-Ey71E
- OptxRimPPToA1plemAgR6pxHF8y6-yqyVnmcw6Fy1dqd-jfxSYoMxhAJpLjA
+ VDIiwieCI6IldwMloxQzBvdUxwM1VUbFNWMlZiNTNmeFJab002UmVtRE5wdkM1Wl9vT
+ mMiLCJ5IjoiQ2NTZy1QU3R4NFpZZGF4LXllZEtFa1VlRWJXalM0NzUwYlYtbWpraFhz
+ TSIsImNydiI6IlAtMjU2In19.eyJodG0iOiJQT1NUIiwiaHR1IjoiaHR0cHM6Ly9yZX
+ NvdXJjZS5leGFtcGxlLm9yZy9wcm90ZWN0ZWRyZXNvdXJjZSIsImlhdCI6MTU2MjI2M
+ jYxOCwianRpIjoiYTYyYmFkNjAtNDMzNy00YWNiLWE5M2QtZWZjYzg0ZDcyNjZhIiwi
+ YXRoIjoiZlVIeU8ycjJaM0RaNTNFc05yV0JiMHhXWG9hTnk1OUlpS0NBcWtzbVFFbyI
+ sIm5vbmNlIjoiZDk0YTU5MmYtODY4OS00MTQ4LTgzMmYtOGZlNTdiNjI5YjgyIn0.Yw
+ q5XpKAeWGtO7Z3sQpi4OTy3YjmxTHiSKoRhH97ElvCC1L6M0JTVOuHP-Q5IaPftcPS4
+ hGX-pmV2PP0_FlscQ
 ~~~
 !---
 Figure: DPoP Protected Resource Request {#protected-resource-request}
 
+Here is the decoded contents of the preceding DPoP proof. The signature is just a binary blob,
+so it is being represented with `<Signature>` (extra line breaks and whitespace for display
+purposes only).
+
 !---
 ```
 {
-  "typ":"dpop+jwt",
-  "alg":"ES256",
+  "typ": "dpop+jwt",
+  "alg": "ES256"
   "jwk": {
-    "kty":"EC",
-    "x":"l8tFrhx-34tV3hRICRDY9zCkDlpBhF42UQUfWVAWBFs",
-    "y":"9VE4jf_Ok_o64zbTTlcuNJajHmt6v9TDVrU0CdvGRDA",
-    "crv":"P-256"
+    "kty": "EC",
+    "x": "Wp2Z1C0ouLp3UTlSV2Vb53fxRZoM6RemDNpvC5Z_oNc",
+    "y": "CcSg-PStx4ZYdax-yedKEkUeEbWjS4750bV-mjkhXsM",
+    "crv": "P-256",
   }
 }
 .
 {
-  "jti":"e1j3V_bKic8-LAEB",
-  "htm":"GET",
-  "htu":"https://resource.example.org/protectedresource",
-  "iat":1562262618,
-  "ath":"fUHyO2r2Z3DZ53EsNrWBb0xWXoaNy59IiKCAqksmQEo"
+  "ath": "fUHyO2r2Z3DZ53EsNrWBb0xWXoaNy59IiKCAqksmQEo",
+  "htm": "POST",
+  "htu": "https://resource.example.org/protectedresource",
+  "iat": 1562262618,
+  "jti": "a62bad60-4337-4acb-a93d-efcc84d7266a",
+  "nonce": "d94a592f-8689-4148-832f-8fe57b629b82"
 }
+.
+<Signature>
 ```
 !---
 Figure: Decoded Content of the `DPoP` Proof JWT in (#protected-resource-request) {#dpop-proof-pr}
