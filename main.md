@@ -404,9 +404,8 @@ To validate a DPoP proof, the receiving server MUST ensure that
  1. the header field value is a well-formed JWT,
  1. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
  1. the `typ` JOSE header parameter has the value `dpop+jwt`,
- 1. the `alg` JOSE header parameter indicates an asymmetric digital
-    signature algorithm, is not `none`, is supported by the
-    application, and is deemed secure,
+ 1. the `alg` JOSE header parameter is included in `dpop_signing_alg_values_supported`,
+    (see (#as-meta)).
  1. the JWT signature verifies with the public key contained in the `jwk`
     JOSE header parameter,
  1. the `jwk` JOSE header parameter does not contain a private key,
@@ -421,11 +420,11 @@ To validate a DPoP proof, the receiving server MUST ensure that
   1. ensure that the value of the `ath` claim equals the hash of that access token,
   1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
+Note: order is not implied by the numbering of this list.
+
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
-Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
-[@!RFC3986] before comparing the `htu` claim.
-
-
+Normalization in accordance with Section 6.2.2. of [@!RFC3986] and
+Section 6.2.3. of [@!RFC3986] before comparing the `htu` claim.
 
 # DPoP Access Token Request {#access-token-request}
 
@@ -563,7 +562,9 @@ JWS `alg` values the authorization server supports for DPoP proof JWTs.
 
 `dpop_signing_alg_values_supported`
 :   A JSON array containing a list of the JWS `alg` values supported
-by the authorization server for DPoP proof JWTs. 
+by the authorization server for DPoP proof JWTs. These should be 
+asymmetric digital signature algorithms that the application supports,
+are deemed secure for the application, and are not `none`.
 
 ## Client Registration Metadata {#client-meta}
 
