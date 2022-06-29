@@ -353,7 +353,7 @@ When the DPoP proof is used in conjunction with the presentation of an access to
    The value MUST be the result of a base64url encoding (as defined in [@!RFC7515, section 2]) the SHA-256 [@!SHS]
    hash of the ASCII encoding of the associated access token's value.
   
-When the authentication server or resource provides a `DPoP-Nonce` HTTP header
+When the authentication server or resource server provides a `DPoP-Nonce` HTTP header
 in a response (see (#ASNonce), (#RSNonce)), the DPoP proof MUST also contain 
 the following claim:
 
