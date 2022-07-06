@@ -421,9 +421,9 @@ To validate a DPoP proof, the receiving server MUST ensure that
   1. ensure that the value of the `ath` claim equals the hash of that access token,
   1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
-Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
-Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
-[@!RFC3986] before comparing the `htu` claim.
+To reduce the likelihood of false negatives,
+servers SHOULD employ Syntax-Based Normalization ([@!RFC3986, section 6.2.2]) and Scheme-Based
+Normalization ([@!RFC3986, section 6.2.2]) before comparing the `htu` claim.
 
 
 
@@ -604,7 +604,7 @@ the DPoP proof matches the one bound to the access token.
 ## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
 
 When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
-the public key information SHOULD be represented
+the public key information is represented
 using the `jkt` confirmation method member defined herein. 
 To convey the hash of a public key in a JWT, this specification
 introduces the following JWT Confirmation Method [@!RFC7800] member for
