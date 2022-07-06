@@ -896,6 +896,19 @@ resource). The effect of this likely simplifies the logistics of phased
 upgrades to protected resources in their support DPoP or even 
 prolonged deployments of protected resources with mixed token type support. 
 
+## Client Considerations
+
+Authorization including a DPoP proof may not be idempotent (depending on server
+enforcement of `jti`, `iat` and `nonce` claims). Consequently, all previously
+idempotent requests for protected resources that were previously idempotent may
+no longer be idempotent. It is RECOMMENDED that clients generate a unique DPoP
+proof even when retrying idempotent requests in response to HTTP errors
+generally understood as transient.
+
+Clients that encounter frequent network errors may experience additional
+challenges when interacting with servers with more strict nonce validation
+implementations.
+
 # Authorization Server-Provided Nonce {#ASNonce}
 
 This section specifies a mechanism using opaque nonces provided by the server
