@@ -1540,6 +1540,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
 * Editorial fixes
 * Added some clarifications, etc. around nonce
+* Added client considerations subsection
 
   -09
 
