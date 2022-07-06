@@ -1542,6 +1542,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Added some clarifications, etc. around nonce
 * Added client considerations subsection
 * Use bullets rather than numbers in Checking DPoP Proofs so as not to imply specific order
+* Added notes/reminders about browser-based client applications using CORS needing access to response headers
 
   -09
 
