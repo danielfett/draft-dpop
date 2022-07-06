@@ -406,26 +406,26 @@ HTTP request (see also (#request_integrity)).
 
 To validate a DPoP proof, the receiving server MUST ensure that
 
- 1. that there is not more than one `DPoP` HTTP request header field,
- 1. the header field value is a well-formed JWT,
- 1. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
- 1. the `typ` JOSE header parameter has the value `dpop+jwt`,
- 1. the `alg` JOSE header parameter indicates an asymmetric digital
+* that there is not more than one `DPoP` HTTP request header field,
+* the header field value is a well-formed JWT,
+* all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
+* the `typ` JOSE header parameter has the value `dpop+jwt`,
+* the `alg` JOSE header parameter indicates an asymmetric digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
- 1. the JWT signature verifies with the public key contained in the `jwk`
+* the JWT signature verifies with the public key contained in the `jwk`
     JOSE header parameter,
- 1. the `jwk` JOSE header parameter does not contain a private key,
- 1. the `htm` claim matches the HTTP method of the current request,
- 1. the `htu` claim matches the HTTPS URI value for the HTTP
+* the `jwk` JOSE header parameter does not contain a private key,
+* the `htm` claim matches the HTTP method of the current request,
+* the `htu` claim matches the HTTPS URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
- 1. if the server provided a nonce value to the client,
+* if the server provided a nonce value to the client,
     the `nonce` claim matches the server-provided nonce value,
- 1. the creation time of the JWT, as determined by either the `iat` claim or a server managed timestamp via the `nonce` claim, is within an acceptable window (see (#Token_Replay)),
- 1. if presented to a protected resource in conjunction with an access token,
-  1. ensure that the value of the `ath` claim equals the hash of that access token,
-  1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
+* the creation time of the JWT, as determined by either the `iat` claim or a server managed timestamp via the `nonce` claim, is within an acceptable window (see (#Token_Replay)),
+* if presented to a protected resource in conjunction with an access token,
+ * ensure that the value of the `ath` claim equals the hash of that access token,
+ * confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
 Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
 Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
@@ -1541,6 +1541,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Editorial fixes
 * Added some clarifications, etc. around nonce
 * Added client considerations subsection
+* Use bullets rather than numbers in Checking DPoP Proofs so as not to imply specific order
 
   -09
 
