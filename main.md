@@ -1479,6 +1479,7 @@ established by [@RFC7591].
       
 We would like to thank 
 Annabelle Backman,
+Spencer Balogh,
 Dominick Baier,
 Vittorio Bertocci,
 Jeff Corrigan,
@@ -1525,6 +1526,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -10
 
 * Editorial fixes
+* Added some clarifications, etc. around nonce
 
   -09
 
