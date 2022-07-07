@@ -1564,6 +1564,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Added client considerations subsection
 * Use bullets rather than numbers in Checking DPoP Proofs so as not to imply specific order
 * Added notes/reminders about browser-based client applications using CORS needing access to response headers
+* Added a JWT claims registry update request for "nonce" to (better) allow for more general use in other contexts
 
   -09
 
