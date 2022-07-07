@@ -126,8 +126,8 @@ This specification uses the terms "access token", "refresh token",
 "grant type", "access token request", "access token response",
 "client", "public client", and "confidential client" defined by The OAuth 2.0 Authorization Framework [@!RFC6749].
 
-The terms "request", "response", "header field", "request URI"
-are imported from [@!RFC7231].
+The terms "request", "response", "header field", and "target URI"
+are imported from [@!RFC9110].
 
 The terms "JOSE" and "JOSE header" are imported from [@!RFC7515].
 
@@ -255,7 +255,7 @@ The basic steps of an OAuth flow with DPoP (without the optional nonce) are show
     access token presented in the request.
   * (D) The resource server refuses to serve the request if the
     signature check fails or the data in the DPoP proof is wrong,
-    e.g., the request URI does not match the URI claim in the DPoP
+    e.g., the target URI does not match the URI claim in the DPoP
     proof JWT. The access token itself, of course, must also be 
     valid in all other respects. 
     
@@ -311,7 +311,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
 !---
 Figure: Example `DPoP` header {#dpop-proof-jwt}
 
-Note that per [@RFC7230] header field names are case-insensitive;
+Note that per [@RFC9110] header field names are case-insensitive;
 so `DPoP`, `DPOP`, `dpop`, etc., are all valid and equivalent header
 field names. Case is significant in the header field value, however.  
 
@@ -341,8 +341,8 @@ The payload of a DPoP proof MUST contain at least the following claims:
    The `jti` can be used by the server for replay
    detection and prevention, see (#Token_Replay).
  * `htm`: The HTTP method of the request to which the JWT is
-   attached, as defined in [@!RFC7231].
- * `htu`: The HTTP request URI ([@RFC7230, section 5.5]), without query and
+   attached, as defined in [@!RFC9110].
+ * `htu`: The HTTP target URI ([@RFC9110, section 7.1]), without query and
    fragment parts.
  * `iat`: Creation timestamp of the JWT ([@RFC7519, section 4.1.6]).
 
@@ -723,10 +723,10 @@ associated access token.
 ## The DPoP Authentication Scheme {#http-auth-scheme}
 
 A DPoP-bound access token is sent using the `Authorization` request
-header field per Section 2 of [@!RFC7235] using an
+header field per Section 11.6.2 of [@!RFC9110] using an
 authentication scheme of `DPoP`. The syntax of the `Authorization` 
 header field for the `DPoP` scheme
-uses the `token68` syntax defined in Section 2.1 of [@!RFC7235] 
+uses the `token68` syntax defined in Section 11.2 of [@!RFC9110]
 (repeated below for ease of reference) for credentials. 
 The ABNF notation syntax for DPoP authentication scheme credentials is as follows:
 
@@ -803,15 +803,15 @@ not include valid credentials or does not contain an access
 token sufficient for access, the server
 can respond with a challenge to the client to provide DPoP authentication information.
 Such a challenge is made using the 401 (Unauthorized) response status code
-([@!RFC7235], Section 3.1) and the `WWW-Authenticate` header field
-([@!RFC7235], Section 4.1). The server MAY include the 
+([@!RFC9110], Section 15.5.2) and the `WWW-Authenticate` header field
+([@!RFC9110], Section 11.6.1). The server MAY include the
 `WWW-Authenticate` header in response to other conditions as well.
 
 In such challenges:
 
 * The scheme name is `DPoP`.
 * The authentication parameter `realm` MAY be included to indicate the
-scope of protection in the manner described in [@!RFC7235], Section 2.2.
+scope of protection in the manner described in [@!RFC9110], Section 11.5.
 * A `scope` authentication parameter MAY be included as defined in
 [@!RFC6750], Section 3.
 * An `error` parameter ([@!RFC6750], Section 3) SHOULD be included
@@ -867,7 +867,7 @@ Therefore, this authentication scheme MUST NOT be used with the
 
 Note that the syntax of the `Authorization` header field for this authentication scheme
 follows the usage of the `Bearer` scheme defined in Section 2.1 of [@RFC6750].
-While not the preferred credential syntax of [@!RFC7235], it is compatible
+While not the preferred credential syntax of [@!RFC9110], it is compatible
 with the general authentication framework therein and was used for consistency
 and familiarity with the `Bearer` scheme.
 
@@ -879,7 +879,7 @@ downgraded usage of a DPoP-bound access token.
 Specifically, such a protected resource MUST reject a DPoP-bound access
 token received as a bearer token per [@!RFC6750].
 
-Section 4.1 of [@!RFC7235] allows a protected resource to indicate support for
+Section 11.6.1 of [@!RFC9110] allows a protected resource to indicate support for
 multiple authentication schemes (i.e., `Bearer` and `DPoP`) with the
 `WWW-Authenticate` header field of a 401 (Unauthorized) response.
 
@@ -1147,7 +1147,7 @@ after their creation (preferably only for a relatively brief period
 on the order of seconds or minutes).
 
 To prevent multiple uses of the same DPoP proof servers can store,
-in the context of the request URI, the `jti` value of
+in the context of the target URI, the `jti` value of
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
 for which the `jti` value has been seen before. In order to guard against 
@@ -1384,7 +1384,7 @@ established by [@!RFC6749].
 ## HTTP Authentication Scheme Registration
 
 This specification requests registration of the following scheme in the 
-"Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry" [@RFC7235;@IANA.HTTP.AuthSchemes]:
+"Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry" [@RFC9110;@IANA.HTTP.AuthSchemes]:
 
  * Authentication Scheme Name: `DPoP`
  * Reference: [[ (#http-auth-scheme) of this specification ]]
@@ -1538,6 +1538,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -10
 
+* Update HTTP references as RFCs 723x have been superseded by RFC 9110
 * Editorial fixes
 * Added some clarifications, etc. around nonce
 * Added client considerations subsection
