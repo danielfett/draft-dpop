@@ -126,8 +126,8 @@ This specification uses the terms "access token", "refresh token",
 "grant type", "access token request", "access token response",
 "client", "public client", and "confidential client" defined by The OAuth 2.0 Authorization Framework [@!RFC6749].
 
-The terms "request", "response", "header field", "request URI"
-are imported from [@!RFC7231].
+The terms "request", "response", "header field", and "target URI"
+are imported from [@!RFC9110].
 
 The terms "JOSE" and "JOSE header" are imported from [@!RFC7515].
 
@@ -255,7 +255,7 @@ The basic steps of an OAuth flow with DPoP (without the optional nonce) are show
     access token presented in the request.
   * (D) The resource server refuses to serve the request if the
     signature check fails or the data in the DPoP proof is wrong,
-    e.g., the request URI does not match the URI claim in the DPoP
+    e.g., the target URI does not match the URI claim in the DPoP
     proof JWT. The access token itself, of course, must also be 
     valid in all other respects. 
     
@@ -311,7 +311,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
 !---
 Figure: Example `DPoP` header {#dpop-proof-jwt}
 
-Note that per [@RFC7230] header field names are case-insensitive;
+Note that per [@RFC9110] header field names are case-insensitive;
 so `DPoP`, `DPOP`, `dpop`, etc., are all valid and equivalent header
 field names. Case is significant in the header field value, however.  
 
@@ -341,8 +341,8 @@ The payload of a DPoP proof MUST contain at least the following claims:
    The `jti` can be used by the server for replay
    detection and prevention, see (#Token_Replay).
  * `htm`: The HTTP method of the request to which the JWT is
-   attached, as defined in [@!RFC7231].
- * `htu`: The HTTP request URI ([@RFC7230, section 5.5]), without query and
+   attached, as defined in [@!RFC9110].
+ * `htu`: The HTTP target URI ([@RFC9110, section 7.1]), without query and
    fragment parts.
  * `iat`: Creation timestamp of the JWT ([@RFC7519, section 4.1.6]).
 
@@ -352,6 +352,12 @@ When the DPoP proof is used in conjunction with the presentation of an access to
 * `ath`: hash of the access token.
    The value MUST be the result of a base64url encoding (as defined in [@!RFC7515, section 2]) the SHA-256 [@!SHS]
    hash of the ASCII encoding of the associated access token's value.
+  
+When the authentication server or resource server provides a `DPoP-Nonce` HTTP header
+in a response (see (#ASNonce), (#RSNonce)), the DPoP proof MUST also contain 
+the following claim:
+
+* `nonce`:  A recent nonce provided via the `DPoP-Nonce` HTTP header.
 
 A DPoP proof MAY contain other JOSE header parameters or claims as defined by extension,
 profile, or deployment specific requirements.
@@ -400,26 +406,26 @@ HTTP request (see also (#request_integrity)).
 
 To validate a DPoP proof, the receiving server MUST ensure that
 
- 1. that there is not more than one `DPoP` HTTP request header field,
- 1. the header field value is a well-formed JWT,
- 1. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
- 1. the `typ` JOSE header parameter has the value `dpop+jwt`,
- 1. the `alg` JOSE header parameter indicates an asymmetric digital
+* that there is not more than one `DPoP` HTTP request header field,
+* the header field value is a well-formed JWT,
+* all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
+* the `typ` JOSE header parameter has the value `dpop+jwt`,
+* the `alg` JOSE header parameter indicates an asymmetric digital
     signature algorithm, is not `none`, is supported by the
     application, and is deemed secure,
- 1. the JWT signature verifies with the public key contained in the `jwk`
+* the JWT signature verifies with the public key contained in the `jwk`
     JOSE header parameter,
- 1. the `jwk` JOSE header parameter does not contain a private key,
- 1. the `htm` claim matches the HTTP method of the current request,
- 1. the `htu` claim matches the HTTPS URI value for the HTTP
+* the `jwk` JOSE header parameter does not contain a private key,
+* the `htm` claim matches the HTTP method of the current request,
+* the `htu` claim matches the HTTPS URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
- 1. if the server provided a nonce value to the client,
+* if the server provided a nonce value to the client,
     the `nonce` claim matches the server-provided nonce value,
- 1. the creation time of the JWT, as determined by either the `iat` claim or a server managed timestamp via the `nonce` claim, is within an acceptable window (see (#Token_Replay)),
- 1. if presented to a protected resource in conjunction with an access token,
-  1. ensure that the value of the `ath` claim equals the hash of that access token,
-  1. confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
+* the creation time of the JWT, as determined by either the `iat` claim or a server managed timestamp via the `nonce` claim, is within an acceptable window (see (#Token_Replay)),
+* if presented to a protected resource in conjunction with an access token,
+ * ensure that the value of the `ath` claim equals the hash of that access token,
+ * confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
 To reduce the likelihood of false negatives,
 servers SHOULD employ Syntax-Based Normalization ([@!RFC3986, section 6.2.2]) and Scheme-Based
@@ -717,10 +723,10 @@ associated access token.
 ## The DPoP Authentication Scheme {#http-auth-scheme}
 
 A DPoP-bound access token is sent using the `Authorization` request
-header field per Section 2 of [@!RFC7235] using an
+header field per Section 11.6.2 of [@!RFC9110] using an
 authentication scheme of `DPoP`. The syntax of the `Authorization` 
 header field for the `DPoP` scheme
-uses the `token68` syntax defined in Section 2.1 of [@!RFC7235] 
+uses the `token68` syntax defined in Section 11.2 of [@!RFC9110]
 (repeated below for ease of reference) for credentials. 
 The ABNF notation syntax for DPoP authentication scheme credentials is as follows:
 
@@ -797,15 +803,15 @@ not include valid credentials or does not contain an access
 token sufficient for access, the server
 can respond with a challenge to the client to provide DPoP authentication information.
 Such a challenge is made using the 401 (Unauthorized) response status code
-([@!RFC7235], Section 3.1) and the `WWW-Authenticate` header field
-([@!RFC7235], Section 4.1). The server MAY include the 
+([@!RFC9110], Section 15.5.2) and the `WWW-Authenticate` header field
+([@!RFC9110], Section 11.6.1). The server MAY include the
 `WWW-Authenticate` header in response to other conditions as well.
 
 In such challenges:
 
 * The scheme name is `DPoP`.
 * The authentication parameter `realm` MAY be included to indicate the
-scope of protection in the manner described in [@!RFC7235], Section 2.2.
+scope of protection in the manner described in [@!RFC9110], Section 11.5.
 * A `scope` authentication parameter MAY be included as defined in
 [@!RFC6750], Section 3.
 * An `error` parameter ([@!RFC6750], Section 3) SHOULD be included
@@ -861,7 +867,7 @@ Therefore, this authentication scheme MUST NOT be used with the
 
 Note that the syntax of the `Authorization` header field for this authentication scheme
 follows the usage of the `Bearer` scheme defined in Section 2.1 of [@RFC6750].
-While not the preferred credential syntax of [@!RFC7235], it is compatible
+While not the preferred credential syntax of [@!RFC9110], it is compatible
 with the general authentication framework therein and was used for consistency
 and familiarity with the `Bearer` scheme.
 
@@ -873,7 +879,7 @@ downgraded usage of a DPoP-bound access token.
 Specifically, such a protected resource MUST reject a DPoP-bound access
 token received as a bearer token per [@!RFC6750].
 
-Section 4.1 of [@!RFC7235] allows a protected resource to indicate support for
+Section 11.6.1 of [@!RFC9110] allows a protected resource to indicate support for
 multiple authentication schemes (i.e., `Bearer` and `DPoP`) with the
 `WWW-Authenticate` header field of a 401 (Unauthorized) response.
 
@@ -889,6 +895,19 @@ receipt of a `WWW-Authenticate: Bearer` challenge from a protected resource
 resource). The effect of this likely simplifies the logistics of phased 
 upgrades to protected resources in their support DPoP or even 
 prolonged deployments of protected resources with mixed token type support. 
+
+## Client Considerations
+
+Authorization including a DPoP proof may not be idempotent (depending on server
+enforcement of `jti`, `iat` and `nonce` claims). Consequently, all previously
+idempotent requests for protected resources that were previously idempotent may
+no longer be idempotent. It is RECOMMENDED that clients generate a unique DPoP
+proof even when retrying idempotent requests in response to HTTP errors
+generally understood as transient.
+
+Clients that encounter frequent network errors may experience additional
+challenges when interacting with servers with more strict nonce validation
+implementations.
 
 # Authorization Server-Provided Nonce {#ASNonce}
 
@@ -967,7 +986,8 @@ the authorization server MUST reject the request.
 The rejection response MAY include a `DPoP-Nonce` HTTP header
 providing a new nonce value to use for subsequent requests.
 
-The intent is that both clients and servers need to keep only one nonce value for one another.
+The intent is that clients need to keep only one nonce value and servers keep a
+window of recent nonces.
 That said, transient circumstances may arise in which the server's and client's
 stored nonce values differ.
 However, this situation is self-correcting;
@@ -1127,7 +1147,7 @@ after their creation (preferably only for a relatively brief period
 on the order of seconds or minutes).
 
 To prevent multiple uses of the same DPoP proof servers can store,
-in the context of the request URI, the `jti` value of
+in the context of the target URI, the `jti` value of
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
 for which the `jti` value has been seen before. In order to guard against 
@@ -1143,6 +1163,10 @@ rather than comparing the client-supplied `iat` time to the time at the server,
 yielding intended results even in the face of arbitrarily large clock skews.
 
 Server-provided nonces are an effective means of preventing DPoP proof replay.
+Unlike cryptographic nonces, it is acceptable for clients to use the same 
+`nonce` multiple times, and for the server to accept the same nonce multiple
+times. If `jti` is enforced unique for the lifetime of the `nonce`, there is no
+additional risk of token replay.
 
 ## DPoP Proof Pre-Generation {#Pre-Generation}
 
@@ -1354,7 +1378,7 @@ established by [@!RFC6749].
 ## HTTP Authentication Scheme Registration
 
 This specification requests registration of the following scheme in the 
-"Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry" [@RFC7235;@IANA.HTTP.AuthSchemes]:
+"Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry" [@RFC9110;@IANA.HTTP.AuthSchemes]:
 
  * Authentication Scheme Name: `DPoP`
  * Reference: [[ (#http-auth-scheme) of this specification ]]
@@ -1422,6 +1446,27 @@ HTTP URI:
  *  Change Controller: IESG
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
 
+### "nonce" Registry Update
+
+The Internet Security Glossary [@RFC4949] provides a useful definition of nonce
+as a random or non-repeating value that is included in data
+exchanged by a protocol, usually for the purpose of guaranteeing
+liveness and thus detecting and protecting against replay attacks.
+
+However, the initial registration of the `nonce` claim by [@OpenID.Core]
+used language that was contextually specific to that application,
+which was potentially limiting to its general applicability.
+
+This specification therefore requests that the entry for `nonce` in the
+IANA "JSON Web Token Claims" registry [@IANA.JWT] be updated as follows to
+reflect that the claim can be used appropriately in other contexts.
+
+* Claim Name: `nonce`
+* Claim Description: Value used to associate a Client session with an ID Token (MAY also be used for nonce values in other applications of JWTs)
+* Change Controller: OpenID Foundation Artifact Binding Working Group - openid-specs-ab@lists.openid.net
+* Specification Document(s):  [@OpenID.Core, section 2] and [[ this specification ]]
+
+
 ## HTTP Message Header Field Names Registration
  
 This document specifies the following HTTP header fields,
@@ -1462,6 +1507,7 @@ established by [@RFC7591].
       
 We would like to thank 
 Annabelle Backman,
+Spencer Balogh,
 Dominick Baier,
 Vittorio Bertocci,
 Jeff Corrigan,
@@ -1507,7 +1553,13 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -10
 
+* Update HTTP references as RFCs 723x have been superseded by RFC 9110
 * Editorial fixes
+* Added some clarifications, etc. around nonce
+* Added client considerations subsection
+* Use bullets rather than numbers in Checking DPoP Proofs so as not to imply specific order
+* Added notes/reminders about browser-based client applications using CORS needing access to response headers
+* Added a JWT claims registry update request for "nonce" to (better) allow for more general use in other contexts
 
   -09
 
