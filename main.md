@@ -1452,6 +1452,27 @@ HTTP URI:
  *  Change Controller: IESG
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
 
+### "nonce" Registry Update
+
+The Internet Security Glossary [@RFC4949] provides a useful definition of nonce
+as a random or non-repeating value that is included in data
+exchanged by a protocol, usually for the purpose of guaranteeing
+liveness and thus detecting and protecting against replay attacks.
+
+However, the initial registration of the `nonce` claim by [@OpenID.Core]
+used language that was contextually specific to that application,
+which was potentially limiting to its general applicability.
+
+This specification therefore requests that the entry for `nonce` in the
+IANA "JSON Web Token Claims" registry [@IANA.JWT] be updated as follows to
+reflect that the claim can be used appropriately in other contexts.
+
+* Claim Name: `nonce`
+* Claim Description: Value used to associate a Client session with an ID Token (MAY also be used for nonce values in other applications of JWTs)
+* Change Controller: OpenID Foundation Artifact Binding Working Group - openid-specs-ab@lists.openid.net
+* Specification Document(s):  [@OpenID.Core, section 2] and [[ this specification ]]
+
+
 ## HTTP Message Header Field Names Registration
  
 This document specifies the following HTTP header fields,
@@ -1544,6 +1565,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Added client considerations subsection
 * Use bullets rather than numbers in Checking DPoP Proofs so as not to imply specific order
 * Added notes/reminders about browser-based client applications using CORS needing access to response headers
+* Added a JWT claims registry update request for "nonce" to (better) allow for more general use in other contexts
 
   -09
 
