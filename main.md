@@ -427,9 +427,9 @@ To validate a DPoP proof, the receiving server MUST ensure that
  * ensure that the value of the `ath` claim equals the hash of that access token,
  * confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
-Servers SHOULD employ Syntax-Based Normalization and Scheme-Based
-Normalization in accordance with Section 6.2.2. and Section 6.2.3. of
-[@!RFC3986] before comparing the `htu` claim.
+To reduce the likelihood of false negatives,
+servers SHOULD employ Syntax-Based Normalization ([@!RFC3986, section 6.2.2]) and Scheme-Based
+Normalization ([@!RFC3986, section 6.2.2]) before comparing the `htu` claim.
 
 
 
@@ -610,7 +610,7 @@ the DPoP proof matches the one bound to the access token.
 ## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
 
 When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
-the public key information SHOULD be represented
+the public key information is represented
 using the `jkt` confirmation method member defined herein. 
 To convey the hash of a public key in a JWT, this specification
 introduces the following JWT Confirmation Method [@!RFC7800] member for
@@ -1133,9 +1133,9 @@ has a somewhat different nature of protection than TLS-based
 methods such as OAuth Mutual TLS [@RFC8705] or OAuth Token
 Binding [@I-D.ietf-oauth-token-binding] (see also (#Token_Replay) and (#request_integrity)). 
 TLS-based mechanisms can leverage a tight integration
-between the TLS layer and the application layer to achieve a very high
-level of message integrity with respect to the transport layer to which the token is bound
-and replay protection in general. 
+between the TLS layer and the application layer to achieve strong
+message integrity, authenticity,
+and replay protection. 
 
 ## DPoP Proof Replay {#Token_Replay}
 
@@ -1254,7 +1254,7 @@ Implementers MUST ensure that only asymmetric digital signature algorithms that
 are deemed secure can be used for signing DPoP proofs. In particular,
 the algorithm `none` MUST NOT be allowed.
 
-## Message Integrity {#request_integrity}
+## Request Integrity {#request_integrity}
 
 DPoP does not ensure the integrity of the payload or headers of
 requests. The DPoP proof only contains claims for the HTTP URI and
@@ -1266,12 +1266,6 @@ as described, makes DPoP potentially susceptible to replay attacks
 where an attacker is able to modify message contents and headers. In
 many setups, the message integrity and confidentiality provided by TLS
 is sufficient to provide a good level of protection.
-
-Implementers that have stronger requirements on the integrity of
-messages are encouraged to either use TLS-based mechanisms or signed
-requests. TLS-based mechanisms are in particular OAuth Mutual TLS
-[@RFC8705] and OAuth Token Binding
-[@I-D.ietf-oauth-token-binding].
 
 Note: While signatures covering other parts of requests are out of the scope of
 this specification, additional information to be signed can be
@@ -1541,6 +1535,7 @@ Michael Peck,
 Roberto Polli,
 Paul Querna,
 Justin Richer,
+Rifaat Shekh-Yusef,
 Filip Skokan,
 Dmitry Telegin,
 Dave Tonge,
@@ -1559,6 +1554,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -10
 
+* Updates addressing some shepherd review comments
 * Update HTTP references as RFCs 723x have been superseded by RFC 9110
 * Editorial fixes
 * Added some clarifications, etc. around nonce
