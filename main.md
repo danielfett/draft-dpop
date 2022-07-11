@@ -1535,6 +1535,7 @@ Michael Peck,
 Roberto Polli,
 Paul Querna,
 Justin Richer,
+Rifaat Shekh-Yusef,
 Filip Skokan,
 Dmitry Telegin,
 Dave Tonge,
@@ -1553,6 +1554,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -10
 
+* Updates addressing some shepherd review comments
 * Update HTTP references as RFCs 723x have been superseded by RFC 9110
 * Editorial fixes
 * Added some clarifications, etc. around nonce
