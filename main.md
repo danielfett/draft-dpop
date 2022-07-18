@@ -346,7 +346,7 @@ The payload of a DPoP proof MUST contain at least the following claims:
    fragment parts.
  * `iat`: Creation timestamp of the JWT ([@RFC7519, section 4.1.6]).
 
-When the DPoP proof is used in conjunction with the presentation of an access token, see 
+When the DPoP proof is used in conjunction with the presentation of an access token in protected resource access, see
 (#protected-resource-access), the DPoP proof MUST also contain the following claim:
 
 * `ath`: hash of the access token.
