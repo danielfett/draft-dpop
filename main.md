@@ -1125,7 +1125,7 @@ Both mechanisms MUST be supported by an authorization server that supports PAR a
 
 Allowing both mechanisms ensures that clients that use `dpop_jkt` do not need to
 distingush between front-channel and pushed authorization requests, and at the
-same time, clients that only have one code path for protecting all calls to AS
+same time, clients that only have one code path for protecting all calls to authorization server
 endpoints do not need to distinguish between requests to the PAR endpoint and
 the token endpoint. 
 
