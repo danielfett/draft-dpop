@@ -728,7 +728,8 @@ Without the `ath` field to bind it, a captured signature applied to AT1 could be
 replayed with AT2 instead, changing the rights and access of the intended request.
 This same substitution prevention remains for rotated access tokens within the same
 combination of client and resource owner -- a rotated token value would require the
-calculation of a new proof.
+calculation of a new proof. This binding additionally ensures that a proof intended for use
+with the access token is not usable without an access token, or vice-versa.
 
 The resource server is required to calculate the hash of the token value presented
 and verify that it is the same as the hash value in the `ath` field as described in (#checking). 
