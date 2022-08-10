@@ -1579,7 +1579,9 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -11
 
-* Explain PAR considerations
+* Added more explanation of the PAR considerations
+* Added parenthetical remark "(such as ES256)" to Signature Algorithms subsection
+* Added more explanation for ath
 
   -10
 
