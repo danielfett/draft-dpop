@@ -1579,6 +1579,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -11
 
+* Updates addressing outstanding shepherd review comments per side meeting discussions at IETF 114
 * Added more explanation of the PAR considerations
 * Added parenthetical remark "(such as ES256)" to Signature Algorithms subsection
 * Added more explanation for ath
