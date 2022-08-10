@@ -322,8 +322,8 @@ A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JSON Web Signature (JW
 [@!RFC7515]) with a private key chosen by the client (see below). The
 JOSE header of a DPoP JWT MUST contain at least the following parameters:
 
- * `typ`: with value `dpop+jwt`.
- * `alg`: a digital signature algorithm identifier as per [@!RFC7518].
+ * `typ`: with value `dpop+jwt`, which explicitly types the DPoP proof JWT as recommended in [@RFC8725, section 3.11].
+ * `alg`: a digital signature algorithm identifier such as per [@!RFC7518].
    MUST NOT be `none` or an identifier for a symmetric algorithm (MAC).
  * `jwk`: representing the public key chosen by the client, in JSON Web Key (JWK) [@!RFC7517]
    format, as defined in Section 4.1.3 of [@!RFC7515].
@@ -1582,6 +1582,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Added more explanation of the PAR considerations
 * Added parenthetical remark "(such as ES256)" to Signature Algorithms subsection
 * Added more explanation for ath
+* Added a reference to RFC8725 in mention of explicit JWT typing
 
   -10
 
