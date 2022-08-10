@@ -1255,7 +1255,7 @@ for other purposes.
 
 ## Signature Algorithms
 
-Implementers MUST ensure that only asymmetric digital signature algorithms that
+Implementers MUST ensure that only asymmetric digital signature algorithms (such as `ES256`) that
 are deemed secure can be used for signing DPoP proofs. In particular,
 the algorithm `none` MUST NOT be allowed.
 
