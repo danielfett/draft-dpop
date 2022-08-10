@@ -1123,6 +1123,11 @@ When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction wi
 
 Both mechanisms MUST be supported by an authorization server that supports PAR and DPoP. If both mechanisms are used at the same time, the authorization server MUST reject the request if the JWK Thumbprint in `dpop_jkt` does not match the public key in the `DPoP` header. 
 
+Allowing both mechanisms ensures that clients that use `dpop_jkt` do not need to
+distingush between front-channel and pushed authorization requests, and at the
+same time, clients that only have one code path for protecting all calls to authorization server
+endpoints do not need to distinguish between requests to the PAR endpoint and
+the token endpoint. 
 
 # Security Considerations {#Security}
 
@@ -1553,6 +1558,8 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -11
+
+* Explain PAR considerations
 
   -10
 
