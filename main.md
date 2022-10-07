@@ -429,7 +429,7 @@ To validate a DPoP proof, the receiving server MUST ensure that
 
 To reduce the likelihood of false negatives,
 servers SHOULD employ Syntax-Based Normalization ([@!RFC3986, section 6.2.2]) and Scheme-Based
-Normalization ([@!RFC3986, section 6.2.2]) before comparing the `htu` claim.
+Normalization ([@!RFC3986, section 6.2.3]) before comparing the `htu` claim.
 
 
 
