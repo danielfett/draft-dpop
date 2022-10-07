@@ -1536,6 +1536,7 @@ Spencer Balogh,
 Dominick Baier,
 Vittorio Bertocci,
 Jeff Corrigan,
+Domingos Creado,
 Andrii Deinega,
 William Denniss,
 Vladimir Dzhuvinov,
@@ -1578,6 +1579,8 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -12
+
+* Fixed section reference to URI Scheme-Based Normalization
 
   -11
 
