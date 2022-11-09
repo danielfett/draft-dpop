@@ -1171,12 +1171,12 @@ limit this, servers MUST only accept DPoP proofs for a limited time
 after their creation (preferably only for a relatively brief period
 on the order of seconds or minutes).
 
-To prevent multiple uses of the same DPoP proof servers can store,
+To prevent multiple uses of the same DPoP proof, servers can store,
 in the context of the target URI, the `jti` value of
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
 for which the `jti` value has been seen before. In order to guard against 
-memory exhaustion attacks a server that is tracking `jti` values should reject
+memory exhaustion attacks, a server that is tracking `jti` values should reject
 DPoP proof JWTs with unnecessarily large `jti` values or store only a hash thereof.
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
