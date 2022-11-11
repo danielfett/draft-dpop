@@ -1175,7 +1175,12 @@ To prevent multiple uses of the same DPoP proof, servers can store,
 in the context of the target URI, the `jti` value of
 each DPoP proof for the time window in which the respective DPoP proof JWT
 would be accepted and decline HTTP requests to the same URI
-for which the `jti` value has been seen before. In order to guard against 
+for which the `jti` value has been seen before. Such a single-use check, 
+when strictly enforced, provides a very strong protection against DPoP 
+proof replay, but may not always be feasible in practice, e.g., when 
+multiple servers behind a single endpoint have no shared state.
+
+In order to guard against 
 memory exhaustion attacks, a server that is tracking `jti` values should reject
 DPoP proof JWTs with unnecessarily large `jti` values or store only a hash thereof.
 
@@ -1187,7 +1192,7 @@ server-provided nonce values containing the time at the server
 rather than comparing the client-supplied `iat` time to the time at the server,
 yielding intended results even in the face of arbitrarily large clock skews.
 
-Server-provided nonces are an effective means of preventing DPoP proof replay.
+Server-provided nonces are an effective means for further reducing the chances for successful DPoP proof replay.
 Unlike cryptographic nonces, it is acceptable for clients to use the same 
 `nonce` multiple times, and for the server to accept the same nonce multiple
 times. If `jti` is enforced unique for the lifetime of the `nonce`, there is no
