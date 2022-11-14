@@ -324,7 +324,7 @@ A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JSON Web Signature (JW
 JOSE header of a DPoP JWT MUST contain at least the following parameters:
 
  * `typ`: with value `dpop+jwt`, which explicitly types the DPoP proof JWT as recommended in [@RFC8725, section 3.11].
- * `alg`: a digital signature algorithm identifier such as per [@!RFC7518].
+ * `alg`: a JWS algorithm identifier, from the registered algorithms [@IANA.JOSE.ALGS], of an asymmetric digital signature.
    MUST NOT be `none` or an identifier for a symmetric algorithm (MAC).
  * `jwk`: representing the public key chosen by the client, in JSON Web Key (JWK) [@!RFC7517]
    format, as defined in Section 4.1.3 of [@!RFC7515].
@@ -341,10 +341,10 @@ The payload of a DPoP proof MUST contain at least the following claims:
    pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
    The `jti` can be used by the server for replay
    detection and prevention, see (#Token_Replay).
- * `htm`: The HTTP method of the request to which the JWT is
-   attached, as defined in [@!RFC9110].
- * `htu`: The HTTP target URI ([@RFC9110, section 7.1]), without query and
-   fragment parts.
+ * `htm`: The value of the HTTP method (Section 9.1 of [@!RFC9110]) of the
+   request to which the JWT is attached.
+ * `htu`: The HTTP target URI ([@RFC9110, section 7.1]), without query and fragment
+   parts, of the request to which the JWT is attached.
  * `iat`: Creation timestamp of the JWT ([@RFC7519, section 4.1.6]).
 
 When the DPoP proof is used in conjunction with the presentation of an access token in protected resource access, see
@@ -1779,7 +1779,13 @@ workshop (Ralf Kusters, Guido Schmitz).
 <format type="HTML" target="https://www.w3.org/TR/2017/REC-WebCryptoAPI-20170126"/>
 </reference>
 
-
+<reference anchor="IANA.JOSE.ALGS" target="https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms">
+<front>
+  <title>JSON Web Signature and Encryption Algorithms</title>
+  <author><organization>IANA</organization></author>
+  <date/>
+</front>
+</reference>
 
 <reference anchor="W3C.CSP" target="https://www.w3.org/TR/2018/WD-CSP3-20181015/">
 <front>
