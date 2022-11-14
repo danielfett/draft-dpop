@@ -546,7 +546,7 @@ alone, which can improve the security posture even when protected resources are 
 updated to support DPoP. 
 
 If the access token response contains a different `token_type` value than `DPoP`, the
-access token protection provided by DPoP is not given. The client must discard the response in this
+access token protection provided by DPoP is not given. The client MUST discard the response in this
 case, if this protection is deemed important for the security of the
 application; otherwise, it may continue as in a regular OAuth interaction.
 
@@ -570,7 +570,7 @@ This document introduces the following authorization server metadata
 JWS `alg` values the authorization server supports for DPoP proof JWTs.
 
 `dpop_signing_alg_values_supported`
-:   A JSON array containing a list of the JWS `alg` values supported
+:   A JSON array containing a list of the JWS `alg` values (from the [@IANA.JOSE.ALGS] registry) supported
 by the authorization server for DPoP proof JWTs. 
 
 ## Client Registration Metadata {#client-meta}
