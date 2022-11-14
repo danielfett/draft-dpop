@@ -1173,11 +1173,11 @@ limit this, servers MUST only accept DPoP proofs for a limited time
 after their creation (preferably only for a relatively brief period
 on the order of seconds or minutes).
 
-To prevent multiple uses of the same DPoP proof, servers can store,
-in the context of the target URI, the `jti` value of
-each DPoP proof for the time window in which the respective DPoP proof JWT
-would be accepted and decline HTTP requests to the same URI
-for which the `jti` value has been seen before. Such a single-use check, 
+To prevent multiple uses of the same DPoP proof, servers can store, in
+the context of the target URI, the `jti` value of each DPoP proof for the
+time window in which the respective DPoP proof JWT would be accepted.
+HTTP requests to the same URI for which the `jti` value has been seen before
+would be declined. Such a single-use check,
 when strictly enforced, provides a very strong protection against DPoP 
 proof replay, but may not always be feasible in practice, e.g., when 
 multiple servers behind a single endpoint have no shared state.
@@ -1188,23 +1188,24 @@ DPoP proof JWTs with unnecessarily large `jti` values or store only a hash there
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the reasonably near future (on the order of seconds or minutes).
-Because clock skews between servers and clients may be large,
-servers may choose to limit DPoP proof lifetimes by using
-server-provided nonce values containing the time at the server
-rather than comparing the client-supplied `iat` time to the time at the server,
-yielding intended results even in the face of arbitrarily large clock skews.
+Because clock skews between servers
+and clients may be large, servers MAY limit DPoP proof lifetimes by using
+server-provided nonce values containing the time at the server rather than
+comparing the client-supplied `iat` time to the time at the server.  Nonces
+created in this way yield the same result even in the face of arbitrarily
+large clock skews.
 
 Server-provided nonces are an effective means for further reducing the chances for successful DPoP proof replay.
 Unlike cryptographic nonces, it is acceptable for clients to use the same 
 `nonce` multiple times, and for the server to accept the same nonce multiple
-times. If `jti` is enforced unique for the lifetime of the `nonce`, there is no
-additional risk of token replay.
+times. As long as the `jti` value is tracked for the lifetime of the `nonce`, there
+is no additional risk of token replay.
 
 ## DPoP Proof Pre-Generation {#Pre-Generation}
 
-An attacker in control of the client can pre-generate DPoP proofs for use
-arbitrarily far into the future by choosing the `iat` value in the
-DPoP proof to be signed by the proof-of-possession key.
+An attacker in control of the client can pre-generate DPoP proofs for
+specific endpoints to use arbitrarily far into the future by choosing the
+`iat` value in the DPoP proof to be signed by the proof-of-possession key.
 Note that one such attacker is the person who is the legitimate user of the client.
 The user may pre-generate DPoP proofs to exfiltrate
 from the machine possessing the proof-of-possession key
@@ -1276,7 +1277,7 @@ layer of defense against cross-site scripting.
 
 ## Signed JWT Swapping
 
-Servers accepting signed DPoP proof JWTs MUST check the `typ` field in the
+Servers accepting signed DPoP proof JWTs MUST check the `typ` field is `dpop+jwt` in the
 headers of the JWTs to ensure that adversaries cannot use JWTs created
 for other purposes.
 
