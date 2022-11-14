@@ -722,7 +722,7 @@ the access token as described in (#http-auth-scheme).
 The DPoP proof MUST include the `ath` claim with a valid hash of the
 associated access token.
 
-Binding the token value to the proof in this way prevents a calculated proof
+Binding the token value to the proof in this way prevents a proof
 to be used with multiple different access token values across different requests.
 For example, if a client holds tokens bound to two different resource owners, AT1 and AT2,
 and uses the same key when talking to the AS, it's possible that these tokens could be swapped.
@@ -735,10 +735,10 @@ with the access token is not usable without an access token, or vice-versa.
 
 The resource server is required to calculate the hash of the token value presented
 and verify that it is the same as the hash value in the `ath` field as described in (#checking). 
-Since the `ath` field value is covered by the DPoP proof's signature, its inclusion strongly binds
+Since the `ath` field value is covered by the DPoP proof's signature, its inclusion binds
 the access token value to the holder of the key used to generate the signature.
 
-Note that the `ath` field alone does not prevent replay of the DPoP proof or provide strong binding 
+Note that the `ath` field alone does not prevent replay of the DPoP proof or provide binding
 to the request in which the proof is presented, and it is still important to check the time
 window of the proof as well as the included message parameters such as `htm` and `htu`.
 
