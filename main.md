@@ -395,9 +395,10 @@ Of the HTTP request, only the HTTP method and URI are
 included in the DPoP JWT, and therefore only these two message parts
 are covered by the DPoP proof.
 The idea is sign just enough of the HTTP data to
-provide reasonable proof-of-possession with respect to the HTTP request. But 
-that it be a minimal subset of the HTTP data so as to avoid the substantial 
-difficulties inherent in attempting to normalize HTTP messages. 
+provide reasonable proof-of-possession with respect to the HTTP request.
+This design approach of using only a minimal subset of the HTTP header
+data is to avoid the substantial difficulties inherent in attempting to
+normalize HTTP messages.
 Nonetheless, DPoP proofs can be extended to contain other information of the
 HTTP request (see also (#request_integrity)).
 
@@ -408,12 +409,12 @@ HTTP request (see also (#request_integrity)).
 To validate a DPoP proof, the receiving server MUST ensure that
 
 * that there is not more than one `DPoP` HTTP request header field,
-* the header field value is a well-formed JWT,
+* the DPoP HTTP request header field value is a well-formed JWT,
 * all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
 * the `typ` JOSE header parameter has the value `dpop+jwt`,
-* the `alg` JOSE header parameter indicates an asymmetric digital
-    signature algorithm, is not `none`, is supported by the
-    application, and is deemed secure,
+* the `alg` JOSE header parameter indicates a registered asymmetric digital
+    signature algorithm [@IANA.JOSE.ALGS], is not `none`, is supported by the
+    application, and is acceptable per local policy,
 * the JWT signature verifies with the public key contained in the `jwk`
     JOSE header parameter,
 * the `jwk` JOSE header parameter does not contain a private key,
