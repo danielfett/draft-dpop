@@ -1503,14 +1503,17 @@ reflect that the claim can be used appropriately in other contexts.
 ## HTTP Message Header Field Names Registration
  
 This document specifies the following HTTP header fields,
-registration of which is requested in the "Permanent Message Header
-Field Names" registry [@IANA.Headers] defined in [@RFC3864].
- 
- *  Header Field Name: `DPoP`
- *  Applicable protocol: HTTP
- *  Status: standard
- *  Author/change Controller: IETF
- *  Specification Document(s): [[ this specification ]]
+registration of which is requested in the "Hypertext Transfer Protocol (HTTP) Field Name Registry"
+registry [@RFC9110;@IANA.HTTP.Fields]:
+
+ * Field name: `DPoP`
+ * Status: permanent
+ * Specification document: [[ this specification ]]
+<br>
+
+ * Field name: `DPoP-Nonce`
+ * Status: permanent
+ * Specification document: [[ this specification ]]
 
 ## OAuth Authorization Server Metadata Registration
 
@@ -1763,9 +1766,9 @@ workshop (Ralf Kusters, Guido Schmitz).
 </front>
 </reference>
 
-<reference anchor="IANA.Headers" target="https://www.iana.org/assignments/message-headers">
+<reference anchor="IANA.HTTP.Fields" target="https://www.iana.org/assignments/http-fields/http-fields.xhtml">
 <front>
-  <title>Message Headers</title>
+  <title>Hypertext Transfer Protocol (HTTP) Field Name Registry</title>
   <author><organization>IANA</organization></author>
   <date/>
 </front>
