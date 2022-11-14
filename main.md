@@ -149,7 +149,8 @@ leakage have occurred due to vulnerabilities and implementation issues
 in other layers in the protocol or software stack (CRIME [@CRIME], BREACH [@BREACH],
 Heartbleed [@Heartbleed], and the Cloudflare parser bug [@Cloudbleed] are some examples).
 There have also been numerous published token theft attacks on OAuth 
-implementations themselves. DPoP provides a general defense in depth 
+implementations themselves ([@GitHub.Tokens] as just one high profile example).
+DPoP provides a general defense in depth
 against the impact of unanticipated token leakage. DPoP is not, however, 
 a substitute for a secure transport and MUST always be used in 
 conjunction with HTTPS. 
@@ -1849,3 +1850,8 @@ workshop (Ralf Kusters, Guido Schmitz).
 <reference anchor="Cloudbleed" target="https://blog.cloudflare.com/incident-report-on-memory-leak-caused-by-cloudflare-parser-bug/">
  <front><title>Incident report on memory leak caused by Cloudflare parser bug</title><author/></front>
 </reference>
+
+<reference anchor="GitHub.Tokens" target="https://github.blog/2022-04-15-security-alert-stolen-oauth-user-tokens/">
+ <front><title>Security alert: Attack campaign involving stolen OAuth user tokens issued to two third-party integrators</title><author/></front>
+</reference>
+
