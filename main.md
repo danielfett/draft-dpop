@@ -146,8 +146,8 @@ contrast to the typical bearer token, which can be used by any party in
 possession of such a token. Although protections generally exist to 
 prevent unintended disclosure of bearer tokens, unforeseen vectors for 
 leakage have occurred due to vulnerabilities and implementation issues
-in other layers in the protocol or software stack (CRIME, BREACH,
-Heartbleed, and the Cloudflare parser bug are some examples). 
+in other layers in the protocol or software stack (CRIME [@CRIME], BREACH [@BREACH],
+Heartbleed [@Heartbleed], and the Cloudflare parser bug [@Cloudbleed] are some examples).
 There have also been numerous published token theft attacks on OAuth 
 implementations themselves. DPoP provides a general defense in depth 
 against the impact of unanticipated token leakage. DPoP is not, however, 
@@ -1832,4 +1832,20 @@ workshop (Ralf Kusters, Guido Schmitz).
     </author>
     <date month="May" year="2022" />
     </front>
+</reference>
+
+<reference anchor="CRIME" target="https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-2012-4929">
+ <front><title>CVE-2012-4929</title><author/></front>
+</reference>
+
+<reference anchor="BREACH" target="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-3587">
+ <front><title>CVE-2013-3587</title><author/></front>
+</reference>
+
+<reference anchor="Heartbleed" target="https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-2014-0160">
+ <front><title>CVE-2014-0160</title><author/></front>
+</reference>
+
+<reference anchor="Cloudbleed" target="https://blog.cloudflare.com/incident-report-on-memory-leak-caused-by-cloudflare-parser-bug/">
+ <front><title>Incident report on memory leak caused by Cloudflare parser bug</title><author/></front>
 </reference>
