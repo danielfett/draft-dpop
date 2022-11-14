@@ -1131,7 +1131,7 @@ used for each authorization request.
 
 When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction with DPoP, there are two ways in which the DPoP key can be communicated in the PAR request: 
 
- * The `dpop_jkt` parameter can be used as described above to bind the issued
+ * The `dpop_jkt` parameter can be used as described in (#dpop_jkt) to bind the issued
    authorization code to a specific key. In this case, `dpop_jkt` MUST be included alongside other authorization request parameters in the POST body of the PAR request. 
  * Alternatively, the `DPoP` header can be added to the PAR request. In this
    case, the authorization server MUST check the provided DPoP proof JWT as
@@ -1146,7 +1146,7 @@ When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction wi
 Both mechanisms MUST be supported by an authorization server that supports PAR and DPoP. If both mechanisms are used at the same time, the authorization server MUST reject the request if the JWK Thumbprint in `dpop_jkt` does not match the public key in the `DPoP` header. 
 
 Allowing both mechanisms ensures that clients that use `dpop_jkt` do not need to
-distingush between front-channel and pushed authorization requests, and at the
+distinguish between front-channel and pushed authorization requests, and at the
 same time, clients that only have one code path for protecting all calls to authorization server
 endpoints do not need to distinguish between requests to the PAR endpoint and
 the token endpoint. 
@@ -1405,7 +1405,7 @@ established by [@!RFC6749].
  * Name: `dpop_jkt`
  * Parameter Usage Location: authorization request
  * Change Controller: IESG
- * Reference: [[ {#dpop_jkt} of this specification ]]
+ * Reference: [[ (#dpop_jkt) of this specification ]]
 
 ## HTTP Authentication Scheme Registration
 
