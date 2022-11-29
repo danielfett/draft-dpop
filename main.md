@@ -1371,7 +1371,7 @@ established by [@!RFC6749].
  * Type name: `DPoP`
  * Additional Token Endpoint Response Parameters: (none)
  * HTTP Authentication Scheme(s): `DPoP`
- * Change controller: IESG
+ * Change controller: IETF
  * Specification document(s): [[ this specification ]]
 
 ##  OAuth Extensions Error Registration
@@ -1405,8 +1405,8 @@ established by [@!RFC6749].
 
  * Name: `dpop_jkt`
  * Parameter Usage Location: authorization request
- * Change Controller: IESG
- * Reference: [[ (#dpop_jkt) of this specification ]]
+ * Change Controller: IETF
+ * Reference: [[ {#dpop_jkt} of this specification ]]
 
 ## HTTP Authentication Scheme Registration
 
@@ -1450,7 +1450,7 @@ for JWT `cnf` member values established by [@!RFC7800].
           
  * Confirmation Method Value:  `jkt`
  * Confirmation Method Description: JWK SHA-256 Thumbprint
- * Change Controller:  IESG
+ * Change Controller:  IETF
  * Specification Document(s):  [[ (#Confirmation) of this specification ]]
 
 ## JSON Web Token Claims Registration
@@ -1462,21 +1462,21 @@ HTTP method:
 
  *  Claim Name: `htm`
  *  Claim Description: The HTTP method of the request 
- *  Change Controller: IESG
+ *  Change Controller: IETF
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
  
 HTTP URI:
  
  *  Claim Name: `htu`
  *  Claim Description: The HTTP URI of the request (without query and fragment parts)
- *  Change Controller: IESG
+ *  Change Controller: IETF
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
 
  Access token hash:
 
  *  Claim Name: `ath`
  *  Claim Description: The base64url encoded SHA-256 hash of the ASCII encoding of the associated access token's value
- *  Change Controller: IESG
+ *  Change Controller: IETF
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
 
 ### "nonce" Registry Update
@@ -1523,7 +1523,7 @@ established by [@RFC8414].
 
  *  Metadata Name:  `dpop_signing_alg_values_supported`
  *  Metadata Description:  JSON array containing a list of the JWS algorithms supported for DPoP proof JWTs
- *  Change Controller:  IESG
+ *  Change Controller:  IETF
  *  Specification Document(s):  [[ (#as-meta) of this specification ]]
 
 ## OAuth Dynamic Client Registration Metadata
@@ -1534,7 +1534,7 @@ established by [@RFC7591].
 
  *  Metadata Name:  `dpop_bound_access_tokens`
  *  Metadata Description:  Boolean value specifying whether the client always uses DPoP for token requests
- *  Change Controller:  IESG
+ *  Change Controller:  IETF
  *  Specification Document(s):  [[ (#client-meta) of this specification ]]
 
 {backmatter}
