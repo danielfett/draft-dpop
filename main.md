@@ -941,8 +941,9 @@ can create DPoP proofs for use arbitrarily far in the future.
 
 Including a nonce value contributed by the authorization server in the DPoP proof
 MAY be used by authorization servers to limit the lifetime of DPoP proofs.
-The server is in control of when to require the use of a new nonce value
-in subsequent DPoP proofs.
+The server determines when and if to issue a new DPoP nonce challenge
+thereby requiring the use of the nonce value in subsequent DPoP proofs.
+The logic through which the server makes that determination is out of scope of this document.
 
 An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent. In this case, the authorization server responds to requests not including a nonce
