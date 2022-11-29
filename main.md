@@ -324,7 +324,7 @@ A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JSON Web Signature (JW
 JOSE header of a DPoP JWT MUST contain at least the following parameters:
 
  * `typ`: with value `dpop+jwt`, which explicitly types the DPoP proof JWT as recommended in [@RFC8725, section 3.11].
- * `alg`: a JWS algorithm identifier, from the registered algorithms [@IANA.JOSE.ALGS], of an asymmetric digital signature.
+ * `alg`: an identifier for a JWS asymmetric digital signature algorithm from [@IANA.JOSE.ALGS].
    MUST NOT be `none` or an identifier for a symmetric algorithm (MAC).
  * `jwk`: representing the public key chosen by the client, in JSON Web Key (JWK) [@!RFC7517]
    format, as defined in Section 4.1.3 of [@!RFC7515].
