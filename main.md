@@ -1277,7 +1277,7 @@ layer of defense against cross-site scripting.
 
 ## Signed JWT Swapping
 
-Servers accepting signed DPoP proof JWTs MUST check the `typ` field is `dpop+jwt` in the
+Servers accepting signed DPoP proof JWTs MUST verify that the `typ` field is `dpop+jwt` in the
 headers of the JWTs to ensure that adversaries cannot use JWTs created
 for other purposes.
 
