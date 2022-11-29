@@ -1198,7 +1198,7 @@ large clock skews.
 Server-provided nonces are an effective means for further reducing the chances for successful DPoP proof replay.
 Unlike cryptographic nonces, it is acceptable for clients to use the same 
 `nonce` multiple times, and for the server to accept the same nonce multiple
-times. As long as the `jti` value is tracked for the lifetime of the `nonce`, there
+times. As long as the `jti` value is tracked and duplicates rejected for the lifetime of the `nonce`, there
 is no additional risk of token replay.
 
 ## DPoP Proof Pre-Generation {#Pre-Generation}
