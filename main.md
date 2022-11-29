@@ -1204,7 +1204,7 @@ is no additional risk of token replay.
 ## DPoP Proof Pre-Generation {#Pre-Generation}
 
 An attacker in control of the client can pre-generate DPoP proofs for
-specific endpoints to use arbitrarily far into the future by choosing the
+specific endpoints arbitrarily far into the future by choosing the
 `iat` value in the DPoP proof to be signed by the proof-of-possession key.
 Note that one such attacker is the person who is the legitimate user of the client.
 The user may pre-generate DPoP proofs to exfiltrate
