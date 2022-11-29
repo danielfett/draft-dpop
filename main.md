@@ -1406,7 +1406,7 @@ established by [@!RFC6749].
  * Name: `dpop_jkt`
  * Parameter Usage Location: authorization request
  * Change Controller: IETF
- * Reference: [[ {#dpop_jkt} of this specification ]]
+ * Reference: [[ (#dpop_jkt) of this specification ]]
 
 ## HTTP Authentication Scheme Registration
 
