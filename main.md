@@ -918,6 +918,60 @@ resource). The effect of this likely simplifies the logistics of phased
 upgrades to protected resources in their support DPoP or even 
 prolonged deployments of protected resources with mixed token type support. 
 
+If a protected resource supporting both `Bearer` and `DPoP` schemes elects to
+respond with multiple `WWW-Authenticate` challenges, attention should be paid to
+which challenge(s) should deliver the actual error information. It is
+RECOMMENDED that the following rules be adhered to:
+
+* If no authentication information has been included with the request, then the
+challenges SHOULD NOT include an error code or other error information, as per
+[@!RFC6750], Section 3.1 ((#multi-challenge-no-token)).
+
+* If the mechanism used to attempt authentication could be established
+unambiguously, then the corresponding challenge SHOULD be used to deliver error
+information ((#multi-challenge-invalid-token)).
+
+* Otherwise, both `Bearer` and `DPoP` challenged MAY be used to deliver error
+information ((#multi-challenge-ambiguous)).
+
+!---
+```
+GET /protectedresource HTTP/1.1
+Host: resource.example.org
+
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer, DPoP algs="ES256 PS256"
+```
+!---
+Figure: HTTP 401 Response to a Protected Resource Request without Authentication {#multi-challenge-no-token}
+
+!---
+```
+GET /protectedresource HTTP/1.1
+Host: resource.example.org
+Authorization: Bearer INVALID_TOKEN
+
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer error="invalid_token",
+    error_description="Invalid token", DPoP algs="ES256 PS256"
+```
+!---
+Figure: HTTP 401 Response to a Protected Resource Request with Invalid Authentication {#multi-challenge-invalid-token}
+
+!---
+```
+GET /protectedresource HTTP/1.1
+Host: resource.example.org
+Authorization: Bearer Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
+Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
+
+HTTP/1.1 400 Bad Request
+WWW-Authenticate: Bearer error="invalid_request", error_description="Multiple methods used to include an access token",
+    DPoP algs="ES256 PS256", error="invalid_request", error_description="Multiple methods used to include an access token"
+```
+!---
+Figure: HTTP 400 Response to a Protected Resource Request with Ambiguous Authentication {#multi-challenge-ambiguous}
+
 ## Client Considerations
 
 Authorization including a DPoP proof may not be idempotent (depending on server
