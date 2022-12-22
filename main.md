@@ -966,8 +966,10 @@ Authorization: Bearer Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
 Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
 
 HTTP/1.1 400 Bad Request
-WWW-Authenticate: Bearer error="invalid_request", error_description="Multiple methods used to include an access token",
-    DPoP algs="ES256 PS256", error="invalid_request", error_description="Multiple methods used to include an access token"
+WWW-Authenticate: Bearer error="invalid_request",
+ error_description="Multiple methods used to include access token",
+ DPoP algs="ES256 PS256", error="invalid_request",
+ error_description="Multiple methods used to include access token"
 ```
 !---
 Figure: HTTP 400 Response to a Protected Resource Request with Ambiguous Authentication {#multi-challenge-ambiguous}
