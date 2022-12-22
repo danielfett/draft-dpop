@@ -461,6 +461,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
  
 grant_type=authorization_code
+&client_id=s6BhdRkqt
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 &code_verifier=bEaL42izcC-o-xBk0K2vuJ6U-y1p9r_wW2dFWIWgjz-
@@ -520,6 +521,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  GSuKDYW7_X620BxqhvYC8ynrrvZLTk41mSRroapUA
 
 grant_type=refresh_token
+&client_id=s6BhdRkqt
 &refresh_token=Q..Zkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g
 
 ~~~
@@ -1652,6 +1654,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * DPoP-Nonce now included in HTTP header field registration request
 * Fixed section reference to URI Scheme-Based Normalization
 * Elaborate on the use of multiple WWW-Authenticate challenges by protected resources
+* Fix access token request examples that were missing a client_id
 
 
   -11
