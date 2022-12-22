@@ -1649,6 +1649,8 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Updates from Roman Danyliw's AD review
 * DPoP-Nonce now included in HTTP header field registration request
 * Fixed section reference to URI Scheme-Based Normalization
+* Elaborate on the use of multiple WWW-Authenticate challenges by protected resources
+
 
   -11
 
