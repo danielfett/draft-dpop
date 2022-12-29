@@ -146,10 +146,11 @@ contrast to the typical bearer token, which can be used by any party in
 possession of such a token. Although protections generally exist to 
 prevent unintended disclosure of bearer tokens, unforeseen vectors for 
 leakage have occurred due to vulnerabilities and implementation issues
-in other layers in the protocol or software stack (CRIME, BREACH,
-Heartbleed, and the Cloudflare parser bug are some examples). 
+in other layers in the protocol or software stack (CRIME [@CRIME], BREACH [@BREACH],
+Heartbleed [@Heartbleed], and the Cloudflare parser bug [@Cloudbleed] are some examples).
 There have also been numerous published token theft attacks on OAuth 
-implementations themselves. DPoP provides a general defense in depth 
+implementations themselves ([@GitHub.Tokens] as just one high profile example).
+DPoP provides a general defense in depth
 against the impact of unanticipated token leakage. DPoP is not, however, 
 a substitute for a secure transport and MUST always be used in 
 conjunction with HTTPS. 
@@ -323,7 +324,7 @@ A DPoP proof is a JWT ([@!RFC7519]) that is signed (using JSON Web Signature (JW
 JOSE header of a DPoP JWT MUST contain at least the following parameters:
 
  * `typ`: with value `dpop+jwt`, which explicitly types the DPoP proof JWT as recommended in [@RFC8725, section 3.11].
- * `alg`: a digital signature algorithm identifier such as per [@!RFC7518].
+ * `alg`: an identifier for a JWS asymmetric digital signature algorithm from [@IANA.JOSE.ALGS].
    MUST NOT be `none` or an identifier for a symmetric algorithm (MAC).
  * `jwk`: representing the public key chosen by the client, in JSON Web Key (JWK) [@!RFC7517]
    format, as defined in Section 4.1.3 of [@!RFC7515].
@@ -340,10 +341,10 @@ The payload of a DPoP proof MUST contain at least the following claims:
    pseudorandom data or by using a version 4 UUID string according to [@RFC4122].
    The `jti` can be used by the server for replay
    detection and prevention, see (#Token_Replay).
- * `htm`: The HTTP method of the request to which the JWT is
-   attached, as defined in [@!RFC9110].
- * `htu`: The HTTP target URI ([@RFC9110, section 7.1]), without query and
-   fragment parts.
+ * `htm`: The value of the HTTP method (Section 9.1 of [@!RFC9110]) of the
+   request to which the JWT is attached.
+ * `htu`: The HTTP target URI ([@RFC9110, section 7.1]), without query and fragment
+   parts, of the request to which the JWT is attached.
  * `iat`: Creation timestamp of the JWT ([@RFC7519, section 4.1.6]).
 
 When the DPoP proof is used in conjunction with the presentation of an access token in protected resource access, see
@@ -394,9 +395,10 @@ Of the HTTP request, only the HTTP method and URI are
 included in the DPoP JWT, and therefore only these two message parts
 are covered by the DPoP proof.
 The idea is sign just enough of the HTTP data to
-provide reasonable proof-of-possession with respect to the HTTP request. But 
-that it be a minimal subset of the HTTP data so as to avoid the substantial 
-difficulties inherent in attempting to normalize HTTP messages. 
+provide reasonable proof-of-possession with respect to the HTTP request.
+This design approach of using only a minimal subset of the HTTP header
+data is to avoid the substantial difficulties inherent in attempting to
+normalize HTTP messages.
 Nonetheless, DPoP proofs can be extended to contain other information of the
 HTTP request (see also (#request_integrity)).
 
@@ -407,12 +409,12 @@ HTTP request (see also (#request_integrity)).
 To validate a DPoP proof, the receiving server MUST ensure that
 
 * that there is not more than one `DPoP` HTTP request header field,
-* the header field value is a well-formed JWT,
+* the DPoP HTTP request header field value is a well-formed JWT,
 * all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
 * the `typ` JOSE header parameter has the value `dpop+jwt`,
-* the `alg` JOSE header parameter indicates an asymmetric digital
-    signature algorithm, is not `none`, is supported by the
-    application, and is deemed secure,
+* the `alg` JOSE header parameter indicates a registered asymmetric digital
+    signature algorithm [@IANA.JOSE.ALGS], is not `none`, is supported by the
+    application, and is acceptable per local policy,
 * the JWT signature verifies with the public key contained in the `jwk`
     JOSE header parameter,
 * the `jwk` JOSE header parameter does not contain a private key,
@@ -459,6 +461,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
  
 grant_type=authorization_code
+&client_id=s6BhdRkqt
 &code=SplxlOBeZQQYbYS6WxSbIA
 &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 &code_verifier=bEaL42izcC-o-xBk0K2vuJ6U-y1p9r_wW2dFWIWgjz-
@@ -518,6 +521,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
  GSuKDYW7_X620BxqhvYC8ynrrvZLTk41mSRroapUA
 
 grant_type=refresh_token
+&client_id=s6BhdRkqt
 &refresh_token=Q..Zkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g
 
 ~~~
@@ -544,7 +548,7 @@ alone, which can improve the security posture even when protected resources are 
 updated to support DPoP. 
 
 If the access token response contains a different `token_type` value than `DPoP`, the
-access token protection provided by DPoP is not given. The client must discard the response in this
+access token protection provided by DPoP is not given. The client MUST discard the response in this
 case, if this protection is deemed important for the security of the
 application; otherwise, it may continue as in a regular OAuth interaction.
 
@@ -568,7 +572,7 @@ This document introduces the following authorization server metadata
 JWS `alg` values the authorization server supports for DPoP proof JWTs.
 
 `dpop_signing_alg_values_supported`
-:   A JSON array containing a list of the JWS `alg` values supported
+:   A JSON array containing a list of the JWS `alg` values (from the [@IANA.JOSE.ALGS] registry) supported
 by the authorization server for DPoP proof JWTs. 
 
 ## Client Registration Metadata {#client-meta}
@@ -720,7 +724,7 @@ the access token as described in (#http-auth-scheme).
 The DPoP proof MUST include the `ath` claim with a valid hash of the
 associated access token.
 
-Binding the token value to the proof in this way prevents a calculated proof
+Binding the token value to the proof in this way prevents a proof
 to be used with multiple different access token values across different requests.
 For example, if a client holds tokens bound to two different resource owners, AT1 and AT2,
 and uses the same key when talking to the AS, it's possible that these tokens could be swapped.
@@ -733,10 +737,10 @@ with the access token is not usable without an access token, or vice-versa.
 
 The resource server is required to calculate the hash of the token value presented
 and verify that it is the same as the hash value in the `ath` field as described in (#checking). 
-Since the `ath` field value is covered by the DPoP proof's signature, its inclusion strongly binds
+Since the `ath` field value is covered by the DPoP proof's signature, its inclusion binds
 the access token value to the holder of the key used to generate the signature.
 
-Note that the `ath` field alone does not prevent replay of the DPoP proof or provide strong binding 
+Note that the `ath` field alone does not prevent replay of the DPoP proof or provide binding
 to the request in which the proof is presented, and it is still important to check the time
 window of the proof as well as the included message parameters such as `htm` and `htu`.
 
@@ -916,6 +920,62 @@ resource). The effect of this likely simplifies the logistics of phased
 upgrades to protected resources in their support DPoP or even 
 prolonged deployments of protected resources with mixed token type support. 
 
+If a protected resource supporting both `Bearer` and `DPoP` schemes elects to
+respond with multiple `WWW-Authenticate` challenges, attention should be paid to
+which challenge(s) should deliver the actual error information. It is
+RECOMMENDED that the following rules be adhered to:
+
+* If no authentication information has been included with the request, then the
+challenges SHOULD NOT include an error code or other error information, as per
+[@!RFC6750], Section 3.1 ((#multi-challenge-no-token)).
+
+* If the mechanism used to attempt authentication could be established
+unambiguously, then the corresponding challenge SHOULD be used to deliver error
+information ((#multi-challenge-invalid-token)).
+
+* Otherwise, both `Bearer` and `DPoP` challenged MAY be used to deliver error
+information ((#multi-challenge-ambiguous)).
+
+!---
+```
+GET /protectedresource HTTP/1.1
+Host: resource.example.org
+
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer, DPoP algs="ES256 PS256"
+```
+!---
+Figure: HTTP 401 Response to a Protected Resource Request without Authentication {#multi-challenge-no-token}
+
+!---
+```
+GET /protectedresource HTTP/1.1
+Host: resource.example.org
+Authorization: Bearer INVALID_TOKEN
+
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer error="invalid_token",
+    error_description="Invalid token", DPoP algs="ES256 PS256"
+```
+!---
+Figure: HTTP 401 Response to a Protected Resource Request with Invalid Authentication {#multi-challenge-invalid-token}
+
+!---
+```
+GET /protectedresource HTTP/1.1
+Host: resource.example.org
+Authorization: Bearer Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
+Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
+
+HTTP/1.1 400 Bad Request
+WWW-Authenticate: Bearer error="invalid_request",
+ error_description="Multiple methods used to include access token",
+ DPoP algs="ES256 PS256", error="invalid_request",
+ error_description="Multiple methods used to include access token"
+```
+!---
+Figure: HTTP 400 Response to a Protected Resource Request with Ambiguous Authentication {#multi-challenge-ambiguous}
+
 ## Client Considerations
 
 Authorization including a DPoP proof may not be idempotent (depending on server
@@ -939,8 +999,9 @@ can create DPoP proofs for use arbitrarily far in the future.
 
 Including a nonce value contributed by the authorization server in the DPoP proof
 MAY be used by authorization servers to limit the lifetime of DPoP proofs.
-The server is in control of when to require the use of a new nonce value
-in subsequent DPoP proofs.
+The server determines when and if to issue a new DPoP nonce challenge
+thereby requiring the use of the nonce value in subsequent DPoP proofs.
+The logic through which the server makes that determination is out of scope of this document.
 
 An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent. In this case, the authorization server responds to requests not including a nonce
@@ -1129,7 +1190,7 @@ used for each authorization request.
 
 When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction with DPoP, there are two ways in which the DPoP key can be communicated in the PAR request: 
 
- * The `dpop_jkt` parameter can be used as described above to bind the issued
+ * The `dpop_jkt` parameter can be used as described in (#dpop_jkt) to bind the issued
    authorization code to a specific key. In this case, `dpop_jkt` MUST be included alongside other authorization request parameters in the POST body of the PAR request. 
  * Alternatively, the `DPoP` header can be added to the PAR request. In this
    case, the authorization server MUST check the provided DPoP proof JWT as
@@ -1144,7 +1205,7 @@ When Pushed Authorization Requests  (PAR, [@RFC9126]) are used in conjunction wi
 Both mechanisms MUST be supported by an authorization server that supports PAR and DPoP. If both mechanisms are used at the same time, the authorization server MUST reject the request if the JWK Thumbprint in `dpop_jkt` does not match the public key in the `DPoP` header. 
 
 Allowing both mechanisms ensures that clients that use `dpop_jkt` do not need to
-distingush between front-channel and pushed authorization requests, and at the
+distinguish between front-channel and pushed authorization requests, and at the
 same time, clients that only have one code path for protecting all calls to authorization server
 endpoints do not need to distinguish between requests to the PAR endpoint and
 the token endpoint. 
@@ -1171,11 +1232,11 @@ limit this, servers MUST only accept DPoP proofs for a limited time
 after their creation (preferably only for a relatively brief period
 on the order of seconds or minutes).
 
-To prevent multiple uses of the same DPoP proof, servers can store,
-in the context of the target URI, the `jti` value of
-each DPoP proof for the time window in which the respective DPoP proof JWT
-would be accepted and decline HTTP requests to the same URI
-for which the `jti` value has been seen before. Such a single-use check, 
+To prevent multiple uses of the same DPoP proof, servers can store, in
+the context of the target URI, the `jti` value of each DPoP proof for the
+time window in which the respective DPoP proof JWT would be accepted.
+HTTP requests to the same URI for which the `jti` value has been seen before
+would be declined. Such a single-use check,
 when strictly enforced, provides a very strong protection against DPoP 
 proof replay, but may not always be feasible in practice, e.g., when 
 multiple servers behind a single endpoint have no shared state.
@@ -1186,23 +1247,24 @@ DPoP proof JWTs with unnecessarily large `jti` values or store only a hash there
 
 Note: To accommodate for clock offsets, the server MAY accept DPoP
 proofs that carry an `iat` time in the reasonably near future (on the order of seconds or minutes).
-Because clock skews between servers and clients may be large,
-servers may choose to limit DPoP proof lifetimes by using
-server-provided nonce values containing the time at the server
-rather than comparing the client-supplied `iat` time to the time at the server,
-yielding intended results even in the face of arbitrarily large clock skews.
+Because clock skews between servers
+and clients may be large, servers MAY limit DPoP proof lifetimes by using
+server-provided nonce values containing the time at the server rather than
+comparing the client-supplied `iat` time to the time at the server.  Nonces
+created in this way yield the same result even in the face of arbitrarily
+large clock skews.
 
 Server-provided nonces are an effective means for further reducing the chances for successful DPoP proof replay.
 Unlike cryptographic nonces, it is acceptable for clients to use the same 
 `nonce` multiple times, and for the server to accept the same nonce multiple
-times. If `jti` is enforced unique for the lifetime of the `nonce`, there is no
-additional risk of token replay.
+times. As long as the `jti` value is tracked and duplicates rejected for the lifetime of the `nonce`, there
+is no additional risk of token replay.
 
 ## DPoP Proof Pre-Generation {#Pre-Generation}
 
-An attacker in control of the client can pre-generate DPoP proofs for use
-arbitrarily far into the future by choosing the `iat` value in the
-DPoP proof to be signed by the proof-of-possession key.
+An attacker in control of the client can pre-generate DPoP proofs for
+specific endpoints arbitrarily far into the future by choosing the
+`iat` value in the DPoP proof to be signed by the proof-of-possession key.
 Note that one such attacker is the person who is the legitimate user of the client.
 The user may pre-generate DPoP proofs to exfiltrate
 from the machine possessing the proof-of-possession key
@@ -1274,7 +1336,7 @@ layer of defense against cross-site scripting.
 
 ## Signed JWT Swapping
 
-Servers accepting signed DPoP proof JWTs MUST check the `typ` field in the
+Servers accepting signed DPoP proof JWTs MUST verify that the `typ` field is `dpop+jwt` in the
 headers of the JWTs to ensure that adversaries cannot use JWTs created
 for other purposes.
 
@@ -1375,7 +1437,7 @@ established by [@!RFC6749].
  * Type name: `DPoP`
  * Additional Token Endpoint Response Parameters: (none)
  * HTTP Authentication Scheme(s): `DPoP`
- * Change controller: IESG
+ * Change controller: IETF
  * Specification document(s): [[ this specification ]]
 
 ##  OAuth Extensions Error Registration
@@ -1409,8 +1471,8 @@ established by [@!RFC6749].
 
  * Name: `dpop_jkt`
  * Parameter Usage Location: authorization request
- * Change Controller: IESG
- * Reference: [[ {#dpop_jkt} of this specification ]]
+ * Change Controller: IETF
+ * Reference: [[ (#dpop_jkt) of this specification ]]
 
 ## HTTP Authentication Scheme Registration
 
@@ -1454,7 +1516,7 @@ for JWT `cnf` member values established by [@!RFC7800].
           
  * Confirmation Method Value:  `jkt`
  * Confirmation Method Description: JWK SHA-256 Thumbprint
- * Change Controller:  IESG
+ * Change Controller:  IETF
  * Specification Document(s):  [[ (#Confirmation) of this specification ]]
 
 ## JSON Web Token Claims Registration
@@ -1466,21 +1528,21 @@ HTTP method:
 
  *  Claim Name: `htm`
  *  Claim Description: The HTTP method of the request 
- *  Change Controller: IESG
+ *  Change Controller: IETF
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
  
 HTTP URI:
  
  *  Claim Name: `htu`
  *  Claim Description: The HTTP URI of the request (without query and fragment parts)
- *  Change Controller: IESG
+ *  Change Controller: IETF
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
 
  Access token hash:
 
  *  Claim Name: `ath`
  *  Claim Description: The base64url encoded SHA-256 hash of the ASCII encoding of the associated access token's value
- *  Change Controller: IESG
+ *  Change Controller: IETF
  *  Specification Document(s):  [[ (#DPoP-Proof-Syntax) of this specification ]]
 
 ### "nonce" Registry Update
@@ -1507,14 +1569,17 @@ reflect that the claim can be used appropriately in other contexts.
 ## HTTP Message Header Field Names Registration
  
 This document specifies the following HTTP header fields,
-registration of which is requested in the "Permanent Message Header
-Field Names" registry [@IANA.Headers] defined in [@RFC3864].
- 
- *  Header Field Name: `DPoP`
- *  Applicable protocol: HTTP
- *  Status: standard
- *  Author/change Controller: IETF
- *  Specification Document(s): [[ this specification ]]
+registration of which is requested in the "Hypertext Transfer Protocol (HTTP) Field Name Registry"
+registry [@RFC9110;@IANA.HTTP.Fields]:
+
+ * Field name: `DPoP`
+ * Status: permanent
+ * Specification document: [[ this specification ]]
+<br>
+
+ * Field name: `DPoP-Nonce`
+ * Status: permanent
+ * Specification document: [[ this specification ]]
 
 ## OAuth Authorization Server Metadata Registration
 
@@ -1524,7 +1589,7 @@ established by [@RFC8414].
 
  *  Metadata Name:  `dpop_signing_alg_values_supported`
  *  Metadata Description:  JSON array containing a list of the JWS algorithms supported for DPoP proof JWTs
- *  Change Controller:  IESG
+ *  Change Controller:  IETF
  *  Specification Document(s):  [[ (#as-meta) of this specification ]]
 
 ## OAuth Dynamic Client Registration Metadata
@@ -1535,7 +1600,7 @@ established by [@RFC7591].
 
  *  Metadata Name:  `dpop_bound_access_tokens`
  *  Metadata Description:  Boolean value specifying whether the client always uses DPoP for token requests
- *  Change Controller:  IESG
+ *  Change Controller:  IETF
  *  Specification Document(s):  [[ (#client-meta) of this specification ]]
 
 {backmatter}
@@ -1592,8 +1657,12 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -12
 
+* Updates from Roman Danyliw's AD review
+* DPoP-Nonce now included in HTTP header field registration request
 * Fixed section reference to URI Scheme-Based Normalization
 * Attempt to better describe the rationale for SHA-256 only and expectations for how hash algorithm agility would be achieved if needed in the future
+* Elaborate on the use of multiple WWW-Authenticate challenges by protected resources
+* Fix access token request examples that were missing a client_id
 
   -11
 
@@ -1768,9 +1837,9 @@ workshop (Ralf Kusters, Guido Schmitz).
 </front>
 </reference>
 
-<reference anchor="IANA.Headers" target="https://www.iana.org/assignments/message-headers">
+<reference anchor="IANA.HTTP.Fields" target="https://www.iana.org/assignments/http-fields/http-fields.xhtml">
 <front>
-  <title>Message Headers</title>
+  <title>Hypertext Transfer Protocol (HTTP) Field Name Registry</title>
   <author><organization>IANA</organization></author>
   <date/>
 </front>
@@ -1786,7 +1855,13 @@ workshop (Ralf Kusters, Guido Schmitz).
 <format type="HTML" target="https://www.w3.org/TR/2017/REC-WebCryptoAPI-20170126"/>
 </reference>
 
-
+<reference anchor="IANA.JOSE.ALGS" target="https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms">
+<front>
+  <title>JSON Web Signature and Encryption Algorithms</title>
+  <author><organization>IANA</organization></author>
+  <date/>
+</front>
+</reference>
 
 <reference anchor="W3C.CSP" target="https://www.w3.org/TR/2018/WD-CSP3-20181015/">
 <front>
@@ -1841,3 +1916,24 @@ workshop (Ralf Kusters, Guido Schmitz).
     <date month="May" year="2022" />
     </front>
 </reference>
+
+<reference anchor="CRIME" target="https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-2012-4929">
+ <front><title>CVE-2012-4929</title><author/></front>
+</reference>
+
+<reference anchor="BREACH" target="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-3587">
+ <front><title>CVE-2013-3587</title><author/></front>
+</reference>
+
+<reference anchor="Heartbleed" target="https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-2014-0160">
+ <front><title>CVE-2014-0160</title><author/></front>
+</reference>
+
+<reference anchor="Cloudbleed" target="https://blog.cloudflare.com/incident-report-on-memory-leak-caused-by-cloudflare-parser-bug/">
+ <front><title>Incident report on memory leak caused by Cloudflare parser bug</title><author/></front>
+</reference>
+
+<reference anchor="GitHub.Tokens" target="https://github.blog/2022-04-15-security-alert-stolen-oauth-user-tokens/">
+ <front><title>Security alert: Attack campaign involving stolen OAuth user tokens issued to two third-party integrators</title><author/></front>
+</reference>
+
