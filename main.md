@@ -1372,22 +1372,13 @@ on the hash function having sufficient second-preimage resistance so
 as to make it computationally infeasible to find or create another
 key that produces to the same hash output value. The SHA-256
 hash function was used because it meets the aforementioned
-requirement while being widely available.  If, in the future,
-JWK Thumbprints need to be computed using hash function(s)
-other than SHA-256, it is suggested that an additional related JWT
-confirmation method member be defined for that purpose,
-registered in the respective IANA registry, and used in place of the
-`jkt` confirmation method defined herein.
+requirement while being widely available.
 
 Similarly, the binding of the DPoP proof to the access token uses a
 hash of that access token as the value of the `ath` claim
 in the DPoP proof (see (#DPoP-Proof-Syntax)). This relies on the value
 of the hash being sufficiently unique so as to reliably identify the
 access token. The collision resistance of SHA-256 meets that requirement.
-If, in the future, access token digests need be computed using hash function(s)
-other than SHA-256, it is suggested that an additional related JWT
-claim be defined for that purpose, registered in the respective IANA registry,
- and used in place of the `ath` claim defined herein.
 
 ## Authorization Code and Public Key Binding
 
@@ -1418,6 +1409,22 @@ Use of the `dpop_jkt` parameter prevents this attack.
 The binding of the authorization code to the DPoP public key
 uses a JWK Thumbprint of the public key, just as the access token binding does.
 The same JWK Thumbprint considerations apply.
+
+## Hash Algorithm Agility
+
+The `jkt` confirmation method member, the `ath` JWT claim, and the `dpop_jkt` authorization
+request parameter defined herein all use the output of the SHA-256 hash function as their value.
+The use of a single hash function by this specification was intentional and aimed at
+simplicity and avoidance of potential security and interoperability issues arising from
+common mistakes implementing and deploying parameterized algorithm agility schemes.
+The use of a different hash function is not precluded, however, if future circumstances
+change making SHA-256 insufficient for the requirements of this specification.
+Should that need arise, it is expected that a short specification be produced that
+updates this one. That specification will likely define, using the output of a then appropriate
+hash function as the value, a new confirmation method member, a new JWT claim,
+and a new authorization request parameter. These items will be used in place of, or alongside, their
+respective counterparts in the same message structures and flows of the larger protocol defined
+by this specification.
 
 # IANA Considerations {#IANA}
 
@@ -1653,9 +1660,9 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Updates from Roman Danyliw's AD review
 * DPoP-Nonce now included in HTTP header field registration request
 * Fixed section reference to URI Scheme-Based Normalization
+* Attempt to better describe the rationale for SHA-256 only and expectations for how hash algorithm agility would be achieved if needed in the future
 * Elaborate on the use of multiple WWW-Authenticate challenges by protected resources
 * Fix access token request examples that were missing a client_id
-
 
   -11
 
