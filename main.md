@@ -408,7 +408,7 @@ HTTP request (see also (#request_integrity)).
 
 To validate a DPoP proof, the receiving server MUST ensure that
 
-* that there is not more than one `DPoP` HTTP request header field,
+* there is not more than one `DPoP` HTTP request header field,
 * the DPoP HTTP request header field value is a well-formed JWT,
 * all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
 * the `typ` JOSE header parameter has the value `dpop+jwt`,
