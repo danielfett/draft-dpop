@@ -419,7 +419,7 @@ To validate a DPoP proof, the receiving server MUST ensure that
     JOSE header parameter,
 * the `jwk` JOSE header parameter does not contain a private key,
 * the `htm` claim matches the HTTP method of the current request,
-* the `htu` claim matches the HTTPS URI value for the HTTP
+* the `htu` claim matches the HTTP URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
 * if the server provided a nonce value to the client,
@@ -1656,6 +1656,8 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -13
+
+* Editorial update for consistency
 
   -12
 
