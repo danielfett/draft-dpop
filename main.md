@@ -345,7 +345,7 @@ The payload of a DPoP proof MUST contain at least the following claims:
    request to which the JWT is attached.
  * `htu`: The HTTP target URI ([@RFC9110, section 7.1]), without query and fragment
    parts, of the request to which the JWT is attached.
- * `iat`: Creation timestamp of the JWT ([@RFC7519, section 4.1.6]).
+ * `iat`: Creation timestamp of the JWT ([@!RFC7519], section 4.1.6]).
 
 When the DPoP proof is used in conjunction with the presentation of an access token in protected resource access, see
 (#protected-resource-access), the DPoP proof MUST also contain the following claim:
@@ -909,7 +909,7 @@ multiple authentication schemes (i.e., `Bearer` and `DPoP`) with the
 
 A protected resource that supports only [@RFC6750] and is unaware of DPoP 
 would most presumably accept a DPoP-bound access token as a bearer token
-(JWT [@RFC7519] says to ignore unrecognized claims, Introspection [@RFC7662] 
+(JWT [@!RFC7519] says to ignore unrecognized claims, Introspection [@RFC7662]
 says that other parameters might be present while placing no functional 
 requirements on their presence, and [@RFC6750] is effectively silent on
 the content of the access token as it relates to validity).  As such, a 
@@ -1522,7 +1522,7 @@ for JWT `cnf` member values established by [@!RFC7800].
 ## JSON Web Token Claims Registration
 
 This specification requests registration of the following Claims in the 
-IANA "JSON Web Token Claims" registry [@IANA.JWT] established by [@RFC7519].
+IANA "JSON Web Token Claims" registry [@IANA.JWT] established by [@!RFC7519].
 
 HTTP method:
 
@@ -1658,6 +1658,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -13
 
 * Editorial update for consistency
+* Make sure RFC7519 is a normative reference
 
   -12
 
