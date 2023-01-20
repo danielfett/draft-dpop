@@ -297,7 +297,7 @@ A DPoP proof is included in an HTTP request using the following request header f
 :   A JWT that adheres to the structure and syntax of (#DPoP-Proof-Syntax). 
 
 (#dpop-proof-jwt) shows an example DPoP HTTP header field (line breaks 
-and extra whitespace for display purposes only). 
+and indentation for display purposes only).
 
 !---
 ```
@@ -365,7 +365,7 @@ profile, or deployment specific requirements.
 
 (#dpop-proof) is a conceptual example showing the decoded content of the DPoP 
 proof in (#dpop-proof-jwt). The JSON of the JWT header and payload are shown,
-but the signature part is omitted. As usual, line breaks and extra whitespace 
+but the signature part is omitted. As usual, line breaks and extra spaces
 are included for formatting and readability.
 
 !---
@@ -445,7 +445,7 @@ the common `authorization_code` and `refresh_token` grant types but also extensi
 such as the JWT authorization grant [@RFC7523]). The HTTP request shown in
 (#token-request-code) illustrates such an access 
 token request using an authorization code grant with a DPoP proof JWT
-in the `DPoP` header (extra line breaks and whitespace for display purposes only).
+in the `DPoP` header (extra line breaks and indentation for display purposes only).
 
 !---
 ~~~
@@ -505,7 +505,7 @@ Refreshing an access token is a token request using the `refresh_token`
 grant type made to the authorization server's token endpoint.  As with 
 all access token requests, the client makes it a DPoP request by including 
 a DPoP proof, as shown in the (#token-request-rt) example
-(extra line breaks and whitespace for display purposes only). 
+(extra line breaks and indentation for display purposes only).
 
 !---
 ~~~
@@ -778,7 +778,7 @@ resource with a DPoP-bound access token in the `Authorization` header
 and the DPoP proof in the `DPoP` header.
 Following that is (#dpop-proof-pr), which shows the decoded content of that DPoP
 proof. The JSON of the JWT header and payload are shown
-but the signature part is omitted. As usual, line breaks and extra whitespace
+but the signature part is omitted. As usual, line breaks and indentation
 are included for formatting and readability in both examples.
 !---
 ~~~
@@ -1657,7 +1657,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -13
 
-* Editorial update for consistency
+* Editorial updates/fixes
 * Make sure RFC7519 is a normative reference
 
   -12
