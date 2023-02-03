@@ -1003,7 +1003,7 @@ The server determines when and if to issue a new DPoP nonce challenge
 thereby requiring the use of the nonce value in subsequent DPoP proofs.
 The logic through which the server makes that determination is out of scope of this document.
 
-An authorization server MAY supply a nonce value, which MUST be unpredictable, to be included by the client
+An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent. In this case, the authorization server responds to requests not including a nonce
 with an HTTP `400` (Bad Request) error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
 error code value. The authorization server includes a `DPoP-Nonce` HTTP header in the response supplying
