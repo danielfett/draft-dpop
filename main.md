@@ -433,6 +433,8 @@ To reduce the likelihood of false negatives,
 servers SHOULD employ Syntax-Based Normalization ([@!RFC3986, section 6.2.2]) and Scheme-Based
 Normalization ([@!RFC3986, section 6.2.3]) before comparing the `htu` claim.
 
+These checks may be performed in any order.
+
 
 
 # DPoP Access Token Request {#access-token-request}
