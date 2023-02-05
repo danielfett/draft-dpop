@@ -408,30 +408,32 @@ HTTP request (see also (#request_integrity)).
 
 To validate a DPoP proof, the receiving server MUST ensure that
 
-* there is not more than one `DPoP` HTTP request header field,
-* the DPoP HTTP request header field value is a well-formed JWT,
-* all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
-* the `typ` JOSE header parameter has the value `dpop+jwt`,
-* the `alg` JOSE header parameter indicates a registered asymmetric digital
+1. there is not more than one `DPoP` HTTP request header field,
+2. the DPoP HTTP request header field value is a well-formed JWT,
+3. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
+4. the `typ` JOSE header parameter has the value `dpop+jwt`,
+5. the `alg` JOSE header parameter indicates a registered asymmetric digital
     signature algorithm [@IANA.JOSE.ALGS], is not `none`, is supported by the
     application, and is acceptable per local policy,
-* the JWT signature verifies with the public key contained in the `jwk`
+6. the JWT signature verifies with the public key contained in the `jwk`
     JOSE header parameter,
-* the `jwk` JOSE header parameter does not contain a private key,
-* the `htm` claim matches the HTTP method of the current request,
-* the `htu` claim matches the HTTP URI value for the HTTP
+7. the `jwk` JOSE header parameter does not contain a private key,
+8. the `htm` claim matches the HTTP method of the current request,
+9. the `htu` claim matches the HTTP URI value for the HTTP
     request in which the JWT was received, ignoring any query and
     fragment parts,
-* if the server provided a nonce value to the client,
+10. if the server provided a nonce value to the client,
     the `nonce` claim matches the server-provided nonce value,
-* the creation time of the JWT, as determined by either the `iat` claim or a server managed timestamp via the `nonce` claim, is within an acceptable window (see (#Token_Replay)),
-* if presented to a protected resource in conjunction with an access token,
- * ensure that the value of the `ath` claim equals the hash of that access token,
- * confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
+11. the creation time of the JWT, as determined by either the `iat` claim or a server managed timestamp via the `nonce` claim, is within an acceptable window (see (#Token_Replay)),
+12. if presented to a protected resource in conjunction with an access token,
+    * ensure that the value of the `ath` claim equals the hash of that access token,
+    * confirm that the public key to which the access token is bound matches the public key from the DPoP proof.
 
 To reduce the likelihood of false negatives,
 servers SHOULD employ Syntax-Based Normalization ([@!RFC3986, section 6.2.2]) and Scheme-Based
 Normalization ([@!RFC3986, section 6.2.3]) before comparing the `htu` claim.
+
+These checks may be performed in any order.
 
 
 
@@ -1670,6 +1672,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 
 * Add sec considerations sub-section about binding to client identity
 * Explicitly say that nonces must be unpredictable
+* Change to a numbered list in 'Checking DPoP Proofs'
 
   -13
 
