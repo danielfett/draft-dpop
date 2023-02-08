@@ -1009,7 +1009,7 @@ An authorization server MAY supply a nonce value to be included by the client
 in DPoP proofs sent. In this case, the authorization server responds to requests not including a nonce
 with an HTTP `400` (Bad Request) error response per Section 5.2 of [@!RFC6749] using `use_dpop_nonce` as the
 error code value. The authorization server includes a `DPoP-Nonce` HTTP header in the response supplying
-a nonce value to be used when sending the subsequent request.
+a nonce value to be used when sending the subsequent request. Nonce values MUST be unpredictable.
 This same error code is used when supplying a new nonce value when there was a nonce mismatch.
 The client will typically retry the request with the new nonce value supplied
 upon receiving a `use_dpop_nonce` error with an accompanying nonce value.
@@ -1428,6 +1428,16 @@ and a new authorization request parameter. These items will be used in place of,
 respective counterparts in the same message structures and flows of the larger protocol defined
 by this specification.
 
+## Binding to Client Identity
+
+In cases where DPoP is used with client authentication, it is only bound to authentication by being
+coincident in the same TLS tunnel.  Since the DPoP proof is not directly cryptographically bound
+to the authentication, it's possible that the authentication or the DPoP messages were copied into
+the tunnel.  While including the URI in the DPoP can partially mitigate some of this risk, modifying
+the authentication mechanism to provide cryptographic binding between authentication and DPoP could
+provide better protection.  However, providing additional binding with authentication through the
+modification of authentication mechanisms or other means is beyond the scope of this specification.
+
 # IANA Considerations {#IANA}
 
 ##  OAuth Access Token Type Registration
@@ -1640,6 +1650,7 @@ Michael Peck,
 Roberto Polli,
 Paul Querna,
 Justin Richer,
+Joseph Salowey,
 Rifaat Shekh-Yusef,
 Filip Skokan,
 Dmitry Telegin,
@@ -1659,6 +1670,8 @@ workshop (Ralf Kusters, Guido Schmitz).
 
   -14
 
+* Add sec considerations sub-section about binding to client identity
+* Explicitly say that nonces must be unpredictable
 * Change to a numbered list in 'Checking DPoP Proofs'
 
   -13
