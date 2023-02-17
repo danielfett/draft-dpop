@@ -720,7 +720,7 @@ Figure: Example Introspection Response for a DPoP-Bound Access Token {#introspec
 
 # Protected Resource Access {#protected-resource-access}
 
-Protected resource requests with a DPoP-bound access token
+Requests to DPoP protected resources
 MUST include both a DPoP proof as per (#the-proof) and
 the access token as described in (#http-auth-scheme).
 The DPoP proof MUST include the `ath` claim with a valid hash of the
@@ -1619,7 +1619,8 @@ established by [@RFC7591].
 
 # Acknowledgements {#Acknowledgements}
       
-We would like to thank 
+We would like to thank
+Brock Allen,
 Annabelle Backman,
 Spencer Balogh,
 Dominick Baier,
@@ -1673,6 +1674,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Add sec considerations sub-section about binding to client identity
 * Explicitly say that nonces must be unpredictable
 * Change to a numbered list in 'Checking DPoP Proofs'
+* Editorial adjustments
 
   -13
 
