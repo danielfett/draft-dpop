@@ -131,6 +131,10 @@ are imported from [@!RFC9110].
 
 The terms "JOSE" and "JOSE header" are imported from [@!RFC7515].
 
+This document contains non-normative examples of partial and complete HTTP messages.
+Some examples use a single trailing backslash \ to indicate line wrapping for long values, as per [@!RFC8792].
+The \ character and leading spaces on wrapped lines are not part of the value.
+
 # Objectives {#objective}
 
 The primary aim of DPoP is to prevent unauthorized or illegitimate 
@@ -296,17 +300,17 @@ A DPoP proof is included in an HTTP request using the following request header f
 `DPoP`
 :   A JWT that adheres to the structure and syntax of (#DPoP-Proof-Syntax). 
 
-(#dpop-proof-jwt) shows an example DPoP HTTP header field (line breaks 
-and indentation for display purposes only).
+(#dpop-proof-jwt) shows an example DPoP HTTP header field
+(with '\' line wrapping per RFC 8792).
 
 !---
 ```
-DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
- VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
- nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
- oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
- WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik\
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR\
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE\
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj\
+ oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia\
+ WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg\
  4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
 ```
 !---
@@ -315,6 +319,19 @@ Figure: Example `DPoP` header {#dpop-proof-jwt}
 Note that per [@RFC9110] header field names are case-insensitive;
 so `DPoP`, `DPOP`, `dpop`, etc., are all valid and equivalent header
 field names. Case is significant in the header field value, however.  
+
+The `DPoP` HTTP header field value
+uses the `token68` syntax defined in Section 11.2 of [@!RFC9110]
+(repeated below for ease of reference).
+
+!---
+```
+ DPoP       = token68
+ token68    = 1*( ALPHA / DIGIT /
+                   "-" / "." / "_" / "~" / "+" / "/" ) *"="
+```
+!---
+Figure: DPoP header field ABNF
 
 
 ## DPoP Proof JWT Syntax {#DPoP-Proof-Syntax}
@@ -409,7 +426,7 @@ HTTP request (see also (#request_integrity)).
 To validate a DPoP proof, the receiving server MUST ensure that
 
 1. there is not more than one `DPoP` HTTP request header field,
-2. the DPoP HTTP request header field value is a well-formed JWT,
+2. the DPoP HTTP request header field value is a single well-formed JWT,
 3. all required claims per (#DPoP-Proof-Syntax) are contained in the JWT,
 4. the `typ` JOSE header parameter has the value `dpop+jwt`,
 5. the `alg` JOSE header parameter indicates a registered asymmetric digital
@@ -447,25 +464,26 @@ the common `authorization_code` and `refresh_token` grant types but also extensi
 such as the JWT authorization grant [@RFC7523]). The HTTP request shown in
 (#token-request-code) illustrates such an access 
 token request using an authorization code grant with a DPoP proof JWT
-in the `DPoP` header (extra line breaks and indentation for display purposes only).
+in the `DPoP` header
+(with '\' line wrapping per RFC 8792).
 
 !---
 ~~~
 POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
-DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
- VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
- nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
- oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
- WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik\
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR\
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE\
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj\
+ oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia\
+ WF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg\
  4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg
  
-grant_type=authorization_code
-&client_id=s6BhdRkqt
+grant_type=authorization_code\
+&client_id=s6BhdRkqt\
 &code=SplxlOBeZQQYbYS6WxSbIA
-&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb\
 &code_verifier=bEaL42izcC-o-xBk0K2vuJ6U-y1p9r_wW2dFWIWgjz-
 ~~~
 !---
@@ -507,25 +525,24 @@ Refreshing an access token is a token request using the `refresh_token`
 grant type made to the authorization server's token endpoint.  As with 
 all access token requests, the client makes it a DPoP request by including 
 a DPoP proof, as shown in the (#token-request-rt) example
-(extra line breaks and indentation for display purposes only).
+(with '\' line wrapping per RFC 8792).
 
 !---
 ~~~
 POST /token HTTP/1.1
 Host: server.example.com
 Content-Type: application/x-www-form-urlencoded
-DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
- VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
- nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj
- oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia
- WF0IjoxNTYyMjY1Mjk2fQ.pAqut2IRDm_De6PR93SYmGBPXpwrAk90e8cP2hjiaG5Qs
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik\
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR\
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE\
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIj\
+ oiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwia\
+ WF0IjoxNTYyMjY1Mjk2fQ.pAqut2IRDm_De6PR93SYmGBPXpwrAk90e8cP2hjiaG5Qs\
  GSuKDYW7_X620BxqhvYC8ynrrvZLTk41mSRroapUA
 
-grant_type=refresh_token
-&client_id=s6BhdRkqt
+grant_type=refresh_token\
+&client_id=s6BhdRkqt\
 &refresh_token=Q..Zkm29lexi8VnWg2zPW1x-tgGad0Ibc3s3EwM_Ni4-g
-
 ~~~
 !---
 Figure: Token Request for a DPoP-bound Token using a Refresh Token {#token-request-rt}
@@ -632,13 +649,14 @@ The following example JWT in (#cnf-claim-jwt) with decoded JWT payload shown in
 (#cnf-claim) contains a `cnf` claim with the `jkt` JWK Thumbprint confirmation
 method member.  The `jkt` value in these examples is the hash of the public key 
 from the DPoP proofs in the examples in (#access-token-request).
+(The example uses '\' line wrapping per RFC 8792.)
 
 !---
 ```
-eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWIiOiJzb21lb25lQGV4YW1
-wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbXBsZS5jb20iLCJuYmYiOjE
-1NjIyNjI2MTEsImV4cCI6MTU2MjI2NjIxNiwiY25mIjp7ImprdCI6IjBaY09DT1JaTll
-5LURXcHFxMzBqWnlKR0hUTjBkMkhnbEJWM3VpZ3VBNEkifX0.3Tyo8VTcn6u_PboUmAO
+eyJhbGciOiJFUzI1NiIsImtpZCI6IkJlQUxrYiJ9.eyJzdWIiOiJzb21lb25lQGV4YW1\
+wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbXBsZS5jb20iLCJuYmYiOjE\
+1NjIyNjI2MTEsImV4cCI6MTU2MjI2NjIxNiwiY25mIjp7ImprdCI6IjBaY09DT1JaTll\
+5LURXcHFxMzBqWnlKR0hUTjBkMkhnbEJWM3VpZ3VBNEkifX0.3Tyo8VTcn6u_PboUmAO\
 YUY1kfAavomW_YwYMkmRNizLJoQzWy2fCo79Zi5yObpIzjWb5xW4OGld7ESZrh0fsrA
 ```
 !---
@@ -777,23 +795,24 @@ checks are successful.
 
 (#protected-resource-request) shows an example request to a protected
 resource with a DPoP-bound access token in the `Authorization` header 
-and the DPoP proof in the `DPoP` header.
+and the DPoP proof in the `DPoP` header
+(with '\' line wrapping per RFC 8792).
 Following that is (#dpop-proof-pr), which shows the decoded content of that DPoP
 proof. The JSON of the JWT header and payload are shown
 but the signature part is omitted. As usual, line breaks and indentation
-are included for formatting and readability in both examples.
+are included for formatting and readability.
 !---
 ~~~
 GET /protectedresource HTTP/1.1
 Host: resource.example.org
 Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
-DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik
- VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR
- nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE
- QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJlMWozVl9iS2ljOC1MQUVCIiwiaHRtIj
- oiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wcm90ZWN0Z
- WRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOCwiYXRoIjoiZlVIeU8ycjJaM0RaNTNF
- c05yV0JiMHhXWG9hTnk1OUlpS0NBcWtzbVFFbyJ9.2oW9RP35yRqzhrtNP86L-Ey71E
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6Ik\
+ VDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCR\
+ nMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JE\
+ QSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJlMWozVl9iS2ljOC1MQUVCIiwiaHRtIj\
+ oiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wcm90ZWN0Z\
+ WRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOCwiYXRoIjoiZlVIeU8ycjJaM0RaNTNF\
+ c05yV0JiMHhXWG9hTnk1OUlpS0NBcWtzbVFFbyJ9.2oW9RP35yRqzhrtNP86L-Ey71E\
  OptxRimPPToA1plemAgR6pxHF8y6-yqyVnmcw6Fy1dqd-jfxSYoMxhAJpLjA
 ~~~
 !---
@@ -870,12 +889,13 @@ authentication:
 Figure: HTTP 401 Response to a Protected Resource Request without Authentication 
 
 And in response to a protected resource request that was rejected 
-because the confirmation of the DPoP binding in the access token failed: 
+because the confirmation of the DPoP binding in the access token failed
+(with '\' line wrapping per RFC 8792):
 
 !---
 ```
  HTTP/1.1 401 Unauthorized
- WWW-Authenticate: DPoP error="invalid_token",
+ WWW-Authenticate: DPoP error="invalid_token", \
    error_description="Invalid DPoP key binding", algs="ES256"
 ```
 !---
@@ -938,6 +958,8 @@ information ((#multi-challenge-invalid-token)).
 * Otherwise, both `Bearer` and `DPoP` challenged MAY be used to deliver error
 information ((#multi-challenge-ambiguous)).
 
+(Where needed, the following examples use '\' line wrapping per RFC 8792.)
+
 !---
 ```
 GET /protectedresource HTTP/1.1
@@ -956,7 +978,7 @@ Host: resource.example.org
 Authorization: Bearer INVALID_TOKEN
 
 HTTP/1.1 401 Unauthorized
-WWW-Authenticate: Bearer error="invalid_token",
+WWW-Authenticate: Bearer error="invalid_token", \
     error_description="Invalid token", DPoP algs="ES256 PS256"
 ```
 !---
@@ -970,9 +992,9 @@ Authorization: Bearer Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
 Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
 
 HTTP/1.1 400 Bad Request
-WWW-Authenticate: Bearer error="invalid_request",
- error_description="Multiple methods used to include access token",
- DPoP algs="ES256 PS256", error="invalid_request",
+WWW-Authenticate: Bearer error="invalid_request", \
+ error_description="Multiple methods used to include access token", \
+ DPoP algs="ES256 PS256", error="invalid_request", \
  error_description="Multiple methods used to include access token"
 ```
 !---
@@ -1051,16 +1073,6 @@ An example unencoded JWT Payload of such a DPoP proof including a nonce is:
 !---
 Figure: DPoP Proof Payload Including a Nonce Value
 
-The nonce syntax in ABNF as used by [@!RFC6749]
-(which is the same as the `scope-token` syntax) is:
-
-!---
-```
-  nonce = 1*NQCHAR
-```
-!---
-Figure: Nonce ABNF
-
 The nonce is opaque to the client.
 
 If the `nonce` claim in the DPoP proof
@@ -1087,6 +1099,18 @@ In order for the application to obtain and use the `DPoP-Nonce` HTTP response he
 value, the server needs to make it available to the application by including
 `DPoP-Nonce` in the `Access-Control-Expose-Headers` response header list value.
 
+## Nonce Syntax {#NonceSyntax}
+
+The nonce syntax in ABNF as used by [@!RFC6749]
+(which is the same as the `scope-token` syntax) is:
+
+!---
+```
+  nonce = 1*NQCHAR
+```
+!---
+Figure: Nonce ABNF
+
 ## Providing a New Nonce Value {#NewNonce}
 
 It is up to the authorization server when to supply a new nonce value
@@ -1097,6 +1121,7 @@ until the server supplies a new nonce value.
 The authorization server MAY supply the new nonce in the same way that
 the initial one was supplied:
 by using a `DPoP-Nonce` HTTP header in the response.
+The `DPoP-Nonce` HTTP header field uses the nonce syntax defined in (#NonceSyntax).
 Of course, each time this happens it requires an extra protocol round trip.
 
 A more efficient manner of supplying a new nonce value is also defined --
@@ -1134,11 +1159,12 @@ and `DPoP-Nonce` value to accomplish this.
 
 For example, in response to a resource request without a nonce when the resource server requires one,
 the resource server can respond with a `DPoP-Nonce` value such as the following to provide
-a nonce value to include in the DPoP proof:
+a nonce value to include in the DPoP proof
+(with '\' line wrapping per RFC 8792):
 !---
 ```
  HTTP/1.1 401 Unauthorized
- WWW-Authenticate: DPoP error="use_dpop_nonce",
+ WWW-Authenticate: DPoP error="use_dpop_nonce", \
    error_description="Resource server requires nonce in DPoP proof"
  DPoP-Nonce: eyJ7S_zG.eyJH0-Z.HX4w-7v
 ```
@@ -1168,13 +1194,14 @@ JWK thumbprint of the proof-of-possession public key in the DPoP proof
 and verifies that it matches the `dpop_jkt` parameter value in the authorization request.
 If they do not match, it MUST reject the request.
 
-An example authorization request using the `dpop_jkt` authorization request parameter is:
+An example authorization request using the `dpop_jkt` authorization request parameter follows
+(with '\' line wrapping per RFC 8792):
 !---
 ```
- GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz
-     &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-     &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
-     &code_challenge_method=S256
+ GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz\
+     &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb\
+     &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\
+     &code_challenge_method=S256\
      &dpop_jkt=NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs HTTP/1.1
  Host: server.example.com
 ```
@@ -1640,11 +1667,12 @@ Jacob Ideskog,
 Jared Jennings,
 Benjamin Kaduk,
 Pieter Kasselman,
-Steinar Noem,
 Neil Madden,
 Rohan Mahy,
 Karsten Meyer zu Selhausen,
 Nicolas Mora,
+Steinar Noem,
+Mark Nottingham,
 Rob Otto,
 Aaron Parecki,
 Michael Peck,
@@ -1675,6 +1703,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 * Explicitly say that nonces must be unpredictable
 * Change to a numbered list in 'Checking DPoP Proofs'
 * Editorial adjustments
+* Incorporated HTTP header field definition and RFC 8792 '\' line wrapping suggestions by Mark Nottingham
 
   -13
 
