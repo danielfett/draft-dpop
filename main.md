@@ -326,6 +326,7 @@ uses the `token68` syntax defined in Section 11.2 of [@!RFC9110]
 
 !---
 ```
+ DPoP       = token68
  token68    = 1*( ALPHA / DIGIT /
                    "-" / "." / "_" / "~" / "+" / "/" ) *"="
 ```
