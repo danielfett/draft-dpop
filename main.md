@@ -49,12 +49,11 @@ organization="yes.com"
 initials="M."
 surname="Jones"
 fullname="Michael Jones"
-organization="Microsoft"
+organization="independent"
     [author.address]
-    email = "mbj@microsoft.com"
+    email = "michael_b_jones@hotmail.com"
     uri = "https://self-issued.info/"
-    
-    
+
 [[author]]
 initials="D."
 surname="Waite"
