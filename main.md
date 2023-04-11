@@ -78,7 +78,7 @@ tokens.
 
 DPoP (for Demonstrating Proof-of-Possession at the Application Layer)
 is an application-level mechanism for
-sender-constraining OAuth access and refresh tokens. It enables a client to
+sender-constraining OAuth [@!RFC6749] access and refresh tokens. It enables a client to
 prove the possession of a public/private key pair by including 
 a `DPoP` header in an HTTP request. The value of the header is a JSON Web Token
 (JWT) [@!RFC7519] that enables the authorization
@@ -91,13 +91,14 @@ In other words, the legitimate presenter of the token is constrained to be
 the sender that holds and can prove possession of the private part of the
 key pair.    
 
-The mechanism described herein can be used in cases where other
+The mechanism specified herein can be used in cases where other
 methods of sender-constraining tokens that utilize elements of the underlying
 secure transport layer, such as [@RFC8705] or [@I-D.ietf-oauth-token-binding],
 are not available or desirable. For example, due to a sub-par user experience 
 of TLS client authentication in user agents and a lack of support for HTTP token
-binding, neither mechanism can be used if an OAuth client is a Single Page
-Application (SPA) running in a web browser. Native applications installed
+binding, neither mechanism can be used if an OAuth client is an application that
+is dynamically downloaded and executed in a web browser (sometimes referred to as a
+"single-page application"). Native applications installed
 and run on a user's device are another example well positioned to benefit
 from DPoP-bound tokens to guard against misuse of tokens by a compromised
 or malicious resource. Such applications often have dedicated protected storage
@@ -164,7 +165,7 @@ protected resources that it accesses. The attacker model
 in [@I-D.ietf-oauth-security-topics] describes cases where a 
 protected resource might be counterfeit, malicious or compromised 
 and plays received tokens against other protected resources to gain
-unauthorized access. Properly audience restricting access tokens can
+unauthorized access. Audience restricted access tokens can
 prevent such misuse, however, doing so in practice has proven to be 
 prohibitively cumbersome for many deployments (even despite extensions such as [@RFC8707]).
 Sender-constraining access tokens is a more robust and straightforward
@@ -321,7 +322,7 @@ field names. Case is significant in the header field value, however.
 
 The `DPoP` HTTP header field value
 uses the `token68` syntax defined in Section 11.2 of [@!RFC9110]
-(repeated below for ease of reference).
+(repeated below in (#dpop-header-abnf) for ease of reference).
 
 !---
 ```
@@ -330,7 +331,7 @@ uses the `token68` syntax defined in Section 11.2 of [@!RFC9110]
                    "-" / "." / "_" / "~" / "+" / "/" ) *"="
 ```
 !---
-Figure: DPoP header field ABNF
+Figure: DPoP header field ABNF {#dpop-header-abnf}
 
 
 ## DPoP Proof JWT Syntax {#DPoP-Proof-Syntax}
@@ -631,7 +632,7 @@ the DPoP proof matches the one bound to the access token.
 
 ## JWK Thumbprint Confirmation Method {#jwk-thumb-jwt}
 
-When access tokens are represented as JSON Web Tokens (JWT) [@!RFC7519],
+When access tokens are represented as JWTs [@!RFC7519],
 the public key information is represented
 using the `jkt` confirmation method member defined herein. 
 To convey the hash of a public key in a JWT, this specification
@@ -1697,6 +1698,8 @@ workshop (Ralf Kusters, Guido Schmitz).
    [[ To be removed from the final specification ]]
 
   -15
+
+* Editorial updates from IESG review/ballot
 
   -14
 
