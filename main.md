@@ -165,7 +165,8 @@ protected resources that it accesses. The attacker model
 in [@I-D.ietf-oauth-security-topics] describes cases where a 
 protected resource might be counterfeit, malicious or compromised 
 and plays received tokens against other protected resources to gain
-unauthorized access. Audience restricted access tokens can
+unauthorized access. Audience restricted access tokens
+(e.g., using the JWT [@!RFC7519] `aud` claim) can
 prevent such misuse, however, doing so in practice has proven to be 
 prohibitively cumbersome for many deployments (even despite extensions such as [@RFC8707]).
 Sender-constraining access tokens is a more robust and straightforward
@@ -192,7 +193,7 @@ out of scope for DPoP.
 Malicious XSS code executed in the context of the browser-based client
 application is also in a position to create DPoP proofs with timestamp values in
 the future and exfiltrate them in conjunction with a token. These stolen
-artifacts can later be used together independent of the client application to
+artifacts can later be used independent of the client application to
 access protected resources. To prevent this, servers can optionally require
 clients to include a server-chosen value into the proof that cannot be predicted
 by an attacker (nonce). In the absence of the optional nonce, the impact of
