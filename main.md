@@ -98,8 +98,8 @@ are not available or desirable. For example, due to a sub-par user experience
 of TLS client authentication in user agents and a lack of support for HTTP token
 binding, neither mechanism can be used if an OAuth client is an application that
 is dynamically downloaded and executed in a web browser (sometimes referred to as a
-"single-page application"). Native applications installed
-and run on a user's device are another example well positioned to benefit
+"single-page application"). Applications installed
+and run directly on a user's device are another example well positioned to benefit
 from DPoP-bound tokens to guard against misuse of tokens by a compromised
 or malicious resource. Such applications often have dedicated protected storage
 for cryptographic keys.
@@ -132,7 +132,7 @@ are imported from [@!RFC9110].
 The terms "JOSE" and "JOSE header" are imported from [@!RFC7515].
 
 This document contains non-normative examples of partial and complete HTTP messages.
-Some examples use a single trailing backslash \ to indicate line wrapping for long values, as per [@!RFC8792].
+Some examples use a single trailing backslash \ to indicate line wrapping for long values, as per [@RFC8792].
 The \ character and leading spaces on wrapped lines are not part of the value.
 
 # Objectives {#objective}
@@ -267,7 +267,7 @@ The basic steps of an OAuth flow with DPoP (without the optional nonce) are show
     
 The DPoP mechanism presented herein is not a client authentication method.
 In fact, a primary use case of DPoP is for public clients (e.g., single page
-applications and native applications) that do not use client authentication. Nonetheless, DPoP
+applications and applications on a user's device) that do not use client authentication. Nonetheless, DPoP
 is designed such that it is compatible with `private_key_jwt` and all
 other client authentication methods.
 
@@ -1046,7 +1046,7 @@ a nonce value to include in the DPoP proof:
  DPoP-Nonce: eyJ7S_zG.eyJH0-Z.HX4w-7v
 
  {
-  "error": "use_dpop_nonce"
+  "error": "use_dpop_nonce",
   "error_description":
     "Authorization server requires nonce in DPoP proof"
  }
@@ -1624,7 +1624,7 @@ registry [@RFC9110;@IANA.HTTP.Fields]:
 ## OAuth Authorization Server Metadata Registration
 
 This specification requests registration of the following value
-in the IANA "OAuth Authorization Server Metadata" registry [IANA.OAuth.Parameters]
+in the IANA "OAuth Authorization Server Metadata" registry [@IANA.OAuth.Params]
 established by [@RFC8414].
 
  *  Metadata Name:  `dpop_signing_alg_values_supported`
@@ -1635,7 +1635,7 @@ established by [@RFC8414].
 ## OAuth Dynamic Client Registration Metadata
 
 This specification requests registration of the following value
-in the IANA "OAuth Dynamic Client Registration Metadata" registry [IANA.OAuth.Parameters]
+in the IANA "OAuth Dynamic Client Registration Metadata" registry [@IANA.OAuth.Params]
 established by [@RFC7591].
 
  *  Metadata Name:  `dpop_bound_access_tokens`
@@ -1890,7 +1890,7 @@ workshop (Ralf Kusters, Guido Schmitz).
  </front>
 </reference>
 
-<reference anchor="IANA.JWT" target="http://www.iana.org/assignments/jwt">
+<reference anchor="IANA.JWT" target="https://www.iana.org/assignments/jwt">
 <front>
   <title>JSON Web Token Claims</title>
   <author><organization>IANA</organization></author>
@@ -1934,7 +1934,7 @@ workshop (Ralf Kusters, Guido Schmitz).
 <format type="HTML" target="https://www.w3.org/TR/2018/WD-CSP3-20181015/"/>
 </reference>
 
-<reference anchor="OpenID.Core" target="http://openid.net/specs/openid-connect-core-1_0.html">
+<reference anchor="OpenID.Core" target="https://openid.net/specs/openid-connect-core-1_0.html">
   <front>
     <title>OpenID Connect Core 1.0</title>
     <author initials="N." surname="Sakimura" fullname="Nat Sakimura">
