@@ -1701,7 +1701,7 @@ workshop (Ralf Kusters, Guido Schmitz).
   -15
 
 * Editorial updates from IESG review/ballot
-* Mike Jones with new email/organization info
+* Mike Jones and Daniel Fett with new email/organization info
 
   -14
 
