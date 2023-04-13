@@ -8,7 +8,7 @@ keyword = ["security", "oauth2"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-ietf-oauth-dpop-15"
+value = "draft-ietf-oauth-dpop-16"
 stream = "IETF"
 status = "standard"
     
@@ -1489,7 +1489,7 @@ established by [@!RFC6749].
 Invalid DPoP proof:
 
  * Name: `invalid_dpop_proof`
- * Usage Location: token error response, resource error response
+ * Usage Location: token error response, resource access error response
  * Protocol Extension: Demonstrating Proof of Possession (DPoP)
  * Change controller: IETF
  * Specification document(s): [[ this specification ]]
@@ -1497,7 +1497,7 @@ Invalid DPoP proof:
 Use DPoP nonce:
 
  * Name: `use_dpop_nonce`
- * Usage Location: token error response, resource error response
+ * Usage Location: token error response, resource access error response
  * Protocol Extension: Demonstrating Proof of Possession (DPoP)
  * Change controller: IETF
  * Specification document(s): [[ this specification ]]
@@ -1697,6 +1697,10 @@ workshop (Ralf Kusters, Guido Schmitz).
 # Document History
 
    [[ To be removed from the final specification ]]
+
+-16
+
+* Per suggestion of the registry's designated expert, change "resource error response" to "resource access error response" for location of the two items in the "OAuth Extensions Error Registration" section
 
   -15
 
